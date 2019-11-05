@@ -9,7 +9,7 @@
 #SBATCH --error=logs/err_%a.log
 
 # 1. Create your environment
-module load python/{{ python_version }}
+module load python/{{ cookiecutter.python_version }}
 virtualenv --no-download $SLURM_TMPDIR/env
 source $SLURM_TMPDIR/env/bin/activate
 pip install --no-index --upgrade pip

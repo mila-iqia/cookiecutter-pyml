@@ -5,7 +5,7 @@ setup(
     name='{{ cookiecutter.project_slug }}',
     version='{{ cookiecutter.version }}',
     packages=find_packages(include=['{{ cookiecutter.project_slug }}', '{{ cookiecutter.project_slug }}.*']),
-    python_requires='=={{ cookiecutter.python_version }}',
+    python_requires='{{ cookiecutter.python_version }}',
     install_requires=[
         'tqdm', 'torch', 'mlflow', 'orion', 'pyyaml', 'torchtext', 'nltk', 'spacy'],
     entry_points={
