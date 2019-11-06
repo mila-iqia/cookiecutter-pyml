@@ -21,12 +21,9 @@ def main():
     parser = argparse.ArgumentParser()
     # __TODO__ check you need all the following CLI parameters
     parser.add_argument('--log', help='log to this file (otherwise log to screen)')
-    parser.add_argument('--config_general',
+    parser.add_argument('--config',
                         help='config file with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format')
-    parser.add_argument('--config_architecture',
-                        help='config file with architecture-specific hyper-parameters,  such as '
-                             'layer_size, ... - in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--output', help='path to output models', required=True)
     parser.add_argument('--disable_progressbar', action='store_true',
@@ -51,15 +48,11 @@ def main():
 
 
 def run(args):
-    if args.config_general is not None:
-        with open(args.config_general, 'r') as stream:
+    if args.config is not None:
+        with open(args.config, 'r') as stream:
             hyper_params = load(stream, Loader=yaml.FullLoader)
     else:
         hyper_params = {}
-    if args.config_architecture is not None:
-        with open(args.config_architecture, 'r') as stream:
-            more_hyper_params = load(stream, Loader=yaml.FullLoader)
-        hyper_params.extend(more_hyper_params)
 
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
     if 'exp_name' in hyper_params:
