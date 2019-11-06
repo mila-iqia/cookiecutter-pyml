@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
 #SBATCH --time=5:00:00
-#SBATCH --job-name=__TODO__
+#SBATCH --job-name={{ cookiecutter.project_slug }}
 #SBATCH --output=logs/out_%a.log
 #SBATCH --error=logs/err_%a.log
 
@@ -21,7 +21,7 @@ time tar xf $SLURM_TMPDIR/dataset.tar -C $SLURM_TMPDIR/ --strip=4
 # 3. Launch your job, tell it to save the model in $SLURM_TMPDIR
 #    and look for the dataset into $SLURM_TMPDIR
 cd /__TODO__/path/to/code
-main --data no_data --output no_output --config_general config.yaml
+main --data no_data --output no_output --config_general ../config.yaml
 
 # 4. Copy whatever you want to save on $SCRATCH
 # rsync -avz $SLURM_TMPDIR/<to_save> /network/tmp1/<user>/
