@@ -1,11 +1,17 @@
 import logging
 import os
-import time
 
 import orion
+import yaml
+{%- if cookiecutter.dl_framework == 'tensorflow' %}
+import shutil
+import tensorflow as tf
+{%- endif %}
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+import time
 import torch
 import tqdm
-import yaml
+{%- endif %}
 from mlflow import log_metric
 from orion.client import report_results
 from yaml import dump
@@ -15,6 +21,9 @@ logger = logging.getLogger(__name__)
 
 SAVED_MODEL_NAME = 'best_model.pt'
 STAT_FILE_NAME = 'stats.yaml'
+{%- if cookiecutter.dl_framework == 'tensorflow' %}
+TEMP_FOLDER = 'temp'
+{%- endif %}
 
 
 def reload_model(output, model, start_from_scratch=False):
@@ -35,7 +44,13 @@ def reload_model(output, model, start_from_scratch=False):
 
     logger.info('no saved model file found - nor output folder - creating it')
     os.makedirs(output)
-    return
+
+    {%- if cookiecutter.dl_framework == 'tensorflow' %}
+    temp_models = os.path.join(output, TEMP_FOLDER)
+    if os.path.exists(saved_model):
+        shutil.rmtree(temp_models)
+    os.makedirs(temp_models)
+    {%- endif %}
 
 
 def write_stats(output, best_dev_metric, epoch):
@@ -54,7 +69,7 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
           max_epoch, use_progress_bar=True, start_from_scratch=False):
 
     try:
-        best_dev_metric = pytorch_train_impl(
+        best_dev_metric = train_impl(
             dev_loader, loss_fun, max_epoch, model, optimizer, output,
             patience, train_loader, use_progress_bar, start_from_scratch)
     except RuntimeError as err:
@@ -73,7 +88,8 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         value=-best_dev_metric)])
 
 
-def pytorch_train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
                        train_loader, use_progress_bar, start_from_scratch=False):
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -156,3 +172,39 @@ def pytorch_train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output
     log_metric("best_dev_metric", best_dev_metric)
     logger.info('Finished Training')
     return best_dev_metric
+{%- endif %}
+{%- if cookiecutter.dl_framework == 'tensorflow' %}
+def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience, train_loader,
+               use_progress_bar, start_from_scratch=False):
+
+    stats = reload_model(output, model, start_from_scratch)
+    if stats is not None:
+        start_epoch = stats['epoch']
+        best_dev_metric = stats['best_dev_metric']
+    else:
+        start_epoch = 0
+        best_dev_metric = None
+
+    metric = 'accuracy'
+    es = tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss', min_delta=0, patience=patience, verbose=0, baseline=best_dev_metric)
+    metric_name = 'val_{}'.format(metric)
+    save_path = os.path.join(output, 'weights.{epoch:02d}.hdf5')
+    saver = tf.keras.callbacks.ModelCheckpoint(
+        save_path, monitor=metric_name, verbose=int(use_progress_bar), save_best_only=True)
+
+    model.compile(optimizer=optimizer, loss=loss_fun, metrics=[metric])
+    history = model.fit(
+        train_loader, validation_data=dev_loader, initial_epoch=start_epoch, epochs=max_epoch,
+        callbacks=[es, saver], verbose=int(use_progress_bar))
+
+    best_dev_metric = max(history.history[metric_name])
+    epoch = history.epoch[-1]
+    logger.info('training completed (epoch done {} - max epoch {} - best dev metric {})'.format(
+        epoch + 1, max_epoch, best_dev_metric))
+    log_metric("best_dev_metric", best_dev_metric)
+    logger.info('Finished Training')
+    write_stats(output, float(best_dev_metric), epoch + 1)
+
+    return best_dev_metric
+{%- endif %}

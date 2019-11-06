@@ -1,7 +1,12 @@
 import logging
 
+{%- if cookiecutter.dl_framework == 'tensorflow' %}
+import tensorflow as tf
+{%- endif %}
+{%- if cookiecutter.dl_framework == 'pytorch' %}
 import torch
 from torch import optim
+{%- endif %}
 
 from {{cookiecutter.project_slug}}.models.fake_model import FakeModel
 
@@ -20,10 +25,12 @@ def load_model(hyper_params):
     model = model_class(hyper_params)
     logger.info(model)
 
+    {%- if cookiecutter.dl_framework == 'pytorch' %}
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     logger.info('using device {}'.format(device))
     if torch.cuda.is_available():
         logger.info(torch.cuda.get_device_name(0))
+    {%- endif %}
 
     return model
 
@@ -32,13 +39,13 @@ def load_optimizer(hyper_params, model):
     optimizer_name = hyper_params['optimizer']
     # __TODO__ fix optimizer list
     if optimizer_name == 'adam':
-        optimizer = optim.Adam(model.parameters())
+        optimizer = {%- if cookiecutter.dl_framework == 'pytorch' %} optim.Adam(model.parameters()){%- else %} tf.keras.optimizers.Adam(){%- endif %}
     elif optimizer_name == 'sgd':
-        optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+        optimizer = {%- if cookiecutter.dl_framework == 'pytorch' %} optim.SGD(model.parameters()){%- else %} tf.keras.optimizers.SGD(){%- endif %}
     else:
         raise ValueError('optimizer {} not supported'.format(optimizer_name))
     return optimizer
 
 
 def load_loss(hyper_params):
-    return torch.nn.BCEWithLogitsLoss(reduction='sum')
+    return {%- if cookiecutter.dl_framework == 'pytorch' %} torch.nn.BCEWithLogitsLoss(reduction='sum'){%- else %} 'binary_crossentropy'{%- endif %}
