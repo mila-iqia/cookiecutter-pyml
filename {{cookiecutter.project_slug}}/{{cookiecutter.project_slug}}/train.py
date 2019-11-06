@@ -118,7 +118,7 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
             optimizer.zero_grad()
             model_input, model_target = data
             # forward + backward + optimize
-            outputs = model(model_input)
+            outputs = model(model_input.to(device))
             predictions = torch.squeeze(model_target.to(device))
             loss = loss_fun(outputs, predictions)
             loss.backward()
@@ -137,9 +137,9 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
         with torch.no_grad():
             for i, data in pb(enumerate(dev_loader, 0), total=len(dev_loader)):
                 model_input, model_target = data
-                outputs = model(model_input)
+                outputs = model(model_input.to(device))
 
-                acc = (outputs > 0.5) == model_target
+                acc = (outputs > 0.5) == model_target.to(device)
                 correct += torch.sum(acc).item()
                 examples += model_target.shape[0]
 
