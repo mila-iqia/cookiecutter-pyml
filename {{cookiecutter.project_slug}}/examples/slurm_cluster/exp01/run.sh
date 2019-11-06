@@ -7,6 +7,9 @@
 #SBATCH --job-name={{ cookiecutter.project_slug }}
 #SBATCH --output=logs/out_%a.log
 #SBATCH --error=logs/err_%a.log
+# remove one # if you prefer receiving emails
+##SBATCH --mail-type=all
+##SBATCH --mail-user={{ cookiecutter.email }}
 
 export MLFLOW_TRACKING_URI='../mlruns'
 export ORION_DB_ADDRESS='../orion_db.pkl'
