@@ -85,7 +85,7 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         name='dev_metric',
         type='objective',
         # note the minus - cause orion is always trying to minimize (cit. from the guide)
-        value=-best_dev_metric)])
+        value=-float(best_dev_metric))])
 
 
 {%- if cookiecutter.dl_framework == 'pytorch' %}
