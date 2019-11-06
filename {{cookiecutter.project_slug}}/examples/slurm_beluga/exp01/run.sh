@@ -3,8 +3,8 @@
 #SBATCH --account=rpp-bengioy
 #SBATCH --cpus-per-task=2
 #SBATCH --gres=gpu:1
-#SBATCH --mem=32G
-#SBATCH --time=5:00:00
+#SBATCH --mem=5G
+#SBATCH --time=0:05:00
 #SBATCH --job-name={{ cookiecutter.project_slug }}
 #SBATCH --output=logs/out_%a.log
 #SBATCH --error=logs/err_%a.log
