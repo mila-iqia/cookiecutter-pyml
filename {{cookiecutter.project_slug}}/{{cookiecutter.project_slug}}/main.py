@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 def main():
     parser = argparse.ArgumentParser()
     # __TODO__ check you need all the following CLI parameters
-    parser.add_argument('--log', help='log to this file (otherwise log to screen)')
+    parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
     parser.add_argument('--config',
                         help='config file with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format')

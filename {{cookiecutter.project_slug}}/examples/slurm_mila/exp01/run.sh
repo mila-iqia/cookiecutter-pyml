@@ -23,7 +23,10 @@ export ORION_DB_TYPE='pickleddb'
 
 # 3. Launch your job, tell it to save the model in $SLURM_TMPDIR/output
 #    and look for the dataset into $SLURM_TMPDIR/output
-main --data no_data --output $SLURM_TMPDIR/no_output --config ../config.yaml
+# use orion..
+orion -v hunt --config ../orion_config.yaml ../../{{cookiecutter.project_slug}}/main.py --data no_data --output $SLURM_TMPDIR/no_output --config config.yaml
+# or not
+# main --data no_data --output $SLURM_TMPDIR/no_output --config ../config.yaml
 
 # 4. Copy whatever you want to save on $SCRATCH
 # rsync -avz $SLURM_TMPDIR/output /network/tmp1/${USER}/
