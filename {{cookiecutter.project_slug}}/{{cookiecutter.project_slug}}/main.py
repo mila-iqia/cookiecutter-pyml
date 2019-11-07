@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import sys
 
 import mlflow
 import yaml
@@ -13,6 +14,7 @@ from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
 from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
 from {{cookiecutter.project_slug}}.models.model_loader import load_loss
+from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,10 @@ def main():
         root = logging.getLogger()
         root.setLevel(logging.INFO)
         root.addHandler(handler)
+
+    # to intercept any print statement:
+    sys.stdout = LoggerWriter(logger.info)
+    sys.stderr = LoggerWriter(logger.warning)
 
     run(args)
 
