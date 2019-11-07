@@ -186,9 +186,9 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
         best_dev_metric = None
 
     metric = 'accuracy'
-    es = tf.keras.callbacks.EarlyStopping(
-        monitor='val_loss', min_delta=0, patience=patience, verbose=0, baseline=best_dev_metric)
     metric_name = 'val_{}'.format(metric)
+    es = tf.keras.callbacks.EarlyStopping(
+        monitor=metric_name, min_delta=0, patience=patience, verbose=0, baseline=best_dev_metric)
     save_path = os.path.join(output, 'weights.{epoch:02d}.hdf5')
     saver = tf.keras.callbacks.ModelCheckpoint(
         save_path, monitor=metric_name, verbose=int(use_progress_bar), save_best_only=True)
