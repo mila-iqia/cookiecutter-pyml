@@ -8,4 +8,4 @@ exp_name: my_exp_1
 
 # architecture
 dropout: 0.5
-size: 10
+size: 'orion~uniform(1,10,discrete=True)'
