@@ -12,6 +12,7 @@
 ##SBATCH --mail-user={{ cookiecutter.email }}
 
 export MLFLOW_TRACKING_URI='../mlruns'
+# the following is used only with orion
 export ORION_DB_ADDRESS='../orion_db.pkl'
 export ORION_DB_TYPE='pickleddb'
 
@@ -20,9 +21,9 @@ export ORION_DB_TYPE='pickleddb'
 #time rsync -a --info=progress2 /__TODO__/path/to/dataset.tar $SLURM_TMPDIR/
 #time tar xf $SLURM_TMPDIR/dataset.tar -C $SLURM_TMPDIR/ --strip=4
 
-# 3. Launch your job, tell it to save the model in $SLURM_TMPDIR
-#    and look for the dataset into $SLURM_TMPDIR
-main --data no_data --output no_output --config ../config.yaml
+# 3. Launch your job, tell it to save the model in $SLURM_TMPDIR/output
+#    and look for the dataset into $SLURM_TMPDIR/output
+main --data no_data --output $SLURM_TMPDIR/no_output --config ../config.yaml
 
 # 4. Copy whatever you want to save on $SCRATCH
-# rsync -avz $SLURM_TMPDIR/<to_save> /network/tmp1/<user>/
+# rsync -avz $SLURM_TMPDIR/output /network/tmp1/${USER}/
