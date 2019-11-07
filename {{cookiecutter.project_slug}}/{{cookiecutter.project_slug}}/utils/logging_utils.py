@@ -1,6 +1,3 @@
-import sys
-
-
 class LoggerWriter:
     # see: https://stackoverflow.com/questions/19425736/
     # how-to-redirect-stdout-and-stderr-to-logger-in-python
@@ -12,4 +9,4 @@ class LoggerWriter:
             self.printer(message)
 
     def flush(self):
-        self.printer(sys.stderr)
+        pass
