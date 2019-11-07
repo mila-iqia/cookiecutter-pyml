@@ -12,7 +12,7 @@ setup(
         'torch'],
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow' %}
-        'tensorflow'],
+        'tensorflow>=2.0'],
         {%- endif %}
     entry_points={
         'console_scripts': [
