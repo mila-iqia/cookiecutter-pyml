@@ -3,7 +3,7 @@ import os
 
 import orion
 import yaml
-{%- if cookiecutter.dl_framework == 'tensorflow' %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import shutil
 import tensorflow as tf
 {%- endif %}
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 SAVED_MODEL_NAME = 'best_model.pt'
 STAT_FILE_NAME = 'stats.yaml'
-{%- if cookiecutter.dl_framework == 'tensorflow' %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 TEMP_FOLDER = 'temp'
 {%- endif %}
 
@@ -45,7 +45,7 @@ def reload_model(output, model, start_from_scratch=False):
     logger.info('no saved model file found - nor output folder - creating it')
     os.makedirs(output)
 
-    {%- if cookiecutter.dl_framework == 'tensorflow' %}
+    {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
     temp_models = os.path.join(output, TEMP_FOLDER)
     if os.path.exists(saved_model):
         shutil.rmtree(temp_models)
@@ -173,7 +173,7 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
     logger.info('Finished Training')
     return best_dev_metric
 {%- endif %}
-{%- if cookiecutter.dl_framework == 'tensorflow' %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience, train_loader,
                use_progress_bar, start_from_scratch=False):
 

@@ -1,5 +1,5 @@
 import numpy
-{%- if cookiecutter.dl_framework == 'tensorflow' %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import tensorflow as tf
 
 

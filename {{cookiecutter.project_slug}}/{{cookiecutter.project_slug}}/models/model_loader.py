@@ -1,6 +1,6 @@
 import logging
 
-{%- if cookiecutter.dl_framework == 'tensorflow' %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import tensorflow as tf
 {%- endif %}
 {%- if cookiecutter.dl_framework == 'pytorch' %}
