@@ -7,7 +7,7 @@ setup(
     packages=find_packages(include=['{{ cookiecutter.project_slug }}', '{{ cookiecutter.project_slug }}.*']),
     python_requires='>={{ cookiecutter.python_version }}',
     install_requires=[
-        'tqdm', 'mlflow', 'orion', 'pyyaml',
+        'tqdm', 'mlflow', 'orion', 'pyyaml', 'pytest',
         {%- if cookiecutter.dl_framework == 'pytorch' %}
         'torch'],
         {%- endif %}
