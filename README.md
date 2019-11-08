@@ -28,6 +28,10 @@ Install the dependencies:
 
     pip install -e .
 
+Note: if running tensorflow, you may need:
+
+    pip install -U setuptools
+
 Change the code as appropriate.
 Note that the code should already compile at this point.
 Try to run the examples under $ROOT/examples
