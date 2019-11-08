@@ -12,6 +12,8 @@
 ##SBATCH --mail-user={{ cookiecutter.email }}
 
 export MLFLOW_TRACKING_URI='../mlruns'
+export ORION_DB_ADDRESS='../orion_db.pkl'
+export ORION_DB_TYPE='pickleddb'
 
 # 2. Copy your dataset on the compute node
 #export DATADIR=$SLURM_TMPDIR/dataset
@@ -21,7 +23,9 @@ export MLFLOW_TRACKING_URI='../mlruns'
 # 3. Launch your job, tell it to save the model in $SLURM_TMPDIR/output
 #    and look for the dataset into $SLURM_TMPDIR/output
 # use orion..
-main --data no_data --output $SLURM_TMPDIR/no_output --config ../config.yaml
+orion -v hunt --config ../orion_config.yaml ../../../{{cookiecutter.project_slug}}/main.py \
+--data no_data --output $SLURM_TMPDIR/no_output --config ../config.yaml \
+--log '{exp.working_dir}/{exp.name}_{trial.id}/exp.log'
 
 # 4. Copy whatever you want to save on $SCRATCH
 # rsync -avz $SLURM_TMPDIR/output /network/tmp1/${USER}/

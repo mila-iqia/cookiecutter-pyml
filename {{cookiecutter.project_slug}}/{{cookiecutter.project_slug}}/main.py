@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import sys
 
 import mlflow
 import yaml
@@ -13,6 +14,7 @@ from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
 from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
 from {{cookiecutter.project_slug}}.models.model_loader import load_loss
+from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter
 
 logger = logging.getLogger(__name__)
 
@@ -20,13 +22,10 @@ logger = logging.getLogger(__name__)
 def main():
     parser = argparse.ArgumentParser()
     # __TODO__ check you need all the following CLI parameters
-    parser.add_argument('--log', help='log to this file (otherwise log to screen)')
-    parser.add_argument('--config_general',
+    parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
+    parser.add_argument('--config',
                         help='config file with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format')
-    parser.add_argument('--config_architecture',
-                        help='config file with architecture-specific hyper-parameters,  such as '
-                             'layer_size, ... - in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--output', help='path to output models', required=True)
     parser.add_argument('--disable_progressbar', action='store_true',
@@ -47,19 +46,19 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
+    # to intercept any print statement:
+    sys.stdout = LoggerWriter(logger.info)
+    sys.stderr = LoggerWriter(logger.warning)
+
     run(args)
 
 
 def run(args):
-    if args.config_general is not None:
-        with open(args.config_general, 'r') as stream:
+    if args.config is not None:
+        with open(args.config, 'r') as stream:
             hyper_params = load(stream, Loader=yaml.FullLoader)
     else:
         hyper_params = {}
-    if args.config_architecture is not None:
-        with open(args.config_architecture, 'r') as stream:
-            more_hyper_params = load(stream, Loader=yaml.FullLoader)
-        hyper_params.extend(more_hyper_params)
 
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
     if 'exp_name' in hyper_params:

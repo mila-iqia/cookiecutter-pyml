@@ -1,0 +1,6 @@
+max_trials: 1
+working_dir: my_working_dir
+algorithms: random
+name: my_exp
+non_monitored_arguments: [output, data]
+ignore_code_changes: True
