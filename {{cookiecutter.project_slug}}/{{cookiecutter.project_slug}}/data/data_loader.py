@@ -2,6 +2,8 @@ import numpy
 {%- if cookiecutter.dl_framework == 'tensorflow' %}
 import tensorflow as tf
 
+BUFFER_SIZE = 100
+
 
 def get_data():
     amount = 100
@@ -16,7 +18,7 @@ def load_data(args, hyper_params):
     train_dataset = tf.data.Dataset.from_tensor_slices((train_examples, train_labels))
     dev_examples, dev_labels = get_data()
     dev_dataset = tf.data.Dataset.from_tensor_slices((dev_examples, dev_labels))
-    train_dataset = train_dataset.shuffle(True).batch(batch_size=hyper_params['batch_size'])
+    train_dataset = train_dataset.shuffle(BUFFER_SIZE).batch(batch_size=hyper_params['batch_size'])
     dev_dataset = dev_dataset.batch(batch_size=hyper_params['batch_size'])
     return train_dataset, dev_dataset
 {%- endif %}
