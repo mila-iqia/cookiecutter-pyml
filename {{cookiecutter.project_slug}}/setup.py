@@ -7,12 +7,15 @@ setup(
     packages=find_packages(include=['{{ cookiecutter.project_slug }}', '{{ cookiecutter.project_slug }}.*']),
     python_requires='>={{ cookiecutter.python_version }}',
     install_requires=[
-        'tqdm', 'mlflow', 'orion', 'pyyaml',
+        'tqdm', 'mlflow', 'orion', 'pyyaml', 'pytest',
         {%- if cookiecutter.dl_framework == 'pytorch' %}
         'torch'],
         {%- endif %}
-        {%- if cookiecutter.dl_framework == 'tensorflow' %}
+        {%- if cookiecutter.dl_framework == 'tensorflow_cpu' %}
         'tensorflow>=2.0'],
+        {%- endif %}
+        {%- if cookiecutter.dl_framework == 'tensorflow_gpu' %}
+        'tensorflow-gpu>=2.0'],
         {%- endif %}
     entry_points={
         'console_scripts': [

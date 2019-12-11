@@ -1,6 +1,6 @@
 import logging
 
-{%- if cookiecutter.dl_framework == 'tensorflow' %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import tensorflow as tf
 {%- endif %}
 {%- if cookiecutter.dl_framework == 'pytorch' %}
@@ -20,7 +20,7 @@ class FakeModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- els
         check_and_log_hp(['size', 'dropout'], hyper_params)
         self.hyper_params = hyper_params
 
-        {%- if cookiecutter.dl_framework == 'tensorflow' %}
+        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
         self.flat = tf.keras.layers.Flatten(input_shape=(5,))
         self.dense1 = tf.keras.layers.Dense(10, activation='relu')
         self.dense2 = tf.keras.layers.Dense(1)

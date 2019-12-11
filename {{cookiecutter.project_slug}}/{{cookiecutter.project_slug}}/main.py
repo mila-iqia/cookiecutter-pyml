@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import os
 import sys
 
 import mlflow
@@ -27,7 +28,7 @@ def main():
                         help='config file with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
-    parser.add_argument('--output', help='path to output models', required=True)
+    parser.add_argument('--output', help='path to outputs - will store files here', required=True)
     parser.add_argument('--disable_progressbar', action='store_true',
                         help='will disable the progressbar while going over the mini-batch')
     parser.add_argument('--start_from_scratch', action='store_true',
@@ -59,6 +60,9 @@ def run(args):
             hyper_params = load(stream, Loader=yaml.FullLoader)
     else:
         hyper_params = {}
+
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
 
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
     if 'exp_name' in hyper_params:
