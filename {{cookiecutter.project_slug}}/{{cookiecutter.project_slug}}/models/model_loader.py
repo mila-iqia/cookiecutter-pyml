@@ -48,4 +48,6 @@ def load_optimizer(hyper_params, model):
 
 
 def load_loss(hyper_params):
-    return {%- if cookiecutter.dl_framework == 'pytorch' %} torch.nn.BCEWithLogitsLoss(reduction='sum'){%- else %} 'binary_crossentropy'{%- endif %}
+    return {%- if cookiecutter.dl_framework == 'pytorch' %} \
+            torch.nn.BCEWithLogitsLoss(reduction='sum'){%- else %} \
+            tf.keras.losses.BinaryCrossentropy(from_logits=True){%- endif %}
