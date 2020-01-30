@@ -90,13 +90,10 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         type='objective',
         # note the minus - cause orion is always trying to minimize (cit. from the guide)
         value=-float(best_dev_metric))])
-{%- if cookiecutter.dl_framework == 'pytorch' %}
 
 
 def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
                        train_loader, use_progress_bar, start_from_scratch=False):
-
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     if use_progress_bar:
         pb = tqdm.tqdm
@@ -122,12 +119,16 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
             '{})'.format(start_epoch, max_epoch, best_dev_metric))
         return best_dev_metric
 
+    {%- if cookiecutter.dl_framework == 'pytorch' %}
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model.to(device)
+
+    {%- endif %}
     for epoch in range(start_epoch, max_epoch):
 
         start = time.time()
         # train
-        running_loss = 0.0
+        train_cumulative_loss = 0.0
         examples = 0
         model.train()
         for i, data in pb(enumerate(train_loader, 0), total=len(train_loader)):
@@ -135,19 +136,19 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
             model_input, model_target = data
             # forward + backward + optimize
             outputs = model(model_input.to(device))
-            predictions = torch.squeeze(model_target.to(device))
-            loss = loss_fun(outputs, predictions)
+            targets = torch.squeeze(model_target.to(device))
+            loss = loss_fun(outputs, targets)
             loss.backward()
             optimizer.step()
 
-            running_loss += loss.item()
-            examples += predictions.shape[0]
+            train_cumulative_loss += loss.item()
+            examples += targets.shape[0]
 
         train_end = time.time()
-        avg_loss = running_loss / examples
+        avg_train_loss = train_cumulative_loss / examples
 
         # dev
-        correct = 0
+        dev_cumulative_loss = 0.0
         examples = 0
         model.eval()
         with torch.no_grad():
@@ -155,27 +156,29 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
                 model_input, model_target = data
                 outputs = model(model_input.to(device))
 
-                acc = (outputs > 0.5) == model_target.to(device)
-                correct += torch.sum(acc).item()
+                targets = torch.squeeze(model_target.to(device))
+                loss = loss_fun(outputs, targets)
+
+                dev_cumulative_loss += loss.item()
                 examples += model_target.shape[0]
 
-        dev_metric = correct / examples
-        log_metric("dev_metric", dev_metric, step=epoch)
-        log_metric("loss", avg_loss, step=epoch)
+        avg_dev_loss = dev_cumulative_loss / examples
+        log_metric("dev_loss", avg_dev_loss, step=epoch)
+        log_metric("train_loss", avg_train_loss, step=epoch)
 
         dev_end = time.time()
 
-        if best_dev_metric is None or dev_metric > best_dev_metric:
-            best_dev_metric = dev_metric
+        if best_dev_metric is None or avg_dev_loss<  best_dev_metric:
+            best_dev_metric = avg_dev_loss
             remaining_patience = patience
             torch.save(model.state_dict(),
                        os.path.join(output, SAVED_MODEL_NAME))
         else:
             remaining_patience -= 1
 
-        logger.info('done #epoch {:3} => loss {:5.3f} - dev metric {:3.2f} ('
+        logger.info('done #epoch {:3} => loss {:5.3f} - dev loss {:3.2f} ('
                     'will try for {} more epoch) - train min. {:4.2f} / dev min. {:4.2f}'.format(
-            epoch, running_loss / len(train_loader), dev_metric,
+            epoch, train_cumulative_loss / len(train_loader), avg_dev_loss,
                    remaining_patience, (train_end - start) / 60,
                    (dev_end - train_end) / 60))
 
@@ -188,7 +191,7 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
     logger.info('training completed (epoch done {} - max epoch {})'.format(epoch + 1, max_epoch))
     logger.info('Finished Training')
     return best_dev_metric
-{%- endif %}
+
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 
 
