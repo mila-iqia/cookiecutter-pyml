@@ -1,6 +1,7 @@
 import logging
 import os
 
+import mlflow
 import orion
 import yaml
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
@@ -53,8 +54,10 @@ def reload_model(output, model, start_from_scratch=False):
     {%- endif %}
 
 
-def write_stats(output, best_dev_metric, epoch):
-    to_store = {'best_dev_metric': best_dev_metric, 'epoch': epoch}
+def write_stats(output, best_eval_score, epoch, remaining_patience):
+    to_store = {'best_dev_metric': best_eval_score, 'epoch': epoch,
+                'remaining_patience': remaining_patience,
+                'mlflow_run_id': mlflow.active_run().info.run_id}
     with open(os.path.join(output, STAT_FILE_NAME), 'w') as stream:
         dump(to_store, stream)
 
@@ -62,7 +65,8 @@ def write_stats(output, best_dev_metric, epoch):
 def load_stats(output):
     with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
         stats = load(stream, Loader=yaml.FullLoader)
-    return stats
+    return stats['best_dev_metric'], stats['epoch'], stats['remaining_patience'], \
+        stats['mlflow_run_id']
 
 
 def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
@@ -86,9 +90,9 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         type='objective',
         # note the minus - cause orion is always trying to minimize (cit. from the guide)
         value=-float(best_dev_metric))])
-
-
 {%- if cookiecutter.dl_framework == 'pytorch' %}
+
+
 def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
                        train_loader, use_progress_bar, start_from_scratch=False):
 
@@ -98,15 +102,27 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
         pb = tqdm.tqdm
     else:
         pb = lambda x, total: x
+
     stats = reload_model(output, model, start_from_scratch)
-    if stats is not None:
-        start_epoch = stats['epoch']
-        best_dev_metric = stats['best_dev_metric']
-    else:
-        start_epoch = 0
+    if stats is None:
         best_dev_metric = None
+        remaining_patience = patience
+        start_epoch = 0
+    else:
+        best_dev_metric, start_epoch, remaining_patience, _ = stats
+
+    if remaining_patience <= 0:
+        logger.warning(
+            'remaining patience is zero - not training (and returning best dev score {})'.format(
+                best_dev_metric))
+        return best_dev_metric
+    if start_epoch >= max_epoch:
+        logger.warning(
+            'start epoch {} > max epoch {} - not training (and returning best dev score '
+            '{})'.format(start_epoch, max_epoch, best_dev_metric))
+        return best_dev_metric
+
     model.to(device)
-    not_improving_since = 0
     for epoch in range(start_epoch, max_epoch):
 
         start = time.time()
@@ -144,36 +160,38 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
                 examples += model_target.shape[0]
 
         dev_metric = correct / examples
-        log_metric("dev_metric", dev_metric)
-        log_metric("loss", avg_loss)
+        log_metric("dev_metric", dev_metric, step=epoch)
+        log_metric("loss", avg_loss, step=epoch)
 
         dev_end = time.time()
 
         if best_dev_metric is None or dev_metric > best_dev_metric:
             best_dev_metric = dev_metric
-            not_improving_since = 0
+            remaining_patience = patience
             torch.save(model.state_dict(),
                        os.path.join(output, SAVED_MODEL_NAME))
         else:
-            not_improving_since += 1
+            remaining_patience -= 1
 
         logger.info('done #epoch {:3} => loss {:5.3f} - dev metric {:3.2f} ('
                     'will try for {} more epoch) - train min. {:4.2f} / dev min. {:4.2f}'.format(
             epoch, running_loss / len(train_loader), dev_metric,
-                   patience - not_improving_since, (train_end - start) / 60,
+                   remaining_patience, (train_end - start) / 60,
                    (dev_end - train_end) / 60))
 
-        write_stats(output, best_dev_metric, epoch + 1)
+        write_stats(output, best_dev_metric, epoch + 1, remaining_patience)
+        log_metric("best_dev_metric", best_dev_metric)
 
-        if not_improving_since >= patience:
+        if remaining_patience <= 0:
             logger.info('done! best dev metric is {}'.format(best_dev_metric))
             break
     logger.info('training completed (epoch done {} - max epoch {})'.format(epoch + 1, max_epoch))
-    log_metric("best_dev_metric", best_dev_metric)
     logger.info('Finished Training')
     return best_dev_metric
 {%- endif %}
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+
 def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience, train_loader,
                use_progress_bar, start_from_scratch=False):
 

@@ -10,7 +10,7 @@ import yaml
 from yaml import load
 
 from {{cookiecutter.project_slug}}.data.data_loader import load_data
-from {{cookiecutter.project_slug}}.train import train
+from {{cookiecutter.project_slug}}.train import train, load_stats, STAT_FILE_NAME
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
 from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
@@ -51,22 +51,28 @@ def main():
     sys.stdout = LoggerWriter(logger.info)
     sys.stderr = LoggerWriter(logger.warning)
 
-    run(args)
-
-
-def run(args):
     if args.config is not None:
         with open(args.config, 'r') as stream:
             hyper_params = load(stream, Loader=yaml.FullLoader)
     else:
         hyper_params = {}
 
-    if not os.path.exists(args.output):
-        os.makedirs(args.output)
-
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
     if 'exp_name' in hyper_params:
         mlflow.set_experiment(hyper_params['exp_name'])
+    if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
+        _, _, _, mlflow_run_id = load_stats(args.output)
+        mlflow.start_run(run_id=mlflow_run_id)
+    else:
+        mlflow.start_run()
+    run(args, hyper_params)
+    mlflow.end_run()
+
+
+def run(args, hyper_params):
+
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
 
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)

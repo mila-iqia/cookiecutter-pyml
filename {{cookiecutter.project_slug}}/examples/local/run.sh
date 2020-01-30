@@ -1,1 +1,1 @@
-main --data no_data --output no_output --config config.yaml
+main --data data --output output --config config.yaml
