@@ -5,7 +5,6 @@ import mlflow
 import orion
 import yaml
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-import shutil
 import tensorflow as tf
 {%- endif %}
 import time
@@ -100,7 +99,7 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         type='objective',
         # note the minus - cause orion is always trying to minimize (cit. from the guide)
         value=-float(best_dev_metric))])
-
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 def get_save_function(model, optimizer, save_path):
     def save_function():
         ckpt = tf.train.Checkpoint(model=model, optimizer=optimizer)
@@ -110,13 +109,18 @@ def get_save_function(model, optimizer, save_path):
         {%- endif %}
     return save_function
 
+
+{%- endif %}
+
+
 def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
-                       train_loader, use_progress_bar, start_from_scratch=False):
+               train_loader, use_progress_bar, start_from_scratch=False):
 
     if use_progress_bar:
         pb = tqdm.tqdm
     else:
-        pb = lambda x, total: x
+        def pb(x, total):
+            return x
 
     {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
     ckpt_last = tf.train.Checkpoint(model=model, optimizer=optimizer)
@@ -222,7 +226,7 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
 
         dev_end = time.time()
 
-        if best_dev_metric is None or avg_dev_loss<  best_dev_metric:
+        if best_dev_metric is None or avg_dev_loss < best_dev_metric:
             best_dev_metric = avg_dev_loss
             remaining_patience = patience
             {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
@@ -234,10 +238,11 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
         else:
             remaining_patience -= 1
 
-        logger.info('done #epoch {:3} => loss {:5.3f} - dev loss {:3.2f} ('
-                    'will try for {} more epoch) - train min. {:4.2f} / dev min. {:4.2f}'.format(
-            epoch, avg_train_loss, avg_dev_loss, remaining_patience, (train_end - start) / 60,
-            (dev_end - train_end) / 60))
+        logger.info(
+            'done #epoch {:3} => loss {:5.3f} - dev loss {:3.2f} (will try for {} more epoch) - '
+            'train min. {:4.2f} / dev min. {:4.2f}'.format(
+                epoch, avg_train_loss, avg_dev_loss, remaining_patience, (train_end - start) / 60,
+                (dev_end - train_end) / 60))
 
         write_stats(output, best_dev_metric, epoch + 1, remaining_patience)
         log_metric("best_dev_metric", best_dev_metric)

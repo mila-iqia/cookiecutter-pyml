@@ -1,5 +1,6 @@
 import random
 
+
 def generate_for(prefix, size):
     with open('{}.input'.format(prefix), 'w') as inp_stream:
         with open('{}.target'.format(prefix), 'w') as tar_stream:
@@ -8,6 +9,7 @@ def generate_for(prefix, size):
                 tar = sum(inp)
                 inp_stream.write(' '.join([str(x) for x in inp]) + '\n')
                 tar_stream.write(str(tar) + '\n')
+
 
 generate_for('train', 1000)
 generate_for('dev', 100)

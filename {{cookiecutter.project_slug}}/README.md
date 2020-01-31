@@ -10,6 +10,15 @@
 * Free software: {{ cookiecutter.open_source_license }}
 {% endif %}
 
+
+Instructions to setup the project_name
+--------
+
+To setup pre-commit hooks (to use flake8 before avery commit):
+
+    cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
+
+
 Features
 --------
 

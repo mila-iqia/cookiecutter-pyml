@@ -7,7 +7,6 @@ import tensorflow as tf
 BUFFER_SIZE = 100
 {%- endif %}
 {%- if cookiecutter.dl_framework == 'pytorch' %}
-import torch
 from torch.utils.data import Dataset, DataLoader
 {%- endif %}
 # __TODO__ change the dataloader to suit your needs...
