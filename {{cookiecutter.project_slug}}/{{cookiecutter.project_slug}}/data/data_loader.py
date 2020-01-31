@@ -24,9 +24,9 @@ def get_data(data_folder, prefix):
             targets.append(float(line))
     tar_data = numpy.array(targets, dtype=numpy.float32)
     return in_data, tar_data
-
-
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+
 def load_data(args, hyper_params):
     # __TODO__ load the data
     train_examples, train_labels = get_data(args.data, 'train')

@@ -24,8 +24,8 @@ LAST_MODEL_NAME = 'last_model'
 STAT_FILE_NAME = 'stats.yaml'
 
 
-def reload_model(output, model, optimizer, start_from_scratch=False):
-    saved_model = os.path.join(output, BEST_MODEL_NAME)
+def reload_model(output, model_name, model, optimizer, start_from_scratch=False):
+    saved_model = os.path.join(output, model_name)
     if start_from_scratch and os.path.exists(saved_model):
         logger.info('saved model file "{}" already exists - but NOT loading it '
                     '(cause --start_from_scratch)'.format(output))
@@ -99,18 +99,6 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         type='objective',
         # note the minus - cause orion is always trying to minimize (cit. from the guide)
         value=-float(best_dev_metric))])
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-def get_save_function(model, optimizer, save_path):
-    def save_function():
-        ckpt = tf.train.Checkpoint(model=model, optimizer=optimizer)
-        ckpt_manager_last_model = tf.train.CheckpointManager(ckpt, save_path, max_to_keep=1)
-        {%- if cookiecutter.dl_framework == 'pytorch' %}
-        torch.save(model.state_dict(), save_path)
-        {%- endif %}
-    return save_function
-
-
-{%- endif %}
 
 
 def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
@@ -121,8 +109,8 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
     else:
         def pb(x, total):
             return x
-
     {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
     ckpt_last = tf.train.Checkpoint(model=model, optimizer=optimizer)
     ckpt_manager_last_model = tf.train.CheckpointManager(
         ckpt_last, os.path.join(output, LAST_MODEL_NAME), max_to_keep=1)
@@ -131,7 +119,7 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
         ckpt_best, os.path.join(output, BEST_MODEL_NAME), max_to_keep=1)
     {%- endif %}
 
-    stats = reload_model(output, model, optimizer, start_from_scratch)
+    stats = reload_model(output, LAST_MODEL_NAME, model, optimizer, start_from_scratch)
     if stats is None:
         best_dev_metric = None
         remaining_patience = patience
@@ -225,6 +213,12 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
         log_metric("train_loss", avg_train_loss, step=epoch)
 
         dev_end = time.time()
+        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+        ckpt_manager_last_model.save()
+        {%- endif %}
+        {%- if cookiecutter.dl_framework == 'pytorch' %}
+        torch.save(model.state_dict(), os.path.join(output, LAST_MODEL_NAME))
+        {%- endif %}
 
         if best_dev_metric is None or avg_dev_loss < best_dev_metric:
             best_dev_metric = avg_dev_loss
@@ -253,41 +247,3 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
     logger.info('training completed (epoch done {} - max epoch {})'.format(epoch + 1, max_epoch))
     logger.info('Finished Training')
     return best_dev_metric
-
-# {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-#
-#
-# def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience, train_loader,
-#                use_progress_bar, start_from_scratch=False):
-#
-#     stats = reload_model(output, model, start_from_scratch)
-#     if stats is not None:
-#         start_epoch = stats['epoch']
-#         best_dev_metric = stats['best_dev_metric']
-#     else:
-#         start_epoch = 0
-#         best_dev_metric = None
-#
-#     metric = 'accuracy'
-#     metric_name = 'val_{}'.format(metric)
-#     es = tf.keras.callbacks.EarlyStopping(
-#         monitor=metric_name, min_delta=0, patience=patience, verbose=0, baseline=best_dev_metric)
-#     save_path = os.path.join(output, 'weights.{epoch:02d}.hdf5')
-#     saver = tf.keras.callbacks.ModelCheckpoint(
-#         save_path, monitor=metric_name, verbose=int(use_progress_bar), save_best_only=True)
-#
-#     model.compile(optimizer=optimizer, loss=loss_fun, metrics=[metric])
-#     history = model.fit(
-#         train_loader, validation_data=dev_loader, initial_epoch=start_epoch, epochs=max_epoch,
-#         callbacks=[es, saver], verbose=int(use_progress_bar))
-#
-#     best_dev_metric = max(history.history[metric_name])
-#     epoch = history.epoch[-1]
-#     logger.info('training completed (epoch done {} - max epoch {} - best dev metric {})'.format(
-#         epoch + 1, max_epoch, best_dev_metric))
-#     log_metric("best_dev_metric", best_dev_metric)
-#     logger.info('Finished Training')
-#     write_stats(output, float(best_dev_metric), epoch + 1)
-#
-#     return best_dev_metric
-# {%- endif %}
