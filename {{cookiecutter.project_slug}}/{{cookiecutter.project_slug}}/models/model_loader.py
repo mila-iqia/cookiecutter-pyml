@@ -8,16 +8,16 @@ import torch
 from torch import optim
 {%- endif %}
 
-from {{cookiecutter.project_slug}}.models.fake_model import FakeModel
-
+from {{cookiecutter.project_slug}}.models.my_model import MyModel
 
 logger = logging.getLogger(__name__)
+
 
 def load_model(hyper_params):
     architecture = hyper_params['architecture']
     # __TODO__ fix architecture list
-    if architecture == 'fake_model':
-        model_class = FakeModel
+    if architecture == 'my_model':
+        model_class = MyModel
     else:
         raise ValueError('architecture {} not supported'.format(architecture))
     logger.info('selected architecture: {}'.format(architecture))
@@ -48,6 +48,9 @@ def load_optimizer(hyper_params, model):
 
 
 def load_loss(hyper_params):
-    return {%- if cookiecutter.dl_framework == 'pytorch' %} \
-            torch.nn.BCEWithLogitsLoss(reduction='sum'){%- else %} \
-            tf.keras.losses.BinaryCrossentropy(from_logits=True){%- endif %}
+    {%- if cookiecutter.dl_framework == 'pytorch' %}
+    return torch.nn.L1Loss(reduction='sum')
+    {%- endif %}
+    {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+    return tf.keras.losses.MeanAbsoluteError()
+    {%- endif %}
