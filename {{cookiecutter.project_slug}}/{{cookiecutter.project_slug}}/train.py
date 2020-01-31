@@ -99,6 +99,15 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         type='objective',
         # note the minus - cause orion is always trying to minimize (cit. from the guide)
         value=-float(best_dev_metric))])
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+
+def init_model(model, train_loader):
+    # init the model by sending an input step - this will allow TF to compute the input shape
+    model_input, model_target = next(iter(train_loader))
+    _ = model(model_input)
+    model.summary(print_fn=logger.info)
+{%- endif %}
 
 
 def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
@@ -111,6 +120,7 @@ def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patien
             return x
     {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 
+    init_model(model, train_loader)
     ckpt_last = tf.train.Checkpoint(model=model, optimizer=optimizer)
     ckpt_manager_last_model = tf.train.CheckpointManager(
         ckpt_last, os.path.join(output, LAST_MODEL_NAME), max_to_keep=1)
