@@ -54,7 +54,13 @@ trigger a build (top-right - search for `More Options` => `Trigger Build`.
 
 ### Add Codecov
 Go to https://codecov.io/ and enable codecov for your repository.
-In particular, get the secret token for your project
+In particular, get the secret token for your project and add it to
+github (see https://docs.codecov.io/docs/about-the-codecov-bash-uploader#section-upload-token).
+
+### Run the tests
+Just run (from the root folder):
+
+    pytest
 
 ### Run the code
 Note that the code should already compile at this point.

@@ -9,6 +9,6 @@ install:
 script:
   # run flake8 with exactly the same options as in the commit hook:
   - config/hooks/pre-commit
-  - pytest --cov=./
+  - pytest --cov=./ --cov-report xml
 after_success:
-  - codecov
+  - bash <(curl -s https://codecov.io/bash)
