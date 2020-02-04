@@ -83,8 +83,8 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
 
     try:
         best_dev_metric = train_impl(
-            dev_loader, loss_fun, max_epoch, model, optimizer, output,
-            patience, train_loader, use_progress_bar, start_from_scratch)
+            model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
+            max_epoch, use_progress_bar, start_from_scratch)
     except RuntimeError as err:
         if orion.client.IS_ORION_ON and 'CUDA out of memory' in str(err):
             logger.error(err)
@@ -110,8 +110,8 @@ def init_model(model, train_loader):
 {%- endif %}
 
 
-def train_impl(dev_loader, loss_fun, max_epoch, model, optimizer, output, patience,
-               train_loader, use_progress_bar, start_from_scratch=False):
+def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
+               max_epoch, use_progress_bar=True, start_from_scratch=False):
 
     if use_progress_bar:
         pb = tqdm.tqdm
