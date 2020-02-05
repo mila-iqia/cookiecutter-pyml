@@ -3,8 +3,8 @@ python:
   - "3.7"
 cache: pip
 install:
-  # Reducing verbosity is needed because of Travis' limit on log length
   - pip install -e . --quiet
-script:
-  - cd tests/end2end_pytorch && sh run.sh && cd -
-  - cd tests/end2end_tensorflow && sh run.sh && cd -
+jobs:
+  include:
+    - script: ./tests/end2end_pytorch/run.sh
+    - script: ./tests/end2end_tensorflow/run.sh
