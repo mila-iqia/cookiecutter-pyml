@@ -1,3 +1,5 @@
+https://travis-ci.org/mirkobronzi/cookiecutter-pyml.svg?branch=master
+
 Quickstart
 ----------
 
