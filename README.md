@@ -3,8 +3,7 @@
 Quickstart
 ----------
 
-Install the latest Cookiecutter if you haven't installed it yet (this requires
-Cookiecutter 1.4.0 or higher):
+Install the latest Cookiecutter (version 1.4.0 or higher):
 
     pip install -U cookiecutter
 

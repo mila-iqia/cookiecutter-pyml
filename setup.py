@@ -7,5 +7,5 @@ setup(
     author='Mirko Bronzi',
     author_email='m.bronzi@gmail.com',
     python_requires='>=3.7',
-    install_requires=['cookiecutter']
+    install_requires=['cookiecutter>=1.4.0']
 )
