@@ -7,4 +7,4 @@ max_epoch: 99
 exp_name: my_exp_1
 
 # architecture
-size: 'orion~uniform(1,100,discrete=True)'
+size: 'orion~uniform(1,10,discrete=True)'
