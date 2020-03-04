@@ -1,2 +1,5 @@
 #!/bin/sh 
-flake8 --max-line-length=100 .
+for file in $(git diff --cached --name-only | grep '\.(py)$')
+do
+    flake8 --max-line-length=100 .
+done
