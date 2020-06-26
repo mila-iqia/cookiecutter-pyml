@@ -12,10 +12,10 @@ setup(
         'torch'],
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow_cpu' %}
-        'tensorflow>=2.0'],
+        'scipy==1.4.1', 'tensorflow==2.2.0'],
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow_gpu' %}
-        'tensorflow-gpu>=2.0'],
+        'scipy==1.4.1', 'tensorflow-gpu==2.2.0'],
         {%- endif %}
     entry_points={
         'console_scripts': [
