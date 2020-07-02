@@ -15,6 +15,18 @@
 
 ## Instructions to setup the project
 
+### Install the dependencies:
+(remember to activate the virtual env if you want to use one)
+Add new dependencies (if needed) to setup.py.
+
+    pip install -e .
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+Note: if running tensorflow, you may need:
+
+    pip install -U setuptools
+{%- endif %}
+
 ### Add git:
 
     git init
@@ -37,24 +49,12 @@ link your local git to the remote project, which should look like this:
     git remote add origin git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
     git push -u origin master
 
-### Install the dependencies:
-(remember to activate the virtual env if you want to use one)
-Add new dependencies (if needed) to setup.py.
-
-    pip install -e .
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-
-Note: if running tensorflow, you may need:
-
-    pip install -U setuptools
-{%- endif %}
-
 ### Add Travis
-Follow the instructions here: https://docs.travis-ci.com/user/tutorial/
-Note that the `.travis.yml` file is already in your repository (so, no need to
-create it).
-After giving permission to travis to access you repository, you should be able to
-trigger a build (top-right - search for `More Options` => `Trigger Build`.
+A travis configuration file (`.travis.yml`) is already in your repository (so, no need to
+create it). This will run `flake8` and run the tests under `tests`.
+
+To enable it server-side, just go to https://travis-ci.com/account/repositories and click
+` Manage repositories on GitHub`. Give the permission to run on the git repository you just created.
 
 ### Add Codecov
 Go to https://codecov.io/ and enable codecov for your repository.
