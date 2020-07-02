@@ -14,5 +14,4 @@ sh config/hooks/pre-commit
 
 # run the example
 cd examples/local
-pwd
-main --data data --output output --config config.yaml --disable_progressbar
+sh run.sh
