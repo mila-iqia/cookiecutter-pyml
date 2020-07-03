@@ -1,3 +1,3 @@
 rm -fr logs
 mkdir logs
-sbatch --job-name ${name} to_submit.sh
+sbatch to_submit.sh
