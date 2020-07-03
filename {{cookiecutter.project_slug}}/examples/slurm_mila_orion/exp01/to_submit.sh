@@ -2,6 +2,7 @@
 # __TODO__ fix options if needed
 #SBATCH --partition=long
 #SBATCH --cpus-per-task=2
+#SBATCH --gres=gpu:1
 #SBATCH --mem=5G
 #SBATCH --time=0:05:00
 #SBATCH --output=logs/out_%a.log
