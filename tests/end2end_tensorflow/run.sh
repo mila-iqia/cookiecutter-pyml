@@ -14,6 +14,9 @@ pip install -U setuptools numpy six --quiet
 pip install flake8 --quiet
 sh config/hooks/pre-commit
 
-# run the example
+# run the examples
 cd examples/local
+sh run.sh
+cd ../../
+cd examples/local_orion
 sh run.sh

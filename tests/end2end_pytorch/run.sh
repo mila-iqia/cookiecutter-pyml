@@ -15,3 +15,6 @@ sh config/hooks/pre-commit
 # run the example
 cd examples/local
 sh run.sh
+cd ../..
+cd examples/local_orion
+sh run.sh
