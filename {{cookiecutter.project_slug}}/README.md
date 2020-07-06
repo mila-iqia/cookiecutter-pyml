@@ -56,6 +56,8 @@ create it). This will run `flake8` and run the tests under `tests`.
 To enable it server-side, just go to https://travis-ci.com/account/repositories and click
 ` Manage repositories on GitHub`. Give the permission to run on the git repository you just created.
 
+Note, the link for public project may be https://travis-ci.org/account/repositories .
+
 ### Add Codecov
 Go to https://codecov.io/ and enable codecov for your repository.
 If the github repository is a private one, you will need to get a
