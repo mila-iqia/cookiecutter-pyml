@@ -15,6 +15,18 @@
 
 ## Instructions to setup the project
 
+### Install the dependencies:
+(remember to activate the virtual env if you want to use one)
+Add new dependencies (if needed) to setup.py.
+
+    pip install -e .
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+Note: if running tensorflow, you may need:
+
+    pip install -U setuptools
+{%- endif %}
+
 ### Add git:
 
     git init
@@ -37,52 +49,60 @@ link your local git to the remote project, which should look like this:
     git remote add origin git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
     git push -u origin master
 
-### Install the dependencies:
-(remember to activate the virtual env if you want to use one)
-Add new dependencies (if needed) to setup.py.
-
-    pip install -e .
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-
-Note: if running tensorflow, you may need:
-
-    pip install -U setuptools
-{%- endif %}
-
 ### Add Travis
-Follow the instructions here: https://docs.travis-ci.com/user/tutorial/
-Note that the `.travis.yml` file is already in your repository (so, no need to
-create it).
-After giving permission to travis to access you repository, you should be able to
-trigger a build (top-right - search for `More Options` => `Trigger Build`.
+A travis configuration file (`.travis.yml`) is already in your repository (so, no need to
+create it). This will run `flake8` and run the tests under `tests`.
+
+To enable it server-side, just go to https://travis-ci.com/account/repositories and click
+` Manage repositories on GitHub`. Give the permission to run on the git repository you just created.
+
+Note, the link for public project may be https://travis-ci.org/account/repositories .
 
 ### Add Codecov
 Go to https://codecov.io/ and enable codecov for your repository.
-In particular, get the secret token for your project and add it to
-github (see https://docs.codecov.io/docs/about-the-codecov-bash-uploader#section-upload-token).
+If the github repository is a private one, you will need to get a
+secret token for your project and add it to
+github.
+(see https://docs.codecov.io/docs/about-the-codecov-bash-uploader#section-upload-token)
 
 ### Run the tests
 Just run (from the root folder):
 
     pytest
 
-### Run the code
+### Run the code/examples.
 Note that the code should already compile at this point.
-Try to run the examples under $ROOT/examples
-(see next sections).
 
-### Examples
+Running examples can be found under the `examples` folder.
 
-The `examples` folder contains several execution examples.
-There is a folder for running without orion and with orion.
-Also, there is an example for the following environments:
-* local (e.g., you laptop)
-* mila cluster
+In particular, you will find examples for:
+* local machine (e.g., your laptop).
+* a slurm cluster.
 
-For example, to run on the mila cluster with orion:
+For both these cases, there is the possibility to run with or without Orion.
+(Orion is a hyper-parameter search tool - see https://github.com/Epistimio/orion -
+that is already configured in this project)
 
-    cd examples/slurm_mila_orion/exp01
+#### Run locally
+
+For example, to run on your local machine without Orion:
+
+    cd examples/local
     sh run.sh
+
+This will run a simple MLP on a simple toy task: sum 5 float numbers.
+You should see a perfect loss of 0 after a few epochs.
+
+#### Run on the Mila cluster
+(NOTE: this example can easily apply to other SLURM clusters - some details should be
+changed in the submission scripts though - e.g., the partition type.)
+
+To run with SLURM, on the Mila cluster, just:
+
+    cd examples/slurm_mila
+    sh run.sh
+
+#### Run with Orion on the Mila cluster
 
 This example will run orion for just one trial (see the orion config file).
 Note the folder structure. The root folder for this example is
@@ -105,13 +125,3 @@ trials in parallel. To do so, just copy `exp01`, e.g.,
 
 and launch `run.sh` in both the folder. Orion will take care to sync the two
 experiments.
-
-To setup pre-commit hooks (to use flake8 before avery commit) runs this (from the root folder):
-
-    cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
-
-
-## YOUR PROJECT README:
-
-* __TODO__
-

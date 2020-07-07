@@ -29,9 +29,9 @@ def main():
                              'batch_size, ... -  in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--output', help='path to outputs - will store files here', required=True)
-    parser.add_argument('--disable_progressbar', action='store_true',
+    parser.add_argument('--disable-progressbar', action='store_true',
                         help='will disable the progressbar while going over the mini-batch')
-    parser.add_argument('--start_from_scratch', action='store_true',
+    parser.add_argument('--start-from-scratch', action='store_true',
                         help='will not load any existing saved model - even if present')
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()

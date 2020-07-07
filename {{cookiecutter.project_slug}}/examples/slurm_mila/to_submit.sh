@@ -1,7 +1,7 @@
 #!/bin/bash
-# __TODO__ fix options if needed
 #SBATCH --partition=long
 #SBATCH --cpus-per-task=2
+#SBATCH --gres=gpu:1
 #SBATCH --mem=5G
 #SBATCH --time=0:05:00
 #SBATCH --job-name={{ cookiecutter.project_slug }}
@@ -11,6 +11,6 @@
 ##SBATCH --mail-type=all
 ##SBATCH --mail-user={{ cookiecutter.email }}
 
-export MLFLOW_TRACKING_URI='../mlruns'
+export MLFLOW_TRACKING_URI='mlruns'
 
-main --data data --output output --config ../config.yaml
+main --data data --output output --config config.yaml --disable-progressbar
