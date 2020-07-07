@@ -125,3 +125,20 @@ trials in parallel. To do so, just copy `exp01`, e.g.,
 
 and launch `run.sh` in both the folder. Orion will take care to sync the two
 experiments.
+
+To setup pre-commit hooks (to use flake8 before avery commit) runs this (from the root folder):
+
+    cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
+
+### Building docs:
+
+To automatically generate docs for your project, cd to the `docs` folder then run:
+
+    make html
+
+To view the docs locally, open `docs/_build/html/index.html` in your browser.
+
+
+## YOUR PROJECT README:
+
+* __TODO__
