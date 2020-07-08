@@ -8,7 +8,7 @@ setup(
     python_requires='>={{ cookiecutter.python_version }}',
     install_requires=[
         'flake8', 'tqdm', 'mlflow', 'orion>=0.1.8', 'pyyaml>=5.3', 'pytest>=4.6',
-        'sphinx', 'sphinx-autoapi', 'sphinx-rtd-theme', 'recommonmark', # sphinx
+        'sphinx', 'sphinx-autoapi', 'sphinx-rtd-theme', 'recommonmark',  # sphinx
         {%- if cookiecutter.dl_framework == 'pytorch' %}
         'torch'],
         {%- endif %}

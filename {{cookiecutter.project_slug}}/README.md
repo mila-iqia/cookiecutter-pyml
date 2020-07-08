@@ -94,8 +94,8 @@ This will run a simple MLP on a simple toy task: sum 5 float numbers.
 You should see a perfect loss of 0 after a few epochs.
 
 #### Run on the Mila cluster
-(NOTE: this example can easily apply to other SLURM clusters - some details should be
-changed in the submission scripts though - e.g., the partition type.)
+(NOTE: this example also apply to Compute Canada - use the folders
+`slurm_cc` and `slurm_cc_orion` instead of `slurm_mila` and `slurm_mila_orion`.)
 
 To run with SLURM, on the Mila cluster, just:
 

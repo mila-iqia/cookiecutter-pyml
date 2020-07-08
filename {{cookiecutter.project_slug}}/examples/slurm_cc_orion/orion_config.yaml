@@ -1,0 +1,14 @@
+experiment:
+  name:
+    my_exp
+  max_trials: 1
+  working_dir:
+    ../orion_working_dir
+  algorithm:
+    random
+evc:
+  non_monitored_arguments:
+    - output
+    - data
+  ignore_code_changes:
+    true

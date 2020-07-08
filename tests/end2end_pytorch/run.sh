@@ -8,6 +8,9 @@ cookiecutter ../.. --no-input --output-dir=./
 cd wonderful_project
 pip install -e . --quiet
 
+# necessary cause tf dependencies are sometimes not updated
+pip install -U setuptools numpy six --quiet
+
 #run flake8 test first
 pip install flake8 --quiet
 sh config/hooks/pre-commit
