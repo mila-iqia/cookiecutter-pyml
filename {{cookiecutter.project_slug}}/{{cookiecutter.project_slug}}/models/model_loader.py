@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 
 
 def load_model(hyper_params):
+    """Instantiate a model.
+
+    Args:
+        hyper_params (dict): hyper parameters from the config file
+
+    Returns:
+        model (obj): A neural network model object.
+    """
     architecture = hyper_params['architecture']
     # __TODO__ fix architecture list
     if architecture == 'my_model':
@@ -36,6 +44,15 @@ def load_model(hyper_params):
 
 
 def load_optimizer(hyper_params, model):
+    """Instantiate the optimizer.
+
+    Args:
+        hyper_params (dict): hyper parameters from the config file
+        model (obj): A neural network model object.
+
+    Returns:
+        optimizer (obj): The optimizer for the given model
+    """
     optimizer_name = hyper_params['optimizer']
     # __TODO__ fix optimizer list
     if optimizer_name == 'adam':
@@ -48,6 +65,14 @@ def load_optimizer(hyper_params, model):
 
 
 def load_loss(hyper_params):
+    """Instantiate the loss.
+
+    Args:
+        hyper_params (dict): hyper parameters from the config file
+
+    Returns:
+        loss (obj): The loss for the given model
+    """
     {%- if cookiecutter.dl_framework == 'pytorch' %}
     return torch.nn.L1Loss(reduction='sum')
     {%- endif %}

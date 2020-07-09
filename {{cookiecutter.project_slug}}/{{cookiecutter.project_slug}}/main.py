@@ -21,6 +21,13 @@ logger = logging.getLogger(__name__)
 
 
 def main():
+    """Main entry point of the program.
+
+    Note:
+        This main.py file is meant to be called using the cli,
+        see the `examples/local/run.sh` file to see how to use it.
+
+    """
     parser = argparse.ArgumentParser()
     # __TODO__ check you need all the following CLI parameters
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
@@ -70,7 +77,12 @@ def main():
 
 
 def run(args, hyper_params):
+    """Setup and run the dataloaders, training loops, etc.
 
+    Args:
+        args (list): arguments passed from the cli
+        hyper_params (dict): hyper parameters from the config file
+    """
     if not os.path.exists(args.output):
         os.makedirs(args.output)
 

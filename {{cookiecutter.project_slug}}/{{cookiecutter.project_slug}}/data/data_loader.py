@@ -13,6 +13,16 @@ from torch.utils.data import Dataset, DataLoader
 
 
 def get_data(data_folder, prefix):
+    """Function to load data into memory.
+
+    Args:
+        data_folder (str): Path of the folder where the data lives.
+        prefix (str): The data split to target, i.e. "train" or "dev.
+
+    Returns:
+        in_data (np.array): Input data.
+        tar_data (np.array): Target data.
+    """
     inputs = []
     with open(os.path.join(data_folder, '{}.input'.format(prefix))) as in_stream:
         for line in in_stream:
@@ -28,6 +38,18 @@ def get_data(data_folder, prefix):
 
 
 def load_data(args, hyper_params):
+    """Prepare the data into datasets.
+
+    Args:
+        args (list): arguments passed from the cli
+        hyper_params (dict): hyper parameters from the config file
+
+    Retruns:
+        train_dataset (obj): iterable training dataset object
+        dev_dataset (obj): iterable validation dataset object
+
+
+    """
     # __TODO__ load the data
     train_examples, train_labels = get_data(args.data, 'train')
     train_dataset = tf.data.Dataset.from_tensor_slices((train_examples, train_labels))
@@ -41,21 +63,46 @@ def load_data(args, hyper_params):
 
 
 class MyDataset(Dataset):
+    """Dataset class for iterating over the data."""
 
     def __init__(self, in_data, tar_data):
+        """Initialize MyDataset.
+
+        Args:
+            in_data (np.array): Input data.
+            tar_data (np.array): Target data.
+        """
         self.in_data = in_data
         self.tar_data = tar_data
 
     def __len__(self):
+        """Return the number of data items in MyDataset."""
         return len(self.in_data)
 
     def __getitem__(self, index):
+        """__getitem__.
+
+        Args:
+            index (int): Get index item from the dataset.
+        """
         tar_data = self.tar_data[index]
         data_val = self.in_data[index]
         return data_val, tar_data
 
 
 def load_data(args, hyper_params):
+    """Prepare the data into datasets.
+
+    Args:
+        args (list): arguments passed from the cli
+        hyper_params (dict): hyper parameters from the config file
+
+    Retruns:
+        train_dataset (obj): iterable training dataset object
+        dev_dataset (obj): iterable validation dataset object
+
+
+    """
     # __TODO__ load the data
     train_input, train_target = get_data(args.data, 'train')
     train_data = MyDataset(train_input, train_target)

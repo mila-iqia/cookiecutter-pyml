@@ -2,6 +2,12 @@ import random
 
 
 def generate_for(prefix, size):
+    """generate_for.
+
+    Args:
+        prefix (str): The data split to target, i.e. "train" or "dev.
+        size (int): Number of examples to generate.
+    """
     with open('{}.input'.format(prefix), 'w') as inp_stream:
         with open('{}.target'.format(prefix), 'w') as tar_stream:
             for _ in range(size):

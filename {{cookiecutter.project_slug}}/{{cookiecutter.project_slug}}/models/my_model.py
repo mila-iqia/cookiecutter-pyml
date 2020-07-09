@@ -13,8 +13,17 @@ logger = logging.getLogger(__name__)
 
 
 class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else %}tf.keras.Model{%- endif %}):
+    """Simple Model Class.
+
+    Inherits from the given framework's model class. This is a simple MLP model.
+    """
 
     def __init__(self, hyper_params):
+        """__init__.
+
+        Args:
+            hyper_params (dict): hyper parameters from the config file.
+        """
         super(MyModel, self).__init__()
 
         check_and_log_hp(['size'], hyper_params)
@@ -26,6 +35,11 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else 
         self.dense2 = tf.keras.layers.Dense(1)
 
     def call(self, inputs):
+        """call.
+
+        Args:
+            inputs (tensor): The inputs to the model.
+        """
         hidden1 = self.dense1(inputs)
         hidden2 = self.dense2(hidden1)
         return hidden2
@@ -35,6 +49,15 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else 
         self.linear2 = nn.Linear(hyper_params['size'], 1)
 
     def forward(self, data):
+        """Forward method of the model.
+
+        Args:
+            data (tensor): The data to be passed to the model.
+
+        Returns:
+            tensor: the output of the model computation.
+
+        """
         hidden = self.linear1(data)
         result = self.linear2(hidden)
         return result.squeeze()

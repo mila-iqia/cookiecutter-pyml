@@ -28,17 +28,32 @@ author = '{{cookiecutter.full_name}}'
 # ones.
 extensions = []
 
-# enable use of md files
+# enable use of markdown files
 extensions.append('recommonmark')
 
 # use the readthedocs theme
-extensions.append("sphinx_rtd_theme")
-
+extensions.append('sphinx_rtd_theme')
 
 # autoapi extension for doc strings
 extensions.append('autoapi.extension')
 autoapi_type = 'python'
 autoapi_dirs = ['../{{cookiecutter.project_slug}}/']
+
+
+# Skip docstrings for loggers and tests
+def check_skip_member(app, what, name, obj, skip, options):
+    """Skips documentation when the function returns True."""
+    SKIP_PATTERNS = ["test_", "logger"]
+    for pattern in SKIP_PATTERNS:
+        if pattern in name:
+            print("Skipping documentation for: ", name)
+            return True
+    return False
+
+
+def setup(app):
+    """Handler to connect to the autoapi app."""
+    app.connect("autoapi-skip-member", check_skip_member)
 
 
 # Add any paths that contain templates here, relative to this directory.

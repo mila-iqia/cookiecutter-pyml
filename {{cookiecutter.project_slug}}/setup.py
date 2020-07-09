@@ -7,8 +7,17 @@ setup(
     packages=find_packages(include=['{{ cookiecutter.project_slug }}', '{{ cookiecutter.project_slug }}.*']),
     python_requires='>={{ cookiecutter.python_version }}',
     install_requires=[
-        'flake8', 'tqdm', 'mlflow', 'orion>=0.1.8', 'pyyaml>=5.3', 'pytest>=4.6',
-        'sphinx', 'sphinx-autoapi', 'sphinx-rtd-theme', 'recommonmark',  # sphinx
+        'flake8',
+        'flake8-docstrings',
+        'tqdm',
+        'mlflow',
+        'orion>=0.1.8',
+        'pyyaml>=5.3',
+        'pytest>=4.6',
+        'sphinx',
+        'sphinx-autoapi',
+        'sphinx-rtd-theme',
+        'recommonmark',
         {%- if cookiecutter.dl_framework == 'pytorch' %}
         'torch'],
         {%- endif %}

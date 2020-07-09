@@ -6,11 +6,25 @@ logger = logging.getLogger(__name__)
 
 
 def check_and_log_hp(names, hps, allow_extra=True):
+    """Check and log hyper-parameters.
+
+    Args:
+        names (list): names of all expected hyper parameters
+        hps (dict): all hyper-parameters from the config file
+        allow_extra (bool): Can have more hyper-parameters than explicitly stated
+    """
     check_hp(names, hps, allow_extra=allow_extra)
     log_hp(names, hps)
 
 
 def check_hp(names, hps, allow_extra=True):
+    """Check if hyper-parameters all all present.
+
+    Args:
+        names (list): names of all expected hyper parameters
+        hps (dict): all hyper-parameters from the config file
+        allow_extra (bool): Can have more hyper-parameters than explicitly stated
+    """
     missing = set()
     for name in names:
         if name not in hps:
@@ -26,6 +40,12 @@ def check_hp(names, hps, allow_extra=True):
 
 
 def log_hp(names, hps):
+    """Log the hyper-parameters.
+
+    Args:
+        names (list): names of all expected hyper parameters
+        hps (dict): all hyper-parameters from the config file
+    """
     for name in sorted(names):
         log_param(name, hps[name])
         logger.info('\thp "{}" => "{}"'.format(name, hps[name]))
