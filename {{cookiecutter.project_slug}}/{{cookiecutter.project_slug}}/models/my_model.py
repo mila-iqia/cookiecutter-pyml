@@ -12,7 +12,7 @@ from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 logger = logging.getLogger(__name__)
 
 
-class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else %}tf.keras.Model{%- endif %}):
+class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else %}tf.keras.Model{%- endif %}):  # pragma: no cover
     """Simple Model Class.
 
     Inherits from the given framework's model class. This is a simple MLP model.
@@ -31,7 +31,7 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else 
 
         {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
         self.hyper_params = hyper_params
-        self.dense1 = tf.keras.layers.Dense(hyper_params['size'], activation=None)
+        self.dense1 = tf.keras.layers.Dense(hyper_params['size'])
         self.dense2 = tf.keras.layers.Dense(1)
 
     def call(self, inputs):
@@ -40,7 +40,7 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else 
         Args:
             inputs (tensor): The inputs to the model.
         """
-        hidden1 = self.dense1(inputs)
+        hidden1 = tf.keras.activations.relu(self.dense1(inputs))
         hidden2 = self.dense2(hidden1)
         return hidden2
         {%- endif %}
@@ -58,7 +58,7 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}nn.Module{%- else 
             tensor: the output of the model computation.
 
         """
-        hidden = self.linear1(data)
+        hidden = nn.functional.relu(self.linear1(data))
         result = self.linear2(hidden)
         return result.squeeze()
         {%- endif %}

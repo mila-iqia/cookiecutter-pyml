@@ -10,9 +10,13 @@ pip install -e . --quiet
 # necessary cause tf dependencies are sometimes not updated
 pip install -U setuptools numpy six --quiet
 
-#run flake8 test first
+# run flake8 test first
 pip install flake8 --quiet
 sh config/hooks/pre-commit
+
+# run tests
+pip install pytest --quiet
+pytest .
 
 # run the examples
 cd examples/local

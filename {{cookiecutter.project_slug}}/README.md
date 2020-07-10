@@ -91,7 +91,13 @@ For example, to run on your local machine without Orion:
     sh run.sh
 
 This will run a simple MLP on a simple toy task: sum 5 float numbers.
-You should see a perfect loss of 0 after a few epochs.
+You should see an almost perfect loss of 0 after a few epochs.
+
+Note you have two new folders now:
+* output: contains the models and a summary of the results.
+* mlruns: produced by mlflow, contains all the data for visualization.
+You can run mlflow from this folder (`examples/local`) by running
+`mlflow ui`.
 
 #### Run on the Mila cluster
 (NOTE: this example also apply to Compute Canada - use the folders
@@ -102,6 +108,8 @@ To run with SLURM, on the Mila cluster, just:
     cd examples/slurm_mila
     sh run.sh
 
+Check the log to see that you got an almost perfect loss (i.e., 0).
+
 #### Run with Orion on the Mila cluster
 
 This example will run orion for just one trial (see the orion config file).
@@ -109,26 +117,33 @@ Note the folder structure. The root folder for this example is
 `examples/slurm_mila_orion`.
 Here you can find the orion config file (`orion_config.yaml`), as well as the config
 file for your project (that contains the hyper-parametersi - `config.yaml`).
-Here the code will write the orion db file and the mlruns folder
+Also, in this folder you will find the orion db file and the mlruns folder
 (i.e., the folder containing the mlflow results).
 
-The `exp01` folder contains the executable (`run.sh`), and after running
-it will contain the log files (in `logs`)as well as the experiment saved files
-(e.g., the saved models) - note that the exp folder will contain a copy of the
-log as well (to keep all the files related to one trial into one folder).
-
+The `exp01` folder contains the executable (`run.sh`).
 
 The reason why there is a folder `exp01` is because you may want to run more
 trials in parallel. To do so, just copy `exp01`, e.g.,
 
     cp -r exp01 exp02
 
-and launch `run.sh` in both the folder. Orion will take care to sync the two
+and launch `run.sh` in `exp02` as well. Orion will take care to sync the two
 experiments.
 
-To setup pre-commit hooks (to use flake8 before avery commit) runs this (from the root folder):
+After the training is done, you can check orion status with the following commands:
+(to be run from the folder `examples/slurm_mila_orion`)
 
-    cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
+    export ORION_DB_ADDRESS='orion_db.pkl'
+    export ORION_DB_TYPE='pickleddb'
+    orion status
+    orion info --name my_exp
+
+Also, you will find the results in a folder called `orion_working_dir` (it will be
+found inside `examples/slurm_mila_orion`).
+In this folder, there will be a folder for very Orion trial (in this experiment, there
+is just one trial - so, just one folder).
+Inside you can find the models (the best one and the last one), the config file with
+the hyper-parameters for this trial, and the log file.
 
 ### Building docs:
 

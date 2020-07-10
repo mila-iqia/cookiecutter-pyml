@@ -24,7 +24,8 @@ LAST_MODEL_NAME = 'last_model'
 STAT_FILE_NAME = 'stats.yaml'
 
 
-def reload_model(output, model_name, model, optimizer, start_from_scratch=False):
+def reload_model(output, model_name, model, optimizer,
+                 start_from_scratch=False):  # pragma: no cover
     """Reload a model.
 
     Can be useful for model checkpointing, hyper-parameter optimization, etc.
@@ -34,7 +35,7 @@ def reload_model(output, model_name, model, optimizer, start_from_scratch=False)
         model_name (str): Name of the saved model.
         model (obj): A model object.
         optimizer (obj): Optimizer used during training.
-        start_from_scratch (bool): If True, starts training from scratch.
+        start_from_scratch (bool): starts training from scratch even if a saved moel is present.
     """
     saved_model = os.path.join(output, model_name)
     if start_from_scratch and os.path.exists(saved_model):
@@ -83,9 +84,11 @@ def write_stats(output, best_eval_score, epoch, remaining_patience):
         epoch (int): Which epoch training is at.
         remaining_patience (int): How many more epochs before training stops.
     """
+    mlflow_run = mlflow.active_run()
+    mlflow_run_id = mlflow_run.info.run_id if mlflow_run is not None else 'NO_MLFLOW'
     to_store = {'best_dev_metric': best_eval_score, 'epoch': epoch,
                 'remaining_patience': remaining_patience,
-                'mlflow_run_id': mlflow.active_run().info.run_id}
+                'mlflow_run_id': mlflow_run_id}
     with open(os.path.join(output, STAT_FILE_NAME), 'w') as stream:
         dump(to_store, stream)
 
@@ -103,8 +106,8 @@ def load_stats(output):
 
 
 def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-          max_epoch, use_progress_bar=True, start_from_scratch=False):
-    """Training loop implementation.
+          max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
+    """Training loop wrapper. Used to catch exception (and to handle them) if Orion is being used.
 
     Args:
         model (obj): The neural network model object.
@@ -112,8 +115,8 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
         loss_fun (obj): Loss function that will be optimized.
         train_loader (obj): Dataloader for the training set.
         dev_loader (obj): Dataloader for the validation set.
-        patience (int): Stops training if `patience` number of epochs pass and `best_eval_score`
-            isn't reached
+        patience (int): max number of epochs without improving on `best_eval_score`.
+            After this point, the train ends.
         output (str): Output directory.
         max_epoch (int): Max number of epochs to train for.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
@@ -140,7 +143,7 @@ def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 
 
-def init_model(model, train_loader):
+def init_model(model, train_loader):  # pragma: no cover
     """Init the model by computing a single forward pass on an input.
 
     Args:
@@ -154,7 +157,7 @@ def init_model(model, train_loader):
 
 
 def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-               max_epoch, use_progress_bar=True, start_from_scratch=False):
+               max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -163,8 +166,8 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         loss_fun (obj): Loss function that will be optimized.
         train_loader (obj): Dataloader for the training set.
         dev_loader (obj): Dataloader for the validation set.
-        patience (int): Stops training if `patience` number of epochs pass and `best_eval_score`
-            isn't reached
+        patience (int): max number of epochs without improving on `best_eval_score`.
+            After this point, the train ends.
         output (str): Output directory.
         max_epoch (int): Max number of epochs to train for.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).

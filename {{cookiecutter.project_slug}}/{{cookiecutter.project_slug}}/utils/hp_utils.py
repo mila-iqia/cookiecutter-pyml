@@ -5,7 +5,7 @@ from mlflow import log_param
 logger = logging.getLogger(__name__)
 
 
-def check_and_log_hp(names, hps, allow_extra=True):
+def check_and_log_hp(names, hps, allow_extra=True):  # pragma: no cover
     """Check and log hyper-parameters.
 
     Args:
@@ -18,7 +18,7 @@ def check_and_log_hp(names, hps, allow_extra=True):
 
 
 def check_hp(names, hps, allow_extra=True):
-    """Check if hyper-parameters all all present.
+    """Check if required hyper-parameters are all present.
 
     Args:
         names (list): names of all expected hyper parameters
@@ -39,11 +39,11 @@ def check_hp(names, hps, allow_extra=True):
         raise ValueError('fix according to the error message above')
 
 
-def log_hp(names, hps):
+def log_hp(names, hps):  # pragma: no cover
     """Log the hyper-parameters.
 
     Args:
-        names (list): names of all expected hyper parameters
+        names (list): list with names of hyper parameters to log
         hps (dict): all hyper-parameters from the config file
     """
     for name in sorted(names):

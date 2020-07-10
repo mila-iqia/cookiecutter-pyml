@@ -13,7 +13,7 @@ from {{cookiecutter.project_slug}}.models.my_model import MyModel
 logger = logging.getLogger(__name__)
 
 
-def load_model(hyper_params):
+def load_model(hyper_params):  # pragma: no cover
     """Instantiate a model.
 
     Args:
@@ -43,7 +43,7 @@ def load_model(hyper_params):
     return model
 
 
-def load_optimizer(hyper_params, model):
+def load_optimizer(hyper_params, model):  # pragma: no cover
     """Instantiate the optimizer.
 
     Args:
@@ -64,7 +64,7 @@ def load_optimizer(hyper_params, model):
     return optimizer
 
 
-def load_loss(hyper_params):
+def load_loss(hyper_params):  # pragma: no cover
     """Instantiate the loss.
 
     Args:

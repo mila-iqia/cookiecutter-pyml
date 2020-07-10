@@ -1,4 +1,4 @@
-class LoggerWriter:
+class LoggerWriter:  # pragma: no cover
     """LoggerWriter.
 
     see: https://stackoverflow.com/questions/19425736/
@@ -9,7 +9,7 @@ class LoggerWriter:
         """__init__.
 
         Args:
-            printer: Printer.
+            printer: (fn) function used to print message (e.g., logger.info).
         """
         self.printer = printer
 
@@ -17,7 +17,7 @@ class LoggerWriter:
         """write.
 
         Args:
-            message: Message.
+            message: (str) message to print.
         """
         if message != '\n':
             self.printer(message)

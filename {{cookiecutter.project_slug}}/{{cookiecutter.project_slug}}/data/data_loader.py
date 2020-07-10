@@ -12,7 +12,7 @@ from torch.utils.data import Dataset, DataLoader
 # __TODO__ change the dataloader to suit your needs...
 
 
-def get_data(data_folder, prefix):
+def get_data(data_folder, prefix):  # pragma: no cover
     """Function to load data into memory.
 
     Args:
@@ -37,7 +37,7 @@ def get_data(data_folder, prefix):
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 
 
-def load_data(args, hyper_params):
+def load_data(args, hyper_params):  # pragma: no cover
     """Prepare the data into datasets.
 
     Args:
@@ -62,7 +62,7 @@ def load_data(args, hyper_params):
 {%- if cookiecutter.dl_framework == 'pytorch' %}
 
 
-class MyDataset(Dataset):
+class MyDataset(Dataset):  # pragma: no cover
     """Dataset class for iterating over the data."""
 
     def __init__(self, in_data, tar_data):
@@ -90,7 +90,7 @@ class MyDataset(Dataset):
         return data_val, tar_data
 
 
-def load_data(args, hyper_params):
+def load_data(args, hyper_params):  # pragma: no cover
     """Prepare the data into datasets.
 
     Args:
