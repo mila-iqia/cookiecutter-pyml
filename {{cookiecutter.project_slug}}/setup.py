@@ -17,6 +17,7 @@ setup(
         'sphinx',
         'sphinx-autoapi',
         'sphinx-rtd-theme',
+        'sphinxcontrib-napoleon',
         'recommonmark',
         {%- if cookiecutter.dl_framework == 'pytorch' %}
         'torch'],
