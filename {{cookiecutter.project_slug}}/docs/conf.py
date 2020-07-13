@@ -33,6 +33,7 @@ extensions.append('recommonmark')
 
 # use the readthedocs theme
 extensions.append('sphinx_rtd_theme')
+extensions.append('sphinxcontrib.napoleon')
 
 # autoapi extension for doc strings
 extensions.append('autoapi.extension')
