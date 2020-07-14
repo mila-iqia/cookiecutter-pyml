@@ -65,6 +65,8 @@ secret token for your project and add it to
 github.
 (see https://docs.codecov.io/docs/about-the-codecov-bash-uploader#section-upload-token)
 
+## Running the code
+
 ### Run the tests
 Just run (from the root folder):
 
@@ -109,6 +111,23 @@ To run with SLURM, on the Mila cluster, just:
     sh run.sh
 
 Check the log to see that you got an almost perfect loss (i.e., 0).
+
+#### Measure GPU time (and others) on the Mila cluster
+
+You can track down the GPU time (and other resources) of your jobs by
+associating a tag to the job (when using `sbatch`).
+To associate a tag to a job, replace `my_tag` with a proper tag,
+and uncomment the line (i.e., remove one #) from the line:
+
+    ##SBATCH --wckey=my_tag
+
+This line is inside the file `examples/slurm_mila/to_submit.sh`.
+
+To get a sumary for a particular tag, just run:
+
+    sacct --allusers --wckeys=my_tag --format=JobID,JobName,Start,Elapsed -X -P --delimiter=','
+
+(again, remember to change `my_tag` into the real tag name)
 
 #### Run with Orion on the Mila cluster
 
