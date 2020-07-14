@@ -65,7 +65,14 @@ def load_optimizer(hyper_params, model):  # pragma: no cover
 
 
 def load_loss(hyper_params):  # pragma: no cover
-    """Instantiate the loss.
+    r"""Instantiate the loss.
+
+    You can add some math directly in your docstrings, however don't forget the `r`
+    to indicate it is being treated as restructured text. For example, an L1-loss can be
+    defined as:
+
+    .. math::
+        \text{loss}(x, y) = \frac{1}{n} \sum_{i} z_{i}
 
     Args:
         hyper_params (dict): hyper parameters from the config file
