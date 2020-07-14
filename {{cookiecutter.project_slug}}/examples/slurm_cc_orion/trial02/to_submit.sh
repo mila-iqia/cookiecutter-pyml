@@ -1,6 +1,6 @@
 #!/bin/bash
 # __TODO__ fix options if needed
-#SBATCH --partition=long
+#SBATCH --account=rrg-bengioy-ad
 #SBATCH --cpus-per-task=2
 #SBATCH --gres=gpu:1
 #SBATCH --mem=5G
