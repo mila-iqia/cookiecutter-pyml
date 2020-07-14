@@ -7,6 +7,9 @@
 #SBATCH --job-name={{ cookiecutter.project_slug }}
 #SBATCH --output=logs/out_%a.log
 #SBATCH --error=logs/err_%a.log
+# to attach a tag to your run (e.g., used to track the GPU time)
+# uncomment the following line and add replace `my_tag` with the proper tag:
+##SBATCH --wckey=my_tag
 # remove one # if you prefer receiving emails
 ##SBATCH --mail-type=all
 ##SBATCH --mail-user={{ cookiecutter.email }}
