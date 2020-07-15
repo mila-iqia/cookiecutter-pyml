@@ -65,19 +65,19 @@ def load_data(args, hyper_params):  # pragma: no cover
 class MyDataset(Dataset):  # pragma: no cover
     """Dataset class for iterating over the data."""
 
-    def __init__(self, in_data, tar_data):
+    def __init__(self, input_data, target_data):
         """Initialize MyDataset.
 
         Args:
-            in_data (np.array): Input data.
-            tar_data (np.array): Target data.
+            input_data (np.array): Input data.
+            target_data (np.array): Target data.
         """
-        self.in_data = in_data
-        self.tar_data = tar_data
+        self.input_data = input_data
+        self.target_data = target_data
 
     def __len__(self):
         """Return the number of data items in MyDataset."""
-        return len(self.in_data)
+        return len(self.input_data)
 
     def __getitem__(self, index):
         """__getitem__.
@@ -85,9 +85,9 @@ class MyDataset(Dataset):  # pragma: no cover
         Args:
             index (int): Get index item from the dataset.
         """
-        tar_data = self.tar_data[index]
-        data_val = self.in_data[index]
-        return data_val, tar_data
+        target_example = self.target_data[index]
+        input_example = self.input_data[index]
+        return input_example, target_example
 
 
 def load_data(args, hyper_params):  # pragma: no cover
