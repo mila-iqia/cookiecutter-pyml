@@ -85,9 +85,9 @@ class MyDataset(Dataset):  # pragma: no cover
         Args:
             index (int): Get index item from the dataset.
         """
-        tar_data = self.tar_data[index]
-        data_val = self.in_data[index]
-        return data_val, tar_data
+        tar_example = self.tar_data[index]
+        in_example = self.in_data[index]
+        return in_example, tar_example
 
 
 def load_data(args, hyper_params):  # pragma: no cover
