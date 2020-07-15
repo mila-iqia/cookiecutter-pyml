@@ -136,24 +136,24 @@ Note the folder structure. The root folder for this example is
 `examples/slurm_mila_orion`.
 Here you can find the orion config file (`orion_config.yaml`), as well as the config
 file for your project (that contains the hyper-parametersi - `config.yaml`).
-Also, in this folder you will find the orion db file and the mlruns folder
-(i.e., the folder containing the mlflow results).
+Also, in this folder you will find (after running Orion) the orion db file and the
+mlruns folder (i.e., the folder containing the mlflow results).
 
-The `exp01` folder contains the executable (`run.sh`).
+The `trial01` folder contains the executable (`run.sh`) - same for `trial02`.
+The reason why there are more trial folders (`trial01` and `trial02) is because you
+may want to run more trials in parallel. If you want to run more than two in paralle,
+just create more trial folders, e.g.,
 
-The reason why there is a folder `exp01` is because you may want to run more
-trials in parallel. To do so, just copy `exp01`, e.g.,
+    cp -r trial01 trial03
 
-    cp -r exp01 exp02
-
-and launch `run.sh` in `exp02` as well. Orion will take care to sync the two
+and launch `run.sh` in all the trial folders. Orion will take care to sync the various 
 experiments.
 
 After the training is done, you can check orion status with the following commands:
-(to be run from the folder `examples/slurm_mila_orion`)
+(to be run inside any trial folder, e.g., `examples/slurm_mila_orion/trial01`)
 
     export ORION_DB_ADDRESS='orion_db.pkl'
-    export ORION_DB_TYPE='pickleddb'
+    export ORION_DB_TYPE='../pickleddb'
     orion status
     orion info --name my_exp
 
