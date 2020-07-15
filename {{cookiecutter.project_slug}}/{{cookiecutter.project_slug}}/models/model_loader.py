@@ -86,7 +86,7 @@ def load_loss(hyper_params):  # pragma: no cover
         loss = torch.nn.L1Loss(reduction='sum')
     {%- endif %}
     {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-        loss = return tf.keras.losses.MeanAbsoluteError()
+        loss = tf.keras.losses.MeanAbsoluteError()
     {%- endif %}
     else:
         raise ValueError('loss {} not supported'.format(loss_name))
