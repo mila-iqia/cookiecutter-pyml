@@ -1,19 +1,37 @@
 [![Build Status](https://travis-ci.org/mirkobronzi/cookiecutter-pyml.svg?branch=master)](https://travis-ci.org/mirkobronzi/cookiecutter-pyml)
 
+About 
+-----
+
+A cookiecutter is a generic project template that will instantiate a new project with sane defaults. This repo contains our custom cookiecutter (`cookiecutter-pyml`) which will generate a new python deep learning package preconfigured with best practices in mind. It currently supports:
+
+* Pytorch/Tensorflow
+* Travis CI
+* Codecov
+* Sphinx (documentation)
+* MLFlow (experiment management)
+* Orion (hyperparameter optimization)
+* Flake8
+* Pytest
+
+More information on what a cookiecutter is [here.](https://cookiecutter.readthedocs.io/en/)
+
 Quickstart
 ----------
 
-Install the latest Cookiecutter (version 1.4.0 or higher):
+Install the latest version of cookiecutter:
 
     pip install -U cookiecutter
 
-Generate a project::
+Generate your project using our template. Make sure to use the command exactly as you see it here. 
+This will use cookiecutter to instantiate your new project from our template (https://github.com/mirkobronzi/cookiecutter-pyml.git).
 
     cookiecutter https://github.com/mirkobronzi/cookiecutter-pyml.git
 
-Then cd into the (new) project folder:
+Follow the CLI instructions, then cd into your newly created project folder:
 
     cd $YOUR_PROJECT_NAME
 
-Follow the instructions in the README in the newly created repository.
-(in particular, the section "Instructions to setup the project")
+Follow the instructions in the README in the newly created repository (`$YOUR_PROJECT_NAME/README.md`) to get started with your new project (in particular, the section "Instructions to setup the project").
+
+Enjoy the cookies!
