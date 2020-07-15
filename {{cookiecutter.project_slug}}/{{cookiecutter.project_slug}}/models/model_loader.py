@@ -90,4 +90,4 @@ def load_loss(hyper_params):  # pragma: no cover
     {%- endif %}
     else:
         raise ValueError('loss {} not supported'.format(loss_name))
-    return loss 
+    return loss
