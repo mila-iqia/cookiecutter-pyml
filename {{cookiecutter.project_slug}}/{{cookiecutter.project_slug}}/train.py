@@ -68,10 +68,10 @@ def reload_model(output, model_name, model, optimizer,
         logger.info('model status: {}'.format(stats))
         return stats
     if os.path.exists(output):
-        logger.info('saved model file not found - but output folder exists already - keeping it')
+        logger.info('saved model file not found')
         return
 
-    logger.info('no saved model file found - nor output folder - creating it')
+    logger.info('output folder not found')
     os.makedirs(output)
 
 

@@ -105,7 +105,18 @@ You can run mlflow from this folder (`examples/local`) by running
 (NOTE: this example also apply to Compute Canada - use the folders
 `slurm_cc` and `slurm_cc_orion` instead of `slurm_mila` and `slurm_mila_orion`.)
 
-To run with SLURM, on the Mila cluster, just:
+First, bring you project on the Mila cluster (assuming you didn't create your
+project directly there). To do so, simply login on the Mila cluster and git
+clone your project:
+
+    git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
+
+Then activate your virtual env, and install the dependencies:
+
+    cd {{ cookiecutter.project_slug }}
+    pip install -e .
+
+To run with SLURM, just:
 
     cd examples/slurm_mila
     sh run.sh
@@ -140,8 +151,8 @@ Also, in this folder you will find (after running Orion) the orion db file and t
 mlruns folder (i.e., the folder containing the mlflow results).
 
 The `trial01` folder contains the executable (`run.sh`) - same for `trial02`.
-The reason why there are more trial folders (`trial01` and `trial02) is because you
-may want to run more trials in parallel. If you want to run more than two in paralle,
+The reason why there are more trial folders (`trial01` and `trial02`) is because you
+may want to run more trials in parallel. If you want to run more than two in parallel,
 just create more trial folders, e.g.,
 
     cp -r trial01 trial03
@@ -152,8 +163,8 @@ experiments.
 After the training is done, you can check orion status with the following commands:
 (to be run inside any trial folder, e.g., `examples/slurm_mila_orion/trial01`)
 
-    export ORION_DB_ADDRESS='orion_db.pkl'
-    export ORION_DB_TYPE='../pickleddb'
+    export ORION_DB_ADDRESS='../orion_db.pkl'
+    export ORION_DB_TYPE='pickleddb'
     orion status
     orion info --name my_exp
 
