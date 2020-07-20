@@ -142,38 +142,29 @@ To get a sumary for a particular tag, just run:
 
 #### Run with Orion on the Mila cluster
 
-This example will run orion for just one trial (see the orion config file).
-Note the folder structure. The root folder for this example is
-`examples/slurm_mila_orion`.
+This example will run orion for 2 trials (see the orion config file).
+To do so, go into `examples/slurm_mila_orion`.
 Here you can find the orion config file (`orion_config.yaml`), as well as the config
-file for your project (that contains the hyper-parametersi - `config.yaml`).
-Also, in this folder you will find (after running Orion) the orion db file and the
+file (`config.yaml`) for your project (that contains the hyper-parameters).
+
+In general, you will want to run Orion in parallel over N slurm jobs.
+To do so, simply run `sh run.sh` N times.
+
+When Orion has completed the trials, you will find the orion db file and the
 mlruns folder (i.e., the folder containing the mlflow results).
 
-The `trial01` folder contains the executable (`run.sh`) - same for `trial02`.
-The reason why there are more trial folders (`trial01` and `trial02`) is because you
-may want to run more trials in parallel. If you want to run more than two in parallel,
-just create more trial folders, e.g.,
+You will also find the output of your experiments in `orion_workinf_dir`, which
+will contain a folder for every trial.
+Inside these folders, you can find the models (the best one and the last one), the config file with
+the hyper-parameters for this trial, and the log file.
 
-    cp -r trial01 trial03
+You can check orion status with the following commands:
+(to be run from `examples/slurm_mila_orion`)
 
-and launch `run.sh` in all the trial folders. Orion will take care to sync the various 
-experiments.
-
-After the training is done, you can check orion status with the following commands:
-(to be run inside any trial folder, e.g., `examples/slurm_mila_orion/trial01`)
-
-    export ORION_DB_ADDRESS='../orion_db.pkl'
+    export ORION_DB_ADDRESS='orion_db.pkl'
     export ORION_DB_TYPE='pickleddb'
     orion status
     orion info --name my_exp
-
-Also, you will find the results in a folder called `orion_working_dir` (it will be
-found inside `examples/slurm_mila_orion`).
-In this folder, there will be a folder for very Orion trial (in this experiment, there
-is just one trial - so, just one folder).
-Inside you can find the models (the best one and the last one), the config file with
-the hyper-parameters for this trial, and the log file.
 
 ### Building docs:
 
