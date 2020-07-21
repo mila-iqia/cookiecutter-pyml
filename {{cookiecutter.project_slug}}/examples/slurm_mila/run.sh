@@ -1,3 +1,2 @@
-rm -fr logs
-mkdir logs
+mkdir -p logs
 sbatch to_submit.sh

@@ -5,8 +5,8 @@
 #SBATCH --mem=5G
 #SBATCH --time=0:05:00
 #SBATCH --job-name={{ cookiecutter.project_slug }}
-#SBATCH --output=logs/out_%a.log
-#SBATCH --error=logs/err_%a.log
+#SBATCH --output=logs/%x__%j.out
+#SBATCH --error=logs/%x__%j.err
 # to attach a tag to your run (e.g., used to track the GPU time)
 # uncomment the following line and add replace `my_tag` with the proper tag:
 ##SBATCH --wckey=my_tag
