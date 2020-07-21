@@ -15,7 +15,7 @@ from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
 from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
 from {{cookiecutter.project_slug}}.models.model_loader import load_loss
-from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter
+from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +83,8 @@ def run(args, hyper_params):
         args (list): arguments passed from the cli
         hyper_params (dict): hyper parameters from the config file
     """
+    log_exp_details(os.path.realpath(__file__), args)
+
     if not os.path.exists(args.output):
         os.makedirs(args.output)
 
