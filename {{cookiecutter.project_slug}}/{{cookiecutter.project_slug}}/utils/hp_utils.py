@@ -49,3 +49,4 @@ def log_hp(names, hps):  # pragma: no cover
     for name in sorted(names):
         log_param(name, hps[name])
         logger.info('\thp "{}" => "{}"'.format(name, hps[name]))
+    logger.info('\n')

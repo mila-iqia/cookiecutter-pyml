@@ -9,6 +9,7 @@ setup(
     install_requires=[
         'flake8',
         'flake8-docstrings',
+        'gitpython',
         'tqdm',
         'mlflow',
         'orion>=0.1.8',
