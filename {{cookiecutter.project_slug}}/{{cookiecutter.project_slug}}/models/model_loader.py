@@ -31,7 +31,7 @@ def load_model(hyper_params):  # pragma: no cover
     logger.info('selected architecture: {}'.format(architecture))
 
     model = model_class(hyper_params)
-    logger.info(model)
+    logger.info('model info:\n' + str(model) + '\n')
 
     {%- if cookiecutter.dl_framework == 'pytorch' %}
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

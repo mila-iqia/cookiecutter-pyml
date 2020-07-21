@@ -90,6 +90,7 @@ def run(args, hyper_params):
 
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
+    logger.info('List of hyper-parameters:')
     check_and_log_hp(
         ['batch_size', 'optimizer', 'patience', 'architecture', 'max_epoch',
          'exp_name'],
