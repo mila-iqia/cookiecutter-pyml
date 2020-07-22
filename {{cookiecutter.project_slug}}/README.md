@@ -140,6 +140,32 @@ To get a sumary for a particular tag, just run:
 
 (again, remember to change `my_tag` into the real tag name)
 
+#### GPU profiling on the Mila cluster
+
+It can be useful to monitor and profile how you utilise your GPU (usage, memory, etc.). For the time being, you can only monitor your profiling in real-time from the Mila cluster, i.e. while your experiments are running. To monitor your GPU, you need to setup port-forwarding on the host your experiments are running on. This can be done in the following way:
+
+Once you have launched your job on the mila cluster, open the log for your current experiment:
+
+`head logs/{{ cookiecutter.project_slug }}__<your_slurm_job_id>.err`
+
+You should see printed in the first few lines the hostname of your machine, e.g.,
+
+```
+INFO:{{ cookiecutter.project_slug }}.utils.logging_utils:Experiment info:
+hostname: leto35
+git code hash: a51bfc5447d188bd6d31fac3afbd5757650ef524
+data folder: ../data
+data folder (abs): /network/tmp1/bronzimi/20191105_cookiecutter/{{ cookiecutter.project_slug }}/examples/data
+```
+
+In a separate shell on your local computer, run the following command:
+
+`ssh -L 19999:<hostname>.server.mila.quebec:19999 <username>@login.server.mila.quebec` 
+
+where `<username>` is your user name on the Mila cluster and `<hostname>` is the name of the machine your job is currenty running on (`leto35` in our example). You can then navigate your local browser to `http://localhost:19999/` to view the ressources being used on the cluster and monitor your job. You should see something like this:
+
+![image](https://user-images.githubusercontent.com/18450628/88088807-fe2acd80-cb58-11ea-8ab2-bd090e8a826c.png)
+
 #### Run with Orion on the Mila cluster
 
 This example will run orion for 2 trials (see the orion config file).
