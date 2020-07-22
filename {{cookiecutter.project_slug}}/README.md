@@ -160,7 +160,7 @@ data folder (abs): /network/tmp1/bronzimi/20191105_cookiecutter/{{ cookiecutter.
 
 In a separate shell on your local computer, run the following command:
 
-`ssh -L 19999:<hostname>.server.mila.quebec:19999 <username>@login.server.mila.quebec` 
+`ssh -L 19999:<hostname>.server.mila.quebec:19999 <username>@login.server.mila.quebec -p 2222` 
 
 where `<username>` is your user name on the Mila cluster and `<hostname>` is the name of the machine your job is currenty running on (`leto35` in our example). You can then navigate your local browser to `http://localhost:19999/` to view the ressources being used on the cluster and monitor your job. You should see something like this:
 
