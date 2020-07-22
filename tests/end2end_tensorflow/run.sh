@@ -7,15 +7,17 @@ cd ${DIR}
 python -c "from cookiecutter.main import cookiecutter; cookiecutter('../..', no_input=True, extra_context={'dl_framework': 'tensorflow_cpu'}, output_dir='./')"
 cd wonderful_project
 pip install -e . --quiet
+pip install flake8 pytest --quiet
 # necessary cause tf dependencies are sometimes not updated
 pip install -U setuptools numpy six --quiet
 
+# print all dependencies
+pip freeze
+
 # run flake8 test first
-pip install flake8 --quiet
 sh config/hooks/pre-commit
 
 # run tests
-pip install pytest --quiet
 pytest .
 
 # run the examples

@@ -109,7 +109,7 @@ First, bring you project on the Mila cluster (assuming you didn't create your
 project directly there). To do so, simply login on the Mila cluster and git
 clone your project:
 
-    git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
+    git clone git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
 
 Then activate your virtual env, and install the dependencies:
 
@@ -153,7 +153,7 @@ To do so, simply run `sh run.sh` N times.
 When Orion has completed the trials, you will find the orion db file and the
 mlruns folder (i.e., the folder containing the mlflow results).
 
-You will also find the output of your experiments in `orion_workinf_dir`, which
+You will also find the output of your experiments in `orion_working_dir`, which
 will contain a folder for every trial.
 Inside these folders, you can find the models (the best one and the last one), the config file with
 the hyper-parameters for this trial, and the log file.

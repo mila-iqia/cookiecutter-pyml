@@ -3,6 +3,7 @@ import mlflow
 import os
 import socket
 
+from pip._internal.operations import freeze
 from git import InvalidGitRepositoryError, Repo
 from mlflow.utils.mlflow_tags import MLFLOW_RUN_NOTE
 
@@ -63,7 +64,10 @@ def log_exp_details(script_location, args):  # pragma: no cover
     """
     git_hash = get_git_hash(script_location)
     hostname = socket.gethostname()
-    message = "\nhostname: {}\ngit code hash: {}\ndata folder: {}\ndata folder (abs): {}".format(
-        hostname, git_hash, args.data, os.path.abspath(args.data))
-    logger.info('Experiment info:' + message + '\n')
-    mlflow.set_tag(key=MLFLOW_RUN_NOTE, value=message)
+    dependencies = freeze.freeze()
+    details = "\nhostname: {}\ngit code hash: {}\ndata folder: {}\ndata folder (abs): {}\n\n" \
+              "dependencies:\n{}".format(
+                  hostname, git_hash, args.data, os.path.abspath(args.data),
+                  '\n'.join(dependencies))
+    logger.info('Experiment info:' + details + '\n')
+    mlflow.set_tag(key=MLFLOW_RUN_NOTE, value=details)
