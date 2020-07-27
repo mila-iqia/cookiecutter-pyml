@@ -24,9 +24,9 @@ Install the latest version of cookiecutter:
     pip install -U cookiecutter
 
 Generate your project using our template. Make sure to use the command exactly as you see it here. 
-This will use cookiecutter to instantiate your new project from our template (https://github.com/mirkobronzi/cookiecutter-pyml.git).
+This will use cookiecutter to instantiate your new project from our template (https://github.com/mila-iqia/cookiecutter-pyml.git).
 
-    cookiecutter https://github.com/mirkobronzi/cookiecutter-pyml.git
+    cookiecutter https://github.com/mila-iqia/cookiecutter-pyml.git
 
 Follow the CLI instructions, then cd into your newly created project folder:
 
