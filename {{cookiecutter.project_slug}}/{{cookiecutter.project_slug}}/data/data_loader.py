@@ -90,11 +90,11 @@ class MyDataset(Dataset):  # pragma: no cover
         return input_example, target_example
 
 
-def load_data(args, hyper_params):  # pragma: no cover
+def load_data(data, hyper_params):  # pragma: no cover
     """Prepare the data into datasets.
 
     Args:
-        args (list): arguments passed from the cli
+        data (str): path to the folder containing the data
         hyper_params (dict): hyper parameters from the config file
 
     Retruns:
@@ -104,9 +104,9 @@ def load_data(args, hyper_params):  # pragma: no cover
 
     """
     # __TODO__ load the data
-    train_input, train_target = get_data(args.data, 'train')
+    train_input, train_target = get_data(data, 'train')
     train_data = MyDataset(train_input, train_target)
-    dev_input, dev_target = get_data(args.data, 'dev')
+    dev_input, dev_target = get_data(data, 'dev')
     dev_data = MyDataset(dev_input, dev_target)
     train_loader = DataLoader(train_data, batch_size=hyper_params['batch_size'], shuffle=True)
     dev_loader = DataLoader(dev_data, batch_size=hyper_params['batch_size'], shuffle=False)

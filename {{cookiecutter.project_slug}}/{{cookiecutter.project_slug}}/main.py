@@ -15,6 +15,7 @@ from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
 from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
 from {{cookiecutter.project_slug}}.models.model_loader import load_loss
+from {{cookiecutter.project_slug}}.utils.file_utils import rsync_folder
 from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,10 @@ def main():
                         help='config file with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
+    parser.add_argument('--tmp-folder',
+                        help='will use this folder as working folder - it will copy the input data '
+                             'here, generate results here, and then copy them back to the output '
+                             'folder')
     parser.add_argument('--output', help='path to outputs - will store files here', required=True)
     parser.add_argument('--disable-progressbar', action='store_true',
                         help='will disable the progressbar while going over the mini-batch')
@@ -44,6 +49,21 @@ def main():
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
+
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
+
+    if args.tmp_folder is not None:
+        data_folder_name = os.path.basename(os.path.normpath(args.data))
+        rsync_folder(args.data, args.tmp_folder)
+
+        data = os.path.join(args.tmp_folder, data_folder_name)
+        output = os.path.join(args.tmp_folder, 'output')
+        if not os.path.exists(output):
+            os.makedirs(output)
+    else:
+        data = args.data
+        output = args.output
 
     # will log to a file if provided (useful for orion on cluster)
     if args.log is not None:
@@ -72,11 +92,14 @@ def main():
         mlflow.start_run(run_id=mlflow_run_id)
     else:
         mlflow.start_run()
-    run(args, hyper_params)
+    run(args, data, output, hyper_params)
     mlflow.end_run()
 
+    if args.tmp_folder is not None:
+        rsync_folder(output + os.path.sep, args.output)
 
-def run(args, hyper_params):
+
+def run(args, data, output, hyper_params):
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
@@ -84,9 +107,6 @@ def run(args, hyper_params):
         hyper_params (dict): hyper parameters from the config file
     """
     log_exp_details(os.path.realpath(__file__), args)
-
-    if not os.path.exists(args.output):
-        os.makedirs(args.output)
 
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
@@ -96,13 +116,13 @@ def run(args, hyper_params):
          'exp_name'],
         hyper_params)
 
-    train_loader, dev_loader = load_data(args, hyper_params)
+    train_loader, dev_loader = load_data(data, hyper_params)
     model = load_model(hyper_params)
     optimizer = load_optimizer(hyper_params, model)
     loss_fun = load_loss(hyper_params)
 
     train(model, optimizer, loss_fun, train_loader, dev_loader, hyper_params['patience'],
-          args.output, max_epoch=hyper_params['max_epoch'],
+          output, max_epoch=hyper_params['max_epoch'],
           use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch)
 
 
