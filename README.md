@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mirkobronzi/cookiecutter-pyml.svg?branch=master)](https://travis-ci.org/mirkobronzi/cookiecutter-pyml)
+[![Build Status](https://travis-ci.com/github/mila-iqia/cookiecutter-pyml.svg?branch=master)](https://travis-ci.com/github/mila-iqia/cookiecutter-pyml)
 
 About 
 -----
