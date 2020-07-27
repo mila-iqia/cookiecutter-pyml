@@ -48,7 +48,7 @@ def main():
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     if not os.path.exists(args.output):
         os.makedirs(args.output)
