@@ -11,7 +11,6 @@ def rsync_folder(source, target):  # pragma: no cover
     :param source: (str) path to the source folder.
     :param target: (str) path to the target folder.
     """
-
     if not os.path.exists(target):
         os.makedirs(target)
 
