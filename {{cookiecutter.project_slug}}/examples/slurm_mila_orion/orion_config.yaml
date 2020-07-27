@@ -10,5 +10,6 @@ evc:
   non_monitored_arguments:
     - output
     - data
+    - tmp-folder
   ignore_code_changes:
     true
