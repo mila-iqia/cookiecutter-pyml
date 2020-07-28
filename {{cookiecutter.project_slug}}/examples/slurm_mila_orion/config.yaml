@@ -6,6 +6,8 @@ patience: 5
 architecture: my_model
 max_epoch: 99
 exp_name: my_exp_1
+# set no null to avoid setting a seed (can speed up GPU computation, but
+# results will not be reproducible)
 seed: 1234
 
 # architecture
