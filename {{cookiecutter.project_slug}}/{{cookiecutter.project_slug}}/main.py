@@ -108,8 +108,6 @@ def run(args, data_dir, output_dir, hyper_params):
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
     """
-    log_exp_details(os.path.realpath(__file__), args)
-
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
     logger.info('List of hyper-parameters:')
