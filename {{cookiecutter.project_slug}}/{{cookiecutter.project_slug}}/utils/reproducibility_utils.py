@@ -8,6 +8,7 @@ import torch
 import tensorflow as tf
 {%- endif %}
 
+
 def set_seed(seed):  # pragma: no cover
     """Seed the provided seed in python/numpy/DL framework.
 
