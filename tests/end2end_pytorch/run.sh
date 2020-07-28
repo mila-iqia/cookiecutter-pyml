@@ -34,6 +34,7 @@ if [ ${DIFF_LINES} -gt 1 ]; then
     exit 1
 fi
 
+# run Orion
 cd ../..
 cd examples/local_orion
 sh run.sh
