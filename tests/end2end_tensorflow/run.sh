@@ -30,6 +30,8 @@ sh run.sh
 DIFF_LINES=`grep "best_dev_metric" output*/stats.yaml | sed 's@^.*best_dev_metric: @@g' | uniq | wc -l`
 if [ ${DIFF_LINES} -gt 1 ]; then
     echo "results are different"
+    exit 1
+fi
 
 # run Orion
 cd ../../
