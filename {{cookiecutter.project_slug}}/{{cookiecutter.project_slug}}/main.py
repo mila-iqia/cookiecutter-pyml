@@ -57,13 +57,13 @@ def main():
         data_folder_name = os.path.basename(os.path.normpath(args.data))
         rsync_folder(args.data, args.tmp_folder)
 
-        data = os.path.join(args.tmp_folder, data_folder_name)
-        output = os.path.join(args.tmp_folder, 'output')
-        if not os.path.exists(output):
-            os.makedirs(output)
+        data_dir = os.path.join(args.tmp_folder, data_folder_name)
+        output_dir = os.path.join(args.tmp_folder, 'output')
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
     else:
-        data = args.data
-        output = args.output
+        data_dir = args.data
+        output_dir = args.output
 
     # will log to a file if provided (useful for orion on cluster)
     if args.log is not None:
@@ -92,20 +92,20 @@ def main():
         mlflow.start_run(run_id=mlflow_run_id)
     else:
         mlflow.start_run()
-    run(args, data, output, hyper_params)
+    run(args, data_dir, output_dir, hyper_params)
     mlflow.end_run()
 
     if args.tmp_folder is not None:
-        rsync_folder(output + os.path.sep, args.output)
+        rsync_folder(output_dir + os.path.sep, args.output)
 
 
-def run(args, data, output, hyper_params):
+def run(args, data_dir, output_dir, hyper_params):
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
         args (list): arguments passed from the cli
-        data (str): path to input folder
-        output (str): path to output folder
+        data_dir (str): path to input folder
+        output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
     """
     log_exp_details(os.path.realpath(__file__), args)
@@ -118,13 +118,13 @@ def run(args, data, output, hyper_params):
          'exp_name'],
         hyper_params)
 
-    train_loader, dev_loader = load_data(data, hyper_params)
+    train_loader, dev_loader = load_data(data_dir, hyper_params)
     model = load_model(hyper_params)
     optimizer = load_optimizer(hyper_params, model)
     loss_fun = load_loss(hyper_params)
 
     train(model, optimizer, loss_fun, train_loader, dev_loader, hyper_params['patience'],
-          output, max_epoch=hyper_params['max_epoch'],
+          output_dir, max_epoch=hyper_params['max_epoch'],
           use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch)
 
 
