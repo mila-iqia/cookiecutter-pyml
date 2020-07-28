@@ -104,6 +104,8 @@ def run(args, data, output, hyper_params):
 
     Args:
         args (list): arguments passed from the cli
+        data (str): path to input folder
+        output (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
     """
     log_exp_details(os.path.realpath(__file__), args)
