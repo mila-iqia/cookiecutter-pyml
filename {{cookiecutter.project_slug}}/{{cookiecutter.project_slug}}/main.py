@@ -17,7 +17,7 @@ from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
 from {{cookiecutter.project_slug}}.models.model_loader import load_loss
 from {{cookiecutter.project_slug}}.utils.file_utils import rsync_folder
 from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
-from {{cookiecutter.project_slug}}.utils.reproducibility_utils import sed_seed
+from {{cookiecutter.project_slug}}.utils.reproducibility_utils import set_seed
 
 logger = logging.getLogger(__name__)
 
