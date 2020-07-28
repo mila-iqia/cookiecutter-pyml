@@ -6,6 +6,7 @@ patience: 5
 architecture: my_model
 max_epoch: 99
 exp_name: my_exp_1
+seed: 1234
 
 # architecture
 size: 'orion~uniform(1,100,discrete=True)'

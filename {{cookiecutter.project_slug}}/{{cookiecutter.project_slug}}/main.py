@@ -17,6 +17,7 @@ from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
 from {{cookiecutter.project_slug}}.models.model_loader import load_loss
 from {{cookiecutter.project_slug}}.utils.file_utils import rsync_folder
 from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
+from {{cookiecutter.project_slug}}.utils.reproducibility_utils import sed_seed
 
 logger = logging.getLogger(__name__)
 
@@ -108,15 +109,17 @@ def run(args, data, output, hyper_params):
         output (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
     """
-    log_exp_details(os.path.realpath(__file__), args)
-
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
     logger.info('List of hyper-parameters:')
     check_and_log_hp(
-        ['batch_size', 'optimizer', 'patience', 'architecture', 'max_epoch',
-         'exp_name'],
+        ['architecture', 'batch_size', 'exp_name', 'max_epoch', 'optimizer', 'patience', 'seed'],
         hyper_params)
+
+    if hyper_params["seed"] is not None:
+        set_seed(hyper_params["seed"])
+
+    log_exp_details(os.path.realpath(__file__), args)
 
     train_loader, dev_loader = load_data(data, hyper_params)
     model = load_model(hyper_params)
