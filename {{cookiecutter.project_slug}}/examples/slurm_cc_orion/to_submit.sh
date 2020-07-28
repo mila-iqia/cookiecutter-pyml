@@ -19,4 +19,5 @@ export ORION_DB_TYPE='pickleddb'
 orion -v hunt --config orion_config.yaml \
     main --data ../data --config config.yaml --disable-progressbar \
     --output '{exp.working_dir}/{exp.name}_{trial.id}/' \
-    --log '{exp.working_dir}/{exp.name}_{trial.id}/exp.log'
+    --log '{exp.working_dir}/{exp.name}_{trial.id}/exp.log' \
+    --tmp-folder ${SLURM_TMPDIR}
