@@ -32,6 +32,8 @@ DIFF_LINES=`grep "best_dev_metric" output*/stats.yaml | sed 's@^.*best_dev_metri
 if [ ${DIFF_LINES} -gt 1 ]; then
     echo "ERROR: two identical runs produced different output results - review seed implementation"
     exit 1
+else
+    echo "same results for both runs"
 fi
 
 # run Orion
@@ -43,7 +45,10 @@ mv orion_working_dir orion_working_dir_OLD
 rm -fr orion_db*
 sh run.sh
 DIFF_LINES=`grep "best_dev_metric" orion_working_dir*/*/stats.yaml | sed 's@^.*best_dev_metric: @@g' | sort | uniq | wc -l`
+echo ${DIFF_LINES}
 if [ ${DIFF_LINES} -gt 2 ]; then
     echo "ERROR: two identical Orion runs produced different output results - review seed implementation"
     exit 1
+else
+    echo "same results for both runs"
 fi
