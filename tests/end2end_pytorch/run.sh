@@ -33,7 +33,7 @@ if [ ${DIFF_LINES} -gt 1 ]; then
     echo "ERROR: two identical runs produced different output results - review seed implementation"
     exit 1
 else
-    echo "same results for both runs"
+    echo "PASS: two identical runs produced the same output results."
 fi
 
 # run Orion
@@ -49,5 +49,5 @@ if [ ${DIFF_LINES} -gt 2 ]; then
     echo "ERROR: two identical Orion runs produced different output results - review seed implementation"
     exit 1
 else
-    echo "same results for both runs"
+    echo "PASS: two identical Orion runs produced the same output results."
 fi
