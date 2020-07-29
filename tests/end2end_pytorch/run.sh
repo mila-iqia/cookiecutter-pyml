@@ -44,6 +44,10 @@ mv orion_working_dir orion_working_dir_OLD
 # re-run the example to check reproducibility
 rm -fr orion_db*
 sh run.sh
+ls orion_working_dir*
+ls orion_working_dir*/*/
+ls orion_working_dir*/*/stats.yaml
+head -n 40 orion_working_dir*/*/stats.yaml
 DIFF_LINES=`grep "best_dev_metric" orion_working_dir*/*/stats.yaml | sed 's@^.*best_dev_metric: @@g' | sort | uniq | wc -l`
 echo ${DIFF_LINES}
 if [ ${DIFF_LINES} -gt 2 ]; then
