@@ -10,7 +10,7 @@ import tensorflow as tf
 
 
 def set_seed(seed):  # pragma: no cover
-    """Seed the provided seed in python/numpy/DL framework.
+    """Set the provided seed in python/numpy/DL framework.
 
     :param seed: (int) the seed
     """
