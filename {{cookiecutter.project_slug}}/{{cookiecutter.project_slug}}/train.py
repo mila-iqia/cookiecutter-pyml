@@ -314,7 +314,7 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
     )
 
     trainer.fit(model, train_dataloader=train_loader, val_dataloaders=[dev_loader])
-    best_dev_result = float(trainer.early_stop_callback.best.cpu().numpy())
+    best_dev_result = float(trainer.early_stop_callback.best_score.cpu().numpy())
     return best_dev_result
 
 
