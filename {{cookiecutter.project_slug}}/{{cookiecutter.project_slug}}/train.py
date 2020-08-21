@@ -11,10 +11,10 @@ from tensorflow.keras.callbacks import EarlyStopping
 from pathlib import Path
 {%- endif %}
 {%- if cookiecutter.dl_framework == 'pytorch' %}
-import time
+import pytorch_lightning as pl
 import torch
-import tqdm
-from mlflow import log_metric
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+from pytorch_lightning.loggers import MLFlowLogger
 {%- endif %}
 from orion.client import report_results
 from yaml import dump
@@ -289,98 +289,64 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
     """
-    if use_progress_bar:
-        pb = tqdm.tqdm
-    else:
-        def pb(x, total):
-            return x
+    checkpoint_callback = ModelCheckpoint(
+        filepath=os.path.join(output, "best_model"),
+        save_top_k=1,
+        verbose=use_progress_bar,
+        monitor="val_loss",
+        mode="auto",
+        period=0,
+    )
 
-    stats = reload_model(output, LAST_MODEL_NAME, model, optimizer, start_from_scratch)
-    if stats is None:
-        best_dev_metric = None
-        remaining_patience = patience
-        start_epoch = 0
-    else:
-        best_dev_metric, start_epoch, remaining_patience, _ = stats
+    # FIXME: the name of exp is hardcoded
+    mlf_logger = MLFlowLogger(
+        experiment_name="my_exp_1"
+    )
 
-    if remaining_patience <= 0:
-        logger.warning(
-            'remaining patience is zero - not training (and returning best dev score {})'.format(
-                best_dev_metric))
-        return best_dev_metric
-    if start_epoch >= max_epoch:
-        logger.warning(
-            'start epoch {} > max epoch {} - not training (and returning best dev score '
-            '{})'.format(start_epoch, max_epoch, best_dev_metric))
-        return best_dev_metric
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
+    model = TraineeWrapper(model, optimizer, loss_fun)
+    early_stopping = EarlyStopping("val_loss", mode="auto", patience=patience,
+                                   verbose=use_progress_bar)
+    trainer = pl.Trainer(
+        early_stop_callback=early_stopping,
+        checkpoint_callback=checkpoint_callback,
+        logger=mlf_logger,
+        max_epochs=max_epoch
+    )
 
-    for epoch in range(start_epoch, max_epoch):
+    trainer.fit(model, train_dataloader=train_loader, val_dataloaders=[dev_loader])
+    best_dev_result = float(trainer.early_stop_callback.best.cpu().numpy())
+    return best_dev_result
 
-        start = time.time()
-        # train
-        train_cumulative_loss = 0.0
-        examples = 0
-        model.train()
-        train_steps = len(train_loader)
-        for i, data in pb(enumerate(train_loader, 0), total=train_steps):
-            model_input, model_target = data
-            # forward + backward + optimize
-            optimizer.zero_grad()
-            outputs = model(model_input.to(device))
-            model_target = torch.squeeze(model_target.to(device))
-            loss = loss_fun(outputs, model_target)
-            loss.backward()
-            optimizer.step()
 
-            train_cumulative_loss += loss.item()
-            examples += model_target.shape[0]
+class TraineeWrapper(pl.LightningModule):
+    """Wrapper to a PyTorch model. Used to define train and validation steps."""
 
-        train_end = time.time()
-        avg_train_loss = train_cumulative_loss / examples
+    def __init__(self, model, optimizer, loss):
+        """Main constructor."""
+        super().__init__()
+        self.model = model
+        self.optmizer = optimizer
+        self.loss = loss
 
-        # dev
-        model.eval()
-        dev_steps = len(dev_loader)
-        dev_cumulative_loss = 0.0
-        examples = 0
-        for i, data in pb(enumerate(dev_loader, 0), total=dev_steps):
-            model_input, model_target = data
-            with torch.no_grad():
-                outputs = model(model_input.to(device))
-                model_target = torch.squeeze(model_target.to(device))
-                loss = loss_fun(outputs, model_target)
-                dev_cumulative_loss += loss.item()
-            examples += model_target.shape[0]
+    def training_step(self, batch, batch_idx):
+        """Training step (PyTorch Lightning takes care to provide the correct batch data."""
+        x, y = batch
+        y_hat = self.model(x)
+        loss_value = self.loss(y_hat, y)
+        result = pl.TrainResult(loss_value)
+        result.log('train_loss', loss_value, on_epoch=True)
+        return result
 
-        avg_dev_loss = dev_cumulative_loss / examples
-        log_metric("dev_loss", avg_dev_loss, step=epoch)
-        log_metric("train_loss", avg_train_loss, step=epoch)
+    def validation_step(self, batch, batch_idx):
+        """Validation step (PyTorch Lightning takes care to provide the correct batch data."""
+        x, y = batch
+        y_hat = self.model(x)
+        loss_value = self.loss(y_hat, y)
+        result = pl.EvalResult(checkpoint_on=loss_value)
+        result.log('val_loss', loss_value)
+        return result
 
-        dev_end = time.time()
-        torch.save(model.state_dict(), os.path.join(output, LAST_MODEL_NAME))
-
-        if best_dev_metric is None or avg_dev_loss < best_dev_metric:
-            best_dev_metric = avg_dev_loss
-            remaining_patience = patience
-            torch.save(model.state_dict(), os.path.join(output, BEST_MODEL_NAME))
-        else:
-            remaining_patience -= 1
-
-        logger.info(
-            'done #epoch {:3} => loss {:5.3f} - dev loss {:3.2f} (will try for {} more epoch) - '
-            'train min. {:4.2f} / dev min. {:4.2f}'.format(
-                epoch, avg_train_loss, avg_dev_loss, remaining_patience, (train_end - start) / 60,
-                (dev_end - train_end) / 60))
-
-        write_stats(output, best_dev_metric, epoch + 1, remaining_patience)
-        log_metric("best_dev_metric", best_dev_metric)
-
-        if remaining_patience <= 0:
-            logger.info('done! best dev metric is {}'.format(best_dev_metric))
-            break
-    logger.info('training completed (epoch done {} - max epoch {})'.format(epoch + 1, max_epoch))
-    logger.info('Finished Training')
-    return best_dev_metric
+    def configure_optimizers(self):
+        """Method used by PyTorch Lighning to set the optimizer."""
+        return self.optmizer
 {%- endif %}

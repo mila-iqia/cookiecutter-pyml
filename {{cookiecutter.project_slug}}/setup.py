@@ -22,7 +22,7 @@ setup(
         'sphinxcontrib-katex',
         'recommonmark',
         {%- if cookiecutter.dl_framework == 'pytorch' %}
-        'torch'],
+        'torch', 'pytorch_lightning'],
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow_cpu' %}
         'tensorflow==2.2.0',
