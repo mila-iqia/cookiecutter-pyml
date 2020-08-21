@@ -128,6 +128,7 @@ def reload_model(output, model_name, start_from_scratch=False):  # pragma: no co
 
 def init_model(model, train_loader):  # pragma: no cover
     """Init the model by computing a single forward pass on an input.
+
     Args:
         model (obj): The neural network model object.
         train_loader (obj): Dataloader for the training set.
@@ -135,6 +136,7 @@ def init_model(model, train_loader):  # pragma: no cover
     model_input, model_target = next(iter(train_loader))
     _ = model(model_input)
     model.summary(print_fn=logger.info)
+
 
 def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
                max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
@@ -153,7 +155,6 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
     """
-
     restored = reload_model(output, LAST_MODEL_NAME, start_from_scratch)
 
     if restored is None:
@@ -191,11 +192,14 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
 
 
 class EarlyStoppingWithModelSave(EarlyStopping):
-    """Keras callback that extends the early stopping one and add the functionality to
-    save the models in the new TF format. (both best and last model)
+    """Keras callback that extends the early stopping.
+
+    Adds the functionality to save the models in the new TF format. (both best and last model)
     """
+
     def __init__(self, output, remaining_patience, **kwargs):
-        """
+        """Main constructor - initializes the parent.
+
         output (str): path to folder where to store the models.
         remaining_patience (int): patience left when starting early stopping.
             (in general it's equal to patience - but it may be less if train is resumed)
@@ -205,15 +209,13 @@ class EarlyStoppingWithModelSave(EarlyStopping):
         self.wait = self.patience - remaining_patience
 
     def on_train_begin(self, logs=None):
-        """See parent class doc.
-        """
+        """See parent class doc."""
         super(EarlyStoppingWithModelSave, self).on_train_begin(logs)
         Path(self.output).mkdir(parents=True, exist_ok=True)
 
     # copy-pasted in order to modify what happens when we improve (see comment below)
     def on_epoch_end(self, epoch, logs=None):
-        """See parent class doc.
-        """
+        """See parent class doc."""
         current = self.get_monitor_value(logs)
         if current is None:
             return
@@ -236,11 +238,10 @@ class EarlyStoppingWithModelSave(EarlyStopping):
 
         self.model.save(os.path.join(self.output, LAST_MODEL_NAME))
         write_stats(self.output, self.best, epoch, self.patience - self.wait)
-
-
 {%- endif %}
-
 {%- if cookiecutter.dl_framework == 'pytorch' %}
+
+
 def reload_model(output, model_name, model, optimizer,
                  start_from_scratch=False):  # pragma: no cover
     """Reload a model.
@@ -269,6 +270,7 @@ def reload_model(output, model_name, model, optimizer,
 
     logger.info('output folder not found')
     os.makedirs(output)
+
 
 def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
                max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
