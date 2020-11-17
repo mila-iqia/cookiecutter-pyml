@@ -9,6 +9,9 @@ import mlflow
 import yaml
 from yaml import load
 
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+from pytorch_lightning.loggers import MLFlowLogger
+{%- endif %}
 from {{cookiecutter.project_slug}}.data.data_loader import load_data
 from {{cookiecutter.project_slug}}.train import train, load_stats, STAT_FILE_NAME
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
@@ -85,7 +88,14 @@ def main():
         hyper_params = {}
 
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
-    if 'exp_name' in hyper_params:
+    {%- if cookiecutter.dl_framework == 'pytorch' %}
+    mlf_logger = MLFlowLogger(
+        experiment_name=hyper_params.get('exp_name', 'Default')
+    )
+    run(args, data_dir, output_dir, hyper_params, mlf_logger)
+    {%- endif %}
+    {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+    if 'exp_name' in 'exp_name':
         mlflow.set_experiment(hyper_params['exp_name'])
     if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
         _, _, _, mlflow_run_id = load_stats(args.output)
@@ -94,12 +104,13 @@ def main():
         mlflow.start_run()
     run(args, data_dir, output_dir, hyper_params)
     mlflow.end_run()
+    {%- endif %}
 
     if args.tmp_folder is not None:
         rsync_folder(output_dir + os.path.sep, args.output)
 
 
-def run(args, data_dir, output_dir, hyper_params):
+def run(args, data_dir, output_dir, hyper_params, mlf_logger):
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
@@ -107,6 +118,7 @@ def run(args, data_dir, output_dir, hyper_params):
         data_dir (str): path to input folder
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
+        hyper_params (obj): MLFlow logger callback.
     """
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
@@ -125,9 +137,10 @@ def run(args, data_dir, output_dir, hyper_params):
     optimizer = load_optimizer(hyper_params, model)
     loss_fun = load_loss(hyper_params)
 
-    train(model, optimizer, loss_fun, train_loader, dev_loader, hyper_params['patience'],
-          output_dir, max_epoch=hyper_params['max_epoch'],
-          use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch)
+    train(model=model, optimizer=optimizer, loss_fun=loss_fun, train_loader=train_loader,
+          dev_loader=dev_loader, patience=hyper_params['patience'], output=output_dir,
+          max_epoch=hyper_params['max_epoch'], use_progress_bar=not args.disable_progressbar,
+          start_from_scratch=args.start_from_scratch, mlf_logger=mlf_logger)
 
 
 if __name__ == '__main__':

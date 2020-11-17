@@ -14,7 +14,6 @@ from pathlib import Path
 import pytorch_lightning as pl
 import torch
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
-from pytorch_lightning.loggers import MLFlowLogger
 {%- endif %}
 from orion.client import report_results
 from yaml import dump
@@ -57,27 +56,10 @@ def load_stats(output):
         stats['mlflow_run_id']
 
 
-def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-          max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
-    """Training loop wrapper. Used to catch exception (and to handle them) if Orion is being used.
-
-    Args:
-        model (obj): The neural network model object.
-        optimizer (obj): Optimizer used during training.
-        loss_fun (obj): Loss function that will be optimized.
-        train_loader (obj): Dataloader for the training set.
-        dev_loader (obj): Dataloader for the validation set.
-        patience (int): max number of epochs without improving on `best_eval_score`.
-            After this point, the train ends.
-        output (str): Output directory.
-        max_epoch (int): Max number of epochs to train for.
-        use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
-        start_from_scratch (bool): Start training from scratch (ignore checkpoints)
-    """
+def train(**kwargs):  # pragma: no cover
+    """Training loop wrapper. Used to catch exception if Orion is being used."""
     try:
-        best_dev_metric = train_impl(
-            model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-            max_epoch, use_progress_bar, start_from_scratch)
+        best_dev_metric = train_impl(**kwargs)
     except RuntimeError as err:
         if orion.client.IS_ORION_ON and 'CUDA out of memory' in str(err):
             logger.error(err)
@@ -273,7 +255,7 @@ def reload_model(output, model_name, model, optimizer,
 
 
 def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-               max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
+               max_epoch, use_progress_bar, start_from_scratch, mlf_logger):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -295,26 +277,21 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         verbose=use_progress_bar,
         monitor="val_loss",
         mode="auto",
-        period=0,
-    )
-
-    # FIXME: the name of exp is hardcoded
-    mlf_logger = MLFlowLogger(
-        experiment_name="my_exp_1"
+        period=1,
     )
 
     model = TraineeWrapper(model, optimizer, loss_fun)
     early_stopping = EarlyStopping("val_loss", mode="auto", patience=patience,
                                    verbose=use_progress_bar)
     trainer = pl.Trainer(
-        early_stop_callback=early_stopping,
-        checkpoint_callback=checkpoint_callback,
+        callbacks=[early_stopping, checkpoint_callback],
+        checkpoint_callback=True,
         logger=mlf_logger,
         max_epochs=max_epoch
     )
 
     trainer.fit(model, train_dataloader=train_loader, val_dataloaders=[dev_loader])
-    best_dev_result = float(trainer.early_stop_callback.best_score.cpu().numpy())
+    best_dev_result = float(early_stopping.best_score.cpu().numpy())
     return best_dev_result
 
 
@@ -333,18 +310,16 @@ class TraineeWrapper(pl.LightningModule):
         x, y = batch
         y_hat = self.model(x)
         loss_value = self.loss(y_hat, y)
-        result = pl.TrainResult(loss_value)
-        result.log('train_loss', loss_value, on_epoch=True)
-        return result
+        self.log('train_loss', loss_value, on_epoch=True)
+        return loss_value
 
     def validation_step(self, batch, batch_idx):
         """Validation step (PyTorch Lightning takes care to provide the correct batch data."""
         x, y = batch
         y_hat = self.model(x)
         loss_value = self.loss(y_hat, y)
-        result = pl.EvalResult(checkpoint_on=loss_value)
-        result.log('val_loss', loss_value)
-        return result
+        self.log('val_loss', loss_value)
+        return loss_value
 
     def configure_optimizers(self):
         """Method used by PyTorch Lighning to set the optimizer."""
