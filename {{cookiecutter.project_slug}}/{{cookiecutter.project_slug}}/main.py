@@ -115,9 +115,16 @@ def main():
 
     if args.tmp_folder is not None:
         rsync_folder(output_dir + os.path.sep, args.output)
+{%- if cookiecutter.dl_framework == 'pytorch' %}
 
 
 def run(args, data_dir, output_dir, hyper_params, mlf_logger):
+{%- endif %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+
+def run(args, data_dir, output_dir, hyper_params):
+{%- endif %}
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
@@ -125,7 +132,9 @@ def run(args, data_dir, output_dir, hyper_params, mlf_logger):
         data_dir (str): path to input folder
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
+{%- if cookiecutter.dl_framework == 'pytorch' %}
         mlf_logger (obj): MLFlow logger callback.
+{%- endif %}
     """
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
@@ -147,7 +156,12 @@ def run(args, data_dir, output_dir, hyper_params, mlf_logger):
     train(model=model, optimizer=optimizer, loss_fun=loss_fun, train_loader=train_loader,
           dev_loader=dev_loader, patience=hyper_params['patience'], output=output_dir,
           max_epoch=hyper_params['max_epoch'], use_progress_bar=not args.disable_progressbar,
+{%- if cookiecutter.dl_framework == 'pytorch' %}
           start_from_scratch=args.start_from_scratch, mlf_logger=mlf_logger)
+{%- endif %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+          start_from_scratch=args.start_from_scratch)
+{%- endif %}
 
 
 if __name__ == '__main__':
