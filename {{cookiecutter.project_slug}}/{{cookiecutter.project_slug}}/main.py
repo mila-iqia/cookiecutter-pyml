@@ -118,7 +118,7 @@ def run(args, data_dir, output_dir, hyper_params, mlf_logger):
         data_dir (str): path to input folder
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
-        hyper_params (obj): MLFlow logger callback.
+        mlf_logger (obj): MLFlow logger callback.
     """
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
