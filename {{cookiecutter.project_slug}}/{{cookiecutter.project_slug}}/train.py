@@ -270,6 +270,7 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         max_epoch (int): Max number of epochs to train for.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
+        mlf_logger (obj): MLFlow logger callback.
     """
     checkpoint_callback = ModelCheckpoint(
         filepath=os.path.join(output, "best_model"),

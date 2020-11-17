@@ -5,7 +5,9 @@ import logging
 import os
 import sys
 
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import mlflow
+{%- endif %}
 import yaml
 from yaml import load
 
@@ -13,7 +15,12 @@ from yaml import load
 from pytorch_lightning.loggers import MLFlowLogger
 {%- endif %}
 from {{cookiecutter.project_slug}}.data.data_loader import load_data
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 from {{cookiecutter.project_slug}}.train import train, load_stats, STAT_FILE_NAME
+{%- endif %}
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+from {{cookiecutter.project_slug}}.train import train
+{%- endif %}
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
 from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
