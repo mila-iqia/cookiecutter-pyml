@@ -1,3 +1,6 @@
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+import glob
+{%- endif %}
 import logging
 import os
 
@@ -272,23 +275,42 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
         mlf_logger (obj): MLFlow logger callback.
     """
-    checkpoint_callback = ModelCheckpoint(
-        filepath=os.path.join(output, "best_model"),
+    best_checkpoint_callback = ModelCheckpoint(
+        filepath=os.path.join(output, BEST_MODEL_NAME),
         save_top_k=1,
         verbose=use_progress_bar,
         monitor="val_loss",
         mode="auto",
-        period=1,
+        period=1
     )
+
+    last_model_path = os.path.join(output, LAST_MODEL_NAME)
+    last_checkpoint_callback = ModelCheckpoint(
+        filepath=last_model_path,
+        verbose=use_progress_bar,
+        period=1
+    )
+
+    last_models = glob.glob(last_model_path + '*')
+
+    if len(last_models) > 1:
+        raise ValueError('more than one last model found to resume - provide only one')
+    elif len(last_models) == 1:
+        logger.info('resuming training from {}'.format(last_models[0]))
+        resume_from_checkpoint = last_models[0]
+    else:
+        logger.info('starting training from scratch')
+        resume_from_checkpoint = None
 
     model = TraineeWrapper(model, optimizer, loss_fun)
     early_stopping = EarlyStopping("val_loss", mode="auto", patience=patience,
                                    verbose=use_progress_bar)
     trainer = pl.Trainer(
-        callbacks=[early_stopping, checkpoint_callback],
+        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         checkpoint_callback=True,
         logger=mlf_logger,
-        max_epochs=max_epoch
+        max_epochs=max_epoch,
+        resume_from_checkpoint=resume_from_checkpoint
     )
 
     trainer.fit(model, train_dataloader=train_loader, val_dataloaders=[dev_loader])
