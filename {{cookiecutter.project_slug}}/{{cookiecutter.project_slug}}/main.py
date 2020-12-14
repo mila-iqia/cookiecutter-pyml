@@ -124,10 +124,7 @@ def run(args, data_dir, output_dir, hyper_params, mlf_logger):
 
 
 def run(args, data_dir, output_dir, hyper_params):
-<<<<<<< HEAD
 {%- endif %}
-=======
->>>>>>> master
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
