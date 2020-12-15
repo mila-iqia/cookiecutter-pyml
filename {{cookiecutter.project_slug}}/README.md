@@ -36,6 +36,12 @@ Note: if running tensorflow, you may need:
 
     cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
 
+### Strip jupyter notebook outputs on commit:
+Run this to activate clearing the outputs of cells on each commit:
+    `git config filter.ipynb_filter.clean "jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace %f \required"`
+
+
+
 ### Commit the code
 
     git add .
