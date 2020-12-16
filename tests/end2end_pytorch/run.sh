@@ -6,6 +6,7 @@ cd ${DIR}
 
 cookiecutter ../.. --no-input --output-dir=./
 cd wonderful_project
+git init
 pip install -e . --quiet
 pip install flake8 pytest --quiet
 
