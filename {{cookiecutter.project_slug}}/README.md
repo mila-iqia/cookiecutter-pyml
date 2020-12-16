@@ -32,7 +32,9 @@ Note: if running tensorflow, you may need:
     git init
 
 ### Setup pre-commit hooks:
-(this will run flake8 before any commit)
+These hooks will:
+* validate flake8 before any commit
+* check that jupyter notebook outputs have been stripped
 
     cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
 
