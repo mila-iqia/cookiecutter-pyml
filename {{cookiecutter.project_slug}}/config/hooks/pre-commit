@@ -7,7 +7,7 @@ set -e
 flake8 --ignore D --max-line-length=100 .  # Check everything but docstrings
 flake8 --select D --ignore D104,D100,D401 --docstring-convention google --exclude tests/  # Check only the docstrings
 
-# strip the output of any notebook that has been committed
+# Raise error if any staged notebooks contain outputs
 GITDIR=$(git rev-parse --show-toplevel) # Full path to git working directory
 IPYNB_FILES=$(git diff --name-only --cached | grep .ipynb) # Find all committed notebooks
 if [ "$IPYNB_FILES" != "" ]; then
