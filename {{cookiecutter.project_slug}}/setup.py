@@ -35,7 +35,7 @@ setup(
         'scipy==1.4.1',
         'setuptools>=41.0.0',
         'six>=1.12.0',
-        'numpy==1.19.4'],
+        'numpy>=1.19.4'],
         {%- endif %}
     entry_points={
         'console_scripts': [
