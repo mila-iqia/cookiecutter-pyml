@@ -4,7 +4,7 @@
 set -e
 
 # flake8 linting
-flake8 --ignore D --max-line-length=100 .  # Check everything but docstrings
+flake8 --ignore D,W503 --max-line-length=100 .  # Check everything but docstrings
 flake8 --select D --ignore D104,D100,D401 --docstring-convention google --exclude tests/  # Check only the docstrings
 
 # Raise error if any staged notebooks contain outputs
