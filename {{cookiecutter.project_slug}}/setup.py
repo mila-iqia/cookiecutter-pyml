@@ -11,6 +11,7 @@ setup(
         'flake8-docstrings',
         'gitpython',
         'tqdm',
+        'jupyter',
         'mlflow==1.10.0',
         'orion>=0.1.8',
         'pyyaml>=5.3',
@@ -34,7 +35,7 @@ setup(
         'scipy==1.4.1',
         'setuptools>=41.0.0',
         'six>=1.12.0',
-        'numpy==1.19.1'],
+        'numpy>=1.19.4'],
         {%- endif %}
     entry_points={
         'console_scripts': [

@@ -6,6 +6,7 @@ import os
 import sys
 
 import mlflow
+import orion
 import yaml
 from yaml import load
 
@@ -85,8 +86,13 @@ def main():
         hyper_params = {}
 
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
-    if 'exp_name' in hyper_params:
-        mlflow.set_experiment(hyper_params['exp_name'])
+
+    if orion.client.cli.IS_ORION_ON:
+        exp_name = os.getenv('ORION_EXPERIMENT_NAME', 'orion_exp')
+    else:
+        exp_name = hyper_params.get('exp_name', 'exp')
+    mlflow.set_experiment(exp_name)
+
     if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
         _, _, _, mlflow_run_id = load_stats(args.output)
         mlflow.start_run(run_id=mlflow_run_id)
