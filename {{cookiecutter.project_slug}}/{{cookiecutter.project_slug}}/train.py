@@ -64,7 +64,7 @@ def train(**kwargs):  # pragma: no cover
     try:
         best_dev_metric = train_impl(**kwargs)
     except RuntimeError as err:
-        if orion.client.IS_ORION_ON and 'CUDA out of memory' in str(err):
+        if orion.client.cli.IS_ORION_ON and 'CUDA out of memory' in str(err):
             logger.error(err)
             logger.error('model was out of memory - assigning a bad score to tell Orion to avoid'
                          'too big model')

@@ -8,6 +8,7 @@ import sys
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import mlflow
 {%- endif %}
+import orion
 import yaml
 from yaml import load
 
@@ -95,15 +96,19 @@ def main():
         hyper_params = {}
 
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
+    if orion.client.cli.IS_ORION_ON:
+        exp_name = os.getenv('ORION_EXPERIMENT_NAME', 'orion_exp')
+    else:
+        exp_name = hyper_params.get('exp_name', 'exp')
     {%- if cookiecutter.dl_framework == 'pytorch' %}
     mlf_logger = MLFlowLogger(
-        experiment_name=hyper_params.get('exp_name', 'Default')
+        experiment_name=exp_name
     )
     run(args, data_dir, output_dir, hyper_params, mlf_logger)
     {%- endif %}
     {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-    if 'exp_name' in 'exp_name':
-        mlflow.set_experiment(hyper_params['exp_name'])
+    mlflow.set_experiment(exp_name)
+
     if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
         _, _, _, mlflow_run_id = load_stats(args.output)
         mlflow.start_run(run_id=mlflow_run_id)
