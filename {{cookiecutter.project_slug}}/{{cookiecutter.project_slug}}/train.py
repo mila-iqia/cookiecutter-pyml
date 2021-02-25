@@ -293,13 +293,16 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
 
     last_models = glob.glob(last_model_path + '*')
 
-    if len(last_models) > 1:
+    if start_from_scratch:
+        logger.info('will not load any pre-existent checkpoint.')
+        resume_from_checkpoint = None
+    elif len(last_models) > 1:
         raise ValueError('more than one last model found to resume - provide only one')
     elif len(last_models) == 1:
         logger.info('resuming training from {}'.format(last_models[0]))
         resume_from_checkpoint = last_models[0]
     else:
-        logger.info('starting training from scratch')
+        logger.info('no model found - starting training from scratch')
         resume_from_checkpoint = None
 
     model = TraineeWrapper(model, optimizer, loss_fun)
@@ -341,7 +344,7 @@ class TraineeWrapper(pl.LightningModule):
         x, y = batch
         y_hat = self.model(x)
         loss_value = self.loss(y_hat, y)
-        self.log('val_loss', loss_value)
+        self.log('val_loss', loss_value, on_step=False, on_epoch=True, prog_bar=True)
         return loss_value
 
     def configure_optimizers(self):
