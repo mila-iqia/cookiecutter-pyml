@@ -5,9 +5,7 @@ import logging
 import os
 import sys
 
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import mlflow
-{%- endif %}
 import orion
 import yaml
 from yaml import load
@@ -100,14 +98,16 @@ def main():
         exp_name = os.getenv('ORION_EXPERIMENT_NAME', 'orion_exp')
     else:
         exp_name = hyper_params.get('exp_name', 'exp')
+    mlflow.set_experiment(exp_name)
     {%- if cookiecutter.dl_framework == 'pytorch' %}
     mlf_logger = MLFlowLogger(
         experiment_name=exp_name
     )
+    mlflow.start_run(run_id=mlf_logger.run_id)
     run(args, data_dir, output_dir, hyper_params, mlf_logger)
+    mlflow.end_run()
     {%- endif %}
     {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-    mlflow.set_experiment(exp_name)
 
     if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
         _, _, _, mlflow_run_id = load_stats(args.output)

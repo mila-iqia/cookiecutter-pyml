@@ -336,7 +336,7 @@ class TraineeWrapper(pl.LightningModule):
         x, y = batch
         y_hat = self.model(x)
         loss_value = self.loss(y_hat, y)
-        self.log('train_loss', loss_value, on_epoch=True)
+        self.log('train_loss', loss_value, on_step=False, on_epoch=True)
         return loss_value
 
     def validation_step(self, batch, batch_idx):
