@@ -28,7 +28,7 @@ pytest .
 # run the examples
 cd examples/local
 sh run.sh
-mv output outout_OLD
+mv output output_OLD
 # re-run the example to check reproducibility
 sh run.sh
 # check results are the same
