@@ -15,9 +15,11 @@ from pytorch_lightning.loggers import MLFlowLogger
 {%- endif %}
 from {{cookiecutter.project_slug}}.data.data_loader import load_data
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-from {{cookiecutter.project_slug}}.train import train, load_stats, STAT_FILE_NAME
+from {{cookiecutter.project_slug}}.train import train, load_stats
 {%- endif %}
+from {{cookiecutter.project_slug}}.train import STAT_FILE_NAME
 {%- if cookiecutter.dl_framework == 'pytorch' %}
+from {{cookiecutter.project_slug}}.train import load_mlflow
 from {{cookiecutter.project_slug}}.train import train
 {%- endif %}
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
@@ -103,6 +105,10 @@ def main():
     mlf_logger = MLFlowLogger(
         experiment_name=exp_name
     )
+
+    if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
+        mlf_logger._run_id = load_mlflow(args.output)
+
     mlflow.start_run(run_id=mlf_logger.run_id)
     run(args, data_dir, output_dir, hyper_params, mlf_logger)
     mlflow.end_run()

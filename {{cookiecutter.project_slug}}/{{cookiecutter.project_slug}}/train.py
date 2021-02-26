@@ -15,7 +15,6 @@ from pathlib import Path
 {%- endif %}
 {%- if cookiecutter.dl_framework == 'pytorch' %}
 import pytorch_lightning as pl
-import torch
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 {%- endif %}
 from orion.client import report_results
@@ -27,36 +26,6 @@ logger = logging.getLogger(__name__)
 BEST_MODEL_NAME = 'best_model'
 LAST_MODEL_NAME = 'last_model'
 STAT_FILE_NAME = 'stats.yaml'
-
-
-def write_stats(output, best_eval_score, epoch, remaining_patience):
-    """Write statistics of the best model at the end of every epoch.
-
-    Args:
-        output (str): Output directory
-        best_eval_score (float): best score obtained on evaluation set.
-        epoch (int): Which epoch training is at.
-        remaining_patience (int): How many more epochs before training stops.
-    """
-    mlflow_run = mlflow.active_run()
-    mlflow_run_id = mlflow_run.info.run_id if mlflow_run is not None else 'NO_MLFLOW'
-    to_store = {'best_dev_metric': best_eval_score, 'epoch': epoch,
-                'remaining_patience': remaining_patience,
-                'mlflow_run_id': mlflow_run_id}
-    with open(os.path.join(output, STAT_FILE_NAME), 'w') as stream:
-        dump(to_store, stream)
-
-
-def load_stats(output):
-    """Load the latest statistics.
-
-    Args:
-        output (str): Output directory
-    """
-    with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
-        stats = load(stream, Loader=yaml.FullLoader)
-    return stats['best_dev_metric'], stats['epoch'], stats['remaining_patience'], \
-        stats['mlflow_run_id']
 
 
 def train(**kwargs):  # pragma: no cover
@@ -78,6 +47,36 @@ def train(**kwargs):  # pragma: no cover
         # note the minus - cause orion is always trying to minimize (cit. from the guide)
         value=-float(best_dev_metric))])
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+
+def load_stats(output):
+    """Load the latest statistics.
+
+    Args:
+        output (str): Output directory
+    """
+    with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
+        stats = load(stream, Loader=yaml.FullLoader)
+    return stats['best_dev_metric'], stats['epoch'], stats['remaining_patience'], \
+        stats['mlflow_run_id']
+
+
+def write_stats(output, best_eval_score, epoch, remaining_patience):
+    """Write statistics of the best model at the end of every epoch.
+
+    Args:
+        output (str): Output directory
+        best_eval_score (float): best score obtained on evaluation set.
+        epoch (int): Which epoch training is at.
+        remaining_patience (int): How many more epochs before training stops.
+    """
+    mlflow_run = mlflow.active_run()
+    mlflow_run_id = mlflow_run.info.run_id if mlflow_run is not None else 'NO_MLFLOW'
+    to_store = {'best_dev_metric': best_eval_score, 'epoch': epoch,
+                'remaining_patience': remaining_patience,
+                'mlflow_run_id': mlflow_run_id}
+    with open(os.path.join(output, STAT_FILE_NAME), 'w') as stream:
+        dump(to_store, stream)
 
 
 def reload_model(output, model_name, start_from_scratch=False):  # pragma: no cover
@@ -227,34 +226,28 @@ class EarlyStoppingWithModelSave(EarlyStopping):
 {%- if cookiecutter.dl_framework == 'pytorch' %}
 
 
-def reload_model(output, model_name, model, optimizer,
-                 start_from_scratch=False):  # pragma: no cover
-    """Reload a model.
-
-    Can be useful for model checkpointing, hyper-parameter optimization, etc.
+def load_mlflow(output):
+    """Load the mlflow run id.
 
     Args:
-        output (str): Output directory.
-        model_name (str): Name of the saved model.
-        model (obj): A model object.
-        optimizer (obj): Optimizer used during training.
-        start_from_scratch (bool): starts training from scratch even if a saved moel is present.
+        output (str): Output directory
     """
-    saved_model = os.path.join(output, model_name)
-    if start_from_scratch and os.path.exists(saved_model):
-        logger.info('saved model file "{}" already exists - but NOT loading it '
-                    '(cause --start_from_scratch)'.format(output))
-        return
-    if os.path.exists(saved_model):
-        logger.info('saved model file "{}" already exists - loading it'.format(output))
+    with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
+        stats = load(stream, Loader=yaml.FullLoader)
+    return stats['mlflow_run_id']
 
-        model.load_state_dict(torch.load(saved_model))
-    if os.path.exists(output):
-        logger.info('saved model file not found')
-        return
 
-    logger.info('output folder not found')
-    os.makedirs(output)
+def write_mlflow(output):
+    """Write the mlflow info to resume the training plotting..
+
+    Args:
+        output (str): Output directory
+    """
+    mlflow_run = mlflow.active_run()
+    mlflow_run_id = mlflow_run.info.run_id if mlflow_run is not None else 'NO_MLFLOW'
+    to_store = {'mlflow_run_id': mlflow_run_id}
+    with open(os.path.join(output, STAT_FILE_NAME), 'w') as stream:
+        dump(to_store, stream)
 
 
 def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
@@ -275,6 +268,8 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
         mlf_logger (obj): MLFlow logger callback.
     """
+    write_mlflow(output)
+
     best_checkpoint_callback = ModelCheckpoint(
         filepath=os.path.join(output, BEST_MODEL_NAME),
         save_top_k=1,
