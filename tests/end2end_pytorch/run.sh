@@ -1,9 +1,11 @@
 # exit at the first error
 set -e
 # go to the test folder
-#DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-#cd ${DIR}
-pwd
+
+# some initial git config
+git config --global init.defaultBranch master
+git config --global user.email "no_one@example.com"
+git config --global user.name "No one"
 
 cookiecutter ../.. --no-input --output-dir=./
 cd wonderful_project
