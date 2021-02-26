@@ -1,8 +1,9 @@
 # exit at the first error
 set -e
 # go to the test folder
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd ${DIR}
+#DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+#cd ${DIR}
+pwd
 
 cookiecutter ../.. --no-input --output-dir=./
 cd wonderful_project
