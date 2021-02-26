@@ -1,0 +1,37 @@
+name: test_instantiated_projects
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: python-3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: install-dependencies
+      run: |
+        pip install -e .
+    - name: end2end-pytorch
+      run: |
+        cd tests/end2end_pytorch
+        sh run.sh
+    - name: end2end-tensorflow
+      run: |
+        cd tests/end2end_tensorflow
+        sh run.sh
+    - name: docs
+      run: |
+        cd tests/test_docs
+        sh run.sh
+
