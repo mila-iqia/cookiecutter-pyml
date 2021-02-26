@@ -1,6 +1,5 @@
 # exit at the first error
 set -e
-# go to the test folder
 
 # some initial git config
 git config --global init.defaultBranch master
