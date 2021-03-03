@@ -1,8 +1,12 @@
 {%- if cookiecutter.dl_framework == 'pytorch' %}
+import datetime
 import glob
 {%- endif %}
 import logging
 import os
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+import shutil
+{%- endif %}
 
 import mlflow
 import orion
@@ -270,35 +274,25 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
     """
     write_mlflow(output)
 
+    best_model_path = os.path.join(output, BEST_MODEL_NAME + '.ckpt')
     best_checkpoint_callback = ModelCheckpoint(
-        filepath=os.path.join(output, BEST_MODEL_NAME),
+        filepath=best_model_path,
         save_top_k=1,
         verbose=use_progress_bar,
         monitor="val_loss",
         mode="auto",
-        period=1
+        period=1,
     )
 
-    last_model_path = os.path.join(output, LAST_MODEL_NAME)
+    last_model_path = os.path.join(output, LAST_MODEL_NAME + '.ckpt')
     last_checkpoint_callback = ModelCheckpoint(
         filepath=last_model_path,
         verbose=use_progress_bar,
-        period=1
+        period=1,
     )
 
-    last_models = glob.glob(last_model_path + '*')
-
-    if start_from_scratch:
-        logger.info('will not load any pre-existent checkpoint.')
-        resume_from_checkpoint = None
-    elif len(last_models) > 1:
-        raise ValueError('more than one last model found to resume - provide only one')
-    elif len(last_models) == 1:
-        logger.info('resuming training from {}'.format(last_models[0]))
-        resume_from_checkpoint = last_models[0]
-    else:
-        logger.info('no model found - starting training from scratch')
-        resume_from_checkpoint = None
+    resume_from_checkpoint = handle_previous_models(output, last_model_path, best_model_path,
+                                                    start_from_scratch)
 
     model = TraineeWrapper(model, optimizer, loss_fun)
     early_stopping = EarlyStopping("val_loss", mode="auto", patience=patience,
@@ -314,6 +308,33 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
     trainer.fit(model, train_dataloader=train_loader, val_dataloaders=[dev_loader])
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
     return best_dev_result
+
+
+def handle_previous_models(output, last_model_path, best_model_path, start_from_scratch):
+    """Moves the previous models in a new timestamp folder."""
+    last_models = glob.glob(last_model_path + '*')
+    best_models = glob.glob(best_model_path + '*')
+
+    if len(last_models + best_models) > 0:
+        now = datetime.datetime.now()
+        timestamp = now.strftime('%Y%m%d_%H%M%S')
+        new_folder = output + os.path.sep + timestamp
+        os.mkdir(new_folder)
+        for file in last_models + best_models:
+            shutil.move(file, new_folder)
+        last_models = glob.glob(new_folder + os.path.sep + LAST_MODEL_NAME + '*')
+        logger.info(f'old models found - moving them to {new_folder}')
+
+    if start_from_scratch:
+        logger.info('will not load any pre-existent checkpoint.')
+        resume_from_checkpoint = None
+    elif len(last_models) >= 1:
+        resume_from_checkpoint = sorted(last_models)[-1]
+        logger.info(f'models found - resuming from {resume_from_checkpoint}')
+    else:
+        logger.info('no model found - starting training from scratch')
+        resume_from_checkpoint = None
+    return resume_from_checkpoint
 
 
 class TraineeWrapper(pl.LightningModule):
