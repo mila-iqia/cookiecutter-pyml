@@ -139,7 +139,7 @@ def run(args, data_dir, output_dir, hyper_params):
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
-        args (list): arguments passed from the cli
+        args (object): arguments passed from the cli
         data_dir (str): path to input folder
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
@@ -165,8 +165,8 @@ def run(args, data_dir, output_dir, hyper_params):
     loss_fun = load_loss(hyper_params)
 
     train(model=model, optimizer=optimizer, loss_fun=loss_fun, train_loader=train_loader,
-          dev_loader=dev_loader, patience=hyper_params['patience'], output=output_dir,
-          max_epoch=hyper_params['max_epoch'], use_progress_bar=not args.disable_progressbar,
+          dev_loader=dev_loader, output=output_dir, hyper_params=hyper_params,
+          use_progress_bar=not args.disable_progressbar,
 {%- if cookiecutter.dl_framework == 'pytorch' %}
           start_from_scratch=args.start_from_scratch, mlf_logger=mlf_logger)
 {%- endif %}

@@ -25,6 +25,8 @@ from orion.client import report_results
 from yaml import dump
 from yaml import load
 
+from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
+
 logger = logging.getLogger(__name__)
 
 BEST_MODEL_NAME = 'best_model'
@@ -126,8 +128,8 @@ def init_model(model, train_loader):  # pragma: no cover
     model.summary(print_fn=logger.info)
 
 
-def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-               max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
+def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyper_params,
+               use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -136,18 +138,18 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         loss_fun (obj): Loss function that will be optimized.
         train_loader (obj): Dataloader for the training set.
         dev_loader (obj): Dataloader for the validation set.
-        patience (int): max number of epochs without improving on `best_eval_score`.
-            After this point, the train ends.
         output (str): Output directory.
-        max_epoch (int): Max number of epochs to train for.
+        hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
     """
+    check_and_log_hp(['max_epoch', 'patience'], hyper_params)
+
     restored = reload_model(output, LAST_MODEL_NAME, start_from_scratch)
 
     if restored is None:
         best_dev_metric = None
-        remaining_patience = patience
+        remaining_patience = hyper_params['patience']
         start_epoch = 0
 
         model.compile(
@@ -163,17 +165,17 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
     init_model(model, train_loader)
 
     es = EarlyStoppingWithModelSave(
-        monitor='val_loss', min_delta=0, patience=patience, verbose=use_progress_bar, mode='min',
-        restore_best_weights=False, baseline=best_dev_metric, output=output,
-        remaining_patience=remaining_patience
+        monitor='val_loss', min_delta=0, patience=hyper_params['patience'],
+        verbose=use_progress_bar, mode='min', restore_best_weights=False, baseline=best_dev_metric,
+        output=output, remaining_patience=remaining_patience
     )
 
     # set tensorflow/keras logging
     mt.autolog(every_n_iter=1)
 
-    history = model.fit(x=train_loader, validation_data=dev_loader,
-                        callbacks=[es], epochs=max_epoch,
-                        verbose=use_progress_bar, initial_epoch=start_epoch)
+    history = model.fit(x=train_loader, validation_data=dev_loader, callbacks=[es],
+                        epochs=hyper_params['max_epoch'], verbose=use_progress_bar,
+                        initial_epoch=start_epoch)
 
     best_val_loss = min(history.history['val_loss'])
     return best_val_loss
@@ -254,8 +256,8 @@ def write_mlflow(output):
         dump(to_store, stream)
 
 
-def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-               max_epoch, use_progress_bar, start_from_scratch, mlf_logger):  # pragma: no cover
+def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyper_params,
+               use_progress_bar, start_from_scratch, mlf_logger):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -264,14 +266,13 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         loss_fun (obj): Loss function that will be optimized.
         train_loader (obj): Dataloader for the training set.
         dev_loader (obj): Dataloader for the validation set.
-        patience (int): max number of epochs without improving on `best_eval_score`.
-            After this point, the train ends.
         output (str): Output directory.
-        max_epoch (int): Max number of epochs to train for.
+        hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
         mlf_logger (obj): MLFlow logger callback.
     """
+    check_and_log_hp(['max_epoch', 'patience'], hyper_params)
     write_mlflow(output)
 
     best_model_path = os.path.join(output, BEST_MODEL_NAME + '.ckpt')
@@ -295,13 +296,13 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
                                                     start_from_scratch)
 
     model = TraineeWrapper(model, optimizer, loss_fun)
-    early_stopping = EarlyStopping("val_loss", mode="auto", patience=patience,
+    early_stopping = EarlyStopping("val_loss", mode="auto", patience=hyper_params['patience'],
                                    verbose=use_progress_bar)
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         checkpoint_callback=True,
         logger=mlf_logger,
-        max_epochs=max_epoch,
+        max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint
     )
 
