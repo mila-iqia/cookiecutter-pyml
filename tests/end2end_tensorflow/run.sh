@@ -1,8 +1,10 @@
 # exit at the first error
 set -e
-# go to the test folder
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd ${DIR}
+
+# some initial git config
+git config --global init.defaultBranch master
+git config --global user.email "no_one@example.com"
+git config --global user.name "No one"
 
 python -c "from cookiecutter.main import cookiecutter; cookiecutter('../..', no_input=True, extra_context={'dl_framework': 'tensorflow_cpu'}, output_dir='./')"
 cd wonderful_project
@@ -26,7 +28,7 @@ pytest .
 # run the examples
 cd examples/local
 sh run.sh
-mv output outout_OLD
+mv output output_OLD
 # re-run the example to check reproducibility
 sh run.sh
 # check results are the same

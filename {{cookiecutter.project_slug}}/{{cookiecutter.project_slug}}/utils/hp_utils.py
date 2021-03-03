@@ -31,12 +31,13 @@ def check_hp(names, hps, allow_extra=True):
             missing.add(name)
     extra = hps.keys() - names
 
+    msgs = []
     if len(missing) > 0:
-        logger.error('please add the missing hyper-parameters: {}'.format(missing))
+        msgs.append(f'please add the missing hyper-parameters: {missing}')
     if len(extra) > 0 and not allow_extra:
-        logger.error('please remove the extra hyper-parameters: {}'.format(extra))
-    if len(missing) > 0 or (len(extra) > 0 and not allow_extra):
-        raise ValueError('fix according to the error message above')
+        msgs.append(f'please remove the extra hyper-parameters: {extra}')
+    if len(msgs) > 0:
+        raise ValueError('\n'.join(msgs))
 
 
 def log_hp(names, hps):  # pragma: no cover
