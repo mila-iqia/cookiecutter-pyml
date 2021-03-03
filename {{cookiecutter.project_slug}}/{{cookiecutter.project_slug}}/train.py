@@ -257,7 +257,7 @@ def write_mlflow(output):
 
 
 def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyper_params,
-               use_progress_bar, start_from_scratch, mlf_logger):  # pragma: no cover
+               use_progress_bar, start_from_scratch, mlf_logger, gpus):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -271,6 +271,7 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyp
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
         mlf_logger (obj): MLFlow logger callback.
+        gpus: number of GPUs to use.
     """
     check_and_log_hp(['max_epoch', 'patience'], hyper_params)
     write_mlflow(output)
@@ -303,7 +304,8 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyp
         checkpoint_callback=True,
         logger=mlf_logger,
         max_epochs=hyper_params['max_epoch'],
-        resume_from_checkpoint=resume_from_checkpoint
+        resume_from_checkpoint=resume_from_checkpoint,
+        gpus=gpus
     )
 
     trainer.fit(model, train_dataloader=train_loader, val_dataloaders=[dev_loader])

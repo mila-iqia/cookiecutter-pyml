@@ -57,6 +57,9 @@ def main():
                         help='will disable the progressbar while going over the mini-batch')
     parser.add_argument('--start-from-scratch', action='store_true',
                         help='will not load any existing saved model - even if present')
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+    parser.add_argument('--gpus', type=int, default=0, help='number of GPUs to use')
+{%- endif %}
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
@@ -168,7 +171,7 @@ def run(args, data_dir, output_dir, hyper_params):
           dev_loader=dev_loader, output=output_dir, hyper_params=hyper_params,
           use_progress_bar=not args.disable_progressbar,
 {%- if cookiecutter.dl_framework == 'pytorch' %}
-          start_from_scratch=args.start_from_scratch, mlf_logger=mlf_logger)
+          start_from_scratch=args.start_from_scratch, mlf_logger=mlf_logger, gpus=args.gpus)
 {%- endif %}
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
           start_from_scratch=args.start_from_scratch)
