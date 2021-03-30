@@ -1,4 +1,5 @@
 import logging
+import typing
 
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 import tensorflow as tf
@@ -7,7 +8,7 @@ import tensorflow as tf
 import torch
 import pytorch_lightning as pl
 
-from {{cookiecutter.project_slug}}.models.model_loader import load_loss, load_optimizer
+from {{cookiecutter.project_slug}}.models.optim import load_loss, load_optimizer
 {%- endif %}
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
@@ -21,7 +22,7 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}pl.LightningModule
     Inherits from the given framework's model class. This is a simple MLP model.
     """
 
-    def __init__(self, hyper_params):
+    def __init__(self, hyper_params: typing.Dict[typing.AnyStr, typing.Any]):
         """__init__.
 
         Args:
@@ -63,7 +64,7 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}pl.LightningModule
         """
         # we use the generic loading function from the `model_loader` module, but it could be made
         # a direct part of the model (useful if we want layer-dynamic optimization)
-        return load_optimizer(hyper_params, self)
+        return load_optimizer(self.hparams, self)
 
     def forward(self, data):
         """Forward method of the model.
