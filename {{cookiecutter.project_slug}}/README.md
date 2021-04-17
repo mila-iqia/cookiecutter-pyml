@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.png?branch=master)](https://travis-ci.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }})
-[![codecov](https://codecov.io/gh/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/branch/master/graph/badge.svg)](https://codecov.io/gh/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }})
 
 {% set is_open_source = cookiecutter.open_source_license != 'Not open source' -%}
 
@@ -59,13 +58,6 @@ To enable it server-side, just go to https://travis-ci.com/account/repositories 
 ` Manage repositories on GitHub`. Give the permission to run on the git repository you just created.
 
 Note, the link for public project may be https://travis-ci.org/account/repositories .
-
-### Add Codecov
-Go to https://codecov.io/ and enable codecov for your repository.
-If the github repository is a private one, you will need to get a
-secret token for your project and add it to
-github.
-(see https://docs.codecov.io/docs/about-the-codecov-bash-uploader#section-upload-token)
 
 ## Running the code
 
