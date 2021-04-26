@@ -9,6 +9,9 @@ git config --global user.name "No one"
 cookiecutter ../.. --no-input --output-dir=./
 cd wonderful_project
 git init
+# setting some fake name/email for git:
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
 git add -A
 git commit -m "initial commit"
 pip install -e . --quiet
