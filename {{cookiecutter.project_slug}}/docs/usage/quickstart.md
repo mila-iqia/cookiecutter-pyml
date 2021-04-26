@@ -14,12 +14,12 @@ Everybody loves Schrodinger's equation, why not put it everywhere?
 
 You can also add math directly in your docstrings! For an example, click at the docstrings here:
 ```eval_rst
-:py:meth:`{{cookiecutter.project_slug}}.models.model_loader.load_loss`
+:py:meth:`{{cookiecutter.project_slug}}.models.optim.load_loss`
 ```
 
 You can even reference them directly anywhere for convenience, because clicking is for the lazy:
 ```eval_rst
-.. autoclass:: {{cookiecutter.project_slug}}.models.model_loader.load_loss
+.. autoclass:: {{cookiecutter.project_slug}}.models.optim.load_loss
     :show-inheritance:
     :noindex:
 ```

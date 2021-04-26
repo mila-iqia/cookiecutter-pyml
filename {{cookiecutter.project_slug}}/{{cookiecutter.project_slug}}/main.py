@@ -10,12 +10,24 @@ import orion
 import yaml
 from yaml import load
 
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+from pytorch_lightning.loggers import MLFlowLogger
+{%- endif %}
 from {{cookiecutter.project_slug}}.data.data_loader import load_data
-from {{cookiecutter.project_slug}}.train import train, load_stats, STAT_FILE_NAME
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+from {{cookiecutter.project_slug}}.train import train, load_stats
+{%- endif %}
+from {{cookiecutter.project_slug}}.train import STAT_FILE_NAME
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+from {{cookiecutter.project_slug}}.train import load_mlflow
+from {{cookiecutter.project_slug}}.train import train
+{%- endif %}
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
-from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
-from {{cookiecutter.project_slug}}.models.model_loader import load_loss
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+from {{cookiecutter.project_slug}}.models.optim import load_optimizer
+from {{cookiecutter.project_slug}}.models.optim import load_loss
+{%- endif %}
 from {{cookiecutter.project_slug}}.utils.file_utils import rsync_folder
 from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
 from {{cookiecutter.project_slug}}.utils.reproducibility_utils import set_seed
@@ -47,6 +59,9 @@ def main():
                         help='will disable the progressbar while going over the mini-batch')
     parser.add_argument('--start-from-scratch', action='store_true',
                         help='will not load any existing saved model - even if present')
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+    parser.add_argument('--gpus', type=int, default=0, help='number of GPUs to use')
+{%- endif %}
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
@@ -86,12 +101,24 @@ def main():
         hyper_params = {}
 
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
-
     if orion.client.cli.IS_ORION_ON:
         exp_name = os.getenv('ORION_EXPERIMENT_NAME', 'orion_exp')
     else:
         exp_name = hyper_params.get('exp_name', 'exp')
     mlflow.set_experiment(exp_name)
+    {%- if cookiecutter.dl_framework == 'pytorch' %}
+    mlf_logger = MLFlowLogger(
+        experiment_name=exp_name
+    )
+
+    if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
+        mlf_logger._run_id = load_mlflow(args.output)
+
+    mlflow.start_run(run_id=mlf_logger.run_id)
+    run(args, data_dir, output_dir, hyper_params, mlf_logger)
+    mlflow.end_run()
+    {%- endif %}
+    {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 
     if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
         _, _, _, mlflow_run_id = load_stats(args.output)
@@ -100,19 +127,30 @@ def main():
         mlflow.start_run()
     run(args, data_dir, output_dir, hyper_params)
     mlflow.end_run()
+    {%- endif %}
 
     if args.tmp_folder is not None:
         rsync_folder(output_dir + os.path.sep, args.output)
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+
+
+def run(args, data_dir, output_dir, hyper_params, mlf_logger):
+{%- endif %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
 
 
 def run(args, data_dir, output_dir, hyper_params):
+{%- endif %}
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
-        args (list): arguments passed from the cli
+        args (object): arguments passed from the cli
         data_dir (str): path to input folder
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+        mlf_logger (obj): MLFlow logger callback.
+{%- endif %}
     """
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
@@ -126,14 +164,25 @@ def run(args, data_dir, output_dir, hyper_params):
 
     log_exp_details(os.path.realpath(__file__), args)
 
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+    datamodule = load_data(data_dir, hyper_params)
+    model = load_model(hyper_params)
+
+    train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
+          use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch,
+          mlf_logger=mlf_logger, gpus=args.gpus)
+{%- endif %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
     train_loader, dev_loader = load_data(data_dir, hyper_params)
     model = load_model(hyper_params)
     optimizer = load_optimizer(hyper_params, model)
     loss_fun = load_loss(hyper_params)
 
-    train(model, optimizer, loss_fun, train_loader, dev_loader, hyper_params['patience'],
-          output_dir, max_epoch=hyper_params['max_epoch'],
-          use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch)
+    train(model=model, optimizer=optimizer, loss_fun=loss_fun, train_loader=train_loader,
+          dev_loader=dev_loader, output=output_dir, hyper_params=hyper_params,
+          use_progress_bar=not args.disable_progressbar,
+          start_from_scratch=args.start_from_scratch)
+{%- endif %}
 
 
 if __name__ == '__main__':
