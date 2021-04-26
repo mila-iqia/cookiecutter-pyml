@@ -5,7 +5,6 @@ cache: pip
 install:
   # Reducing verbosity is needed because of Travis' limit on log length
   - pip install -e . --quiet
-  - pip install pytest-cov
 script:
   # run flake8 with exactly the same options as in the commit hook:
   - config/hooks/pre-commit
