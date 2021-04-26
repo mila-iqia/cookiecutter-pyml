@@ -256,16 +256,13 @@ def write_mlflow(output):
         dump(to_store, stream)
 
 
-def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyper_params,
+def train_impl(model, datamodule, output, hyper_params,
                use_progress_bar, start_from_scratch, mlf_logger, gpus):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
         model (obj): The neural network model object.
-        optimizer (obj): Optimizer used during training.
-        loss_fun (obj): Loss function that will be optimized.
-        train_loader (obj): Dataloader for the training set.
-        dev_loader (obj): Dataloader for the validation set.
+        datamodule (obj): lightning data module that will instantiate data loaders.
         output (str): Output directory.
         hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
@@ -296,7 +293,6 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyp
     resume_from_checkpoint = handle_previous_models(output, last_model_path, best_model_path,
                                                     start_from_scratch)
 
-    model = TraineeWrapper(model, optimizer, loss_fun)
     early_stopping = EarlyStopping("val_loss", mode="auto", patience=hyper_params['patience'],
                                    verbose=use_progress_bar)
     trainer = pl.Trainer(
@@ -308,7 +304,7 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyp
         gpus=gpus
     )
 
-    trainer.fit(model, train_dataloader=train_loader, val_dataloaders=[dev_loader])
+    trainer.fit(model, datamodule=datamodule)
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
     return best_dev_result
 
@@ -338,35 +334,4 @@ def handle_previous_models(output, last_model_path, best_model_path, start_from_
         logger.info('no model found - starting training from scratch')
         resume_from_checkpoint = None
     return resume_from_checkpoint
-
-
-class TraineeWrapper(pl.LightningModule):
-    """Wrapper to a PyTorch model. Used to define train and validation steps."""
-
-    def __init__(self, model, optimizer, loss):
-        """Main constructor."""
-        super().__init__()
-        self.model = model
-        self.optmizer = optimizer
-        self.loss = loss
-
-    def training_step(self, batch, batch_idx):
-        """Training step (PyTorch Lightning takes care to provide the correct batch data."""
-        x, y = batch
-        y_hat = self.model(x)
-        loss_value = self.loss(y_hat, y)
-        self.log('train_loss', loss_value, on_step=False, on_epoch=True)
-        return loss_value
-
-    def validation_step(self, batch, batch_idx):
-        """Validation step (PyTorch Lightning takes care to provide the correct batch data."""
-        x, y = batch
-        y_hat = self.model(x)
-        loss_value = self.loss(y_hat, y)
-        self.log('val_loss', loss_value, on_step=False, on_epoch=True, prog_bar=True)
-        return loss_value
-
-    def configure_optimizers(self):
-        """Method used by PyTorch Lighning to set the optimizer."""
-        return self.optmizer
 {%- endif %}

@@ -24,8 +24,10 @@ from {{cookiecutter.project_slug}}.train import train
 {%- endif %}
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
-from {{cookiecutter.project_slug}}.models.model_loader import load_optimizer
-from {{cookiecutter.project_slug}}.models.model_loader import load_loss
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+from {{cookiecutter.project_slug}}.models.optim import load_optimizer
+from {{cookiecutter.project_slug}}.models.optim import load_loss
+{%- endif %}
 from {{cookiecutter.project_slug}}.utils.file_utils import rsync_folder
 from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
 from {{cookiecutter.project_slug}}.utils.reproducibility_utils import set_seed
@@ -162,6 +164,15 @@ def run(args, data_dir, output_dir, hyper_params):
 
     log_exp_details(os.path.realpath(__file__), args)
 
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+    datamodule = load_data(data_dir, hyper_params)
+    model = load_model(hyper_params)
+
+    train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
+          use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch,
+          mlf_logger=mlf_logger, gpus=args.gpus)
+{%- endif %}
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
     train_loader, dev_loader = load_data(data_dir, hyper_params)
     model = load_model(hyper_params)
     optimizer = load_optimizer(hyper_params, model)
@@ -170,10 +181,6 @@ def run(args, data_dir, output_dir, hyper_params):
     train(model=model, optimizer=optimizer, loss_fun=loss_fun, train_loader=train_loader,
           dev_loader=dev_loader, output=output_dir, hyper_params=hyper_params,
           use_progress_bar=not args.disable_progressbar,
-{%- if cookiecutter.dl_framework == 'pytorch' %}
-          start_from_scratch=args.start_from_scratch, mlf_logger=mlf_logger, gpus=args.gpus)
-{%- endif %}
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
           start_from_scratch=args.start_from_scratch)
 {%- endif %}
 

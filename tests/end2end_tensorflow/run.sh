@@ -1,14 +1,15 @@
 # exit at the first error
 set -e
-
-# some initial git config
-git config --global init.defaultBranch master
-git config --global user.email "no_one@example.com"
-git config --global user.name "No one"
+# go to the test folder
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd ${DIR}
 
 python -c "from cookiecutter.main import cookiecutter; cookiecutter('../..', no_input=True, extra_context={'dl_framework': 'tensorflow_cpu'}, output_dir='./')"
 cd wonderful_project
 git init
+# setting some fake name/email for git:
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
 git add -A
 git commit -m "initial commit"
 pip install -e . --quiet
@@ -28,7 +29,7 @@ pytest .
 # run the examples
 cd examples/local
 sh run.sh
-mv output output_OLD
+mv output outout_OLD
 # re-run the example to check reproducibility
 sh run.sh
 # check results are the same
