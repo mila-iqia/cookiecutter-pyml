@@ -7,7 +7,6 @@ A cookiecutter is a generic project template that will instantiate a new project
 
 * Pytorch/Tensorflow
 * Travis CI
-* Codecov
 * Sphinx (documentation)
 * MLFlow (experiment management)
 * Orion (hyperparameter optimization)
