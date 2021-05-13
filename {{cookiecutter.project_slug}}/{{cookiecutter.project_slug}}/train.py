@@ -273,7 +273,7 @@ def train_impl(model, datamodule, output, hyper_params,
     check_and_log_hp(['max_epoch', 'patience'], hyper_params)
     write_mlflow(output)
 
-    best_model_path = os.path.join(output, LAST_MODEL_NAME)
+    best_model_path = os.path.join(output, BEST_MODEL_NAME)
     best_checkpoint_callback = ModelCheckpoint(
         dirpath=best_model_path,
         filename='model',
@@ -313,21 +313,22 @@ def train_impl(model, datamodule, output, hyper_params,
 
 def handle_previous_models(output, last_model_path, best_model_path, start_from_scratch):
     """Moves the previous models in a new timestamp folder."""
-    last_models = glob.glob(last_model_path + '*')
-    best_models = glob.glob(best_model_path + '*')
+    last_models = glob.glob(last_model_path + os.sep + '*')
+    best_models = glob.glob(best_model_path + os.sep + '*')
 
     if len(last_models + best_models) > 0:
         now = datetime.datetime.now()
         timestamp = now.strftime('%Y%m%d_%H%M%S')
         new_folder = output + os.path.sep + timestamp
         os.mkdir(new_folder)
-        for file in last_models + best_models:
-            shutil.move(file, new_folder)
-        last_models = glob.glob(new_folder + os.path.sep + LAST_MODEL_NAME + '*')
+        shutil.move(last_model_path, new_folder)
+        shutil.move(best_model_path, new_folder)
         logger.info(f'old models found - moving them to {new_folder}')
+        # need to change the last model pointer to the new location
+        last_models = glob.glob(new_folder + os.path.sep + LAST_MODEL_NAME + os.sep + '*')
 
     if start_from_scratch:
-        logger.info('will not load any pre-existent checkpoint.')
+        logger.info('will not load any pre-existent checkpoint (because of "--start-from-scratch")')
         resume_from_checkpoint = None
     elif len(last_models) >= 1:
         resume_from_checkpoint = sorted(last_models)[-1]
