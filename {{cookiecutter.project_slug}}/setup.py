@@ -32,10 +32,10 @@ setup(
         'six>=1.15.0',
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow_cpu' %}
-        'tensorflow==2.4.0']
+        'tensorflow==2.4.0'],
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow_gpu' %}
-        'tensorflow-gpu==2.4.0']
+        'tensorflow-gpu==2.4.0'],
         {%- endif %}
     entry_points={
         'console_scripts': [
