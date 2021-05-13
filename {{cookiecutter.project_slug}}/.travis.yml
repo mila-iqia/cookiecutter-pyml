@@ -1,6 +1,6 @@
 language: python
 python:
-  - "{{ cookiecutter.version }}"
+  - "{{ cookiecutter.python_version }}"
 cache: pip
 install:
   # Reducing verbosity is needed because of Travis' limit on log length
