@@ -60,7 +60,9 @@ def main():
     parser.add_argument('--start-from-scratch', action='store_true',
                         help='will not load any existing saved model - even if present')
 {%- if cookiecutter.dl_framework == 'pytorch' %}
-    parser.add_argument('--gpus', type=int, default=0, help='number of GPUs to use')
+    parser.add_argument('--gpus', default=None,
+                        help='list of GPUs to use. If not specified, runs on CPU.'
+                             'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
 {%- endif %}
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()

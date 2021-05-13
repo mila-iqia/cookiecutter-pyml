@@ -1,0 +1,27 @@
+jobs:
+- job:
+  pool:
+    vmImage: 'ubuntu-16.04'
+  strategy:
+    matrix:
+      Python:
+        python.version: '{{ cookiecutter.python_version }}'
+
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python $(python.version)'
+    inputs:
+      versionSpec: '$(python.version)'
+
+  - script: pip install -e .
+    displayName: 'Install dependencies'
+
+  - script: sh config/hooks/pre-commit
+    displayName: 'Running commit hook'
+
+  - script: pytest
+    displayName: 'Run pytest'
+
+  - script: sh run.sh
+    workingDirectory: examples/local
+    displayName: 'Run single toy experiment'
