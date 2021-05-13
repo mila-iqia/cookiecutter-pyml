@@ -34,8 +34,7 @@ setup(
         {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
         'scipy==1.4.1',
         'setuptools>=41.0.0',
-        'six>=1.12.0',
-        'numpy'],
+        'six>=1.12.0'],
         {%- endif %}
     entry_points={
         'console_scripts': [
