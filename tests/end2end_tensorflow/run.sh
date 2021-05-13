@@ -14,8 +14,6 @@ git add -A
 git commit -m "initial commit"
 pip install -e . --quiet
 pip install flake8 pytest --quiet
-# necessary cause tf dependencies are sometimes not updated
-pip install -U setuptools numpy six --quiet
 
 # print all dependencies
 pip freeze
