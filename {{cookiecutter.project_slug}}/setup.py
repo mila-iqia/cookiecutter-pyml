@@ -26,10 +26,10 @@ setup(
         'torch', 'pytorch_lightning==1.0.6'],
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow_cpu' %}
-        'tensorflow==2.2.0',
+        'tensorflow==2.4.0',
         {%- endif %}
         {%- if cookiecutter.dl_framework == 'tensorflow_gpu' %}
-        'tensorflow-gpu==2.2.0'
+        'tensorflow-gpu==2.4.0'
         {%- endif %}
         {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
         'scipy==1.4.1',
