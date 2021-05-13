@@ -77,6 +77,13 @@ To enable it server-side, just go to https://travis-ci.com/account/repositories 
 
 Note, the link for public project may be https://travis-ci.org/account/repositories .
 
+#### Azure
+
+Azure Continuous Integration is already configured in (`.azure_pipeline.yml`).
+
+To enable it server-side, just in azure and select `.azure_pipeline.yml` as the 
+configuration one for Continuous Integration.
+
 ## Running the code
 
 ### Run the tests
