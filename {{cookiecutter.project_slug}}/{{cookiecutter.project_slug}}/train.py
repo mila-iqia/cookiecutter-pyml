@@ -273,8 +273,9 @@ def train_impl(model, datamodule, output, hyper_params,
     check_and_log_hp(['max_epoch', 'patience'], hyper_params)
     write_mlflow(output)
 
+    best_model_path = os.path.join(output, LAST_MODEL_NAME)
     best_checkpoint_callback = ModelCheckpoint(
-        dirpath=os.path.join(output, BEST_MODEL_NAME),
+        dirpath=best_model_path,
         filename='model',
         save_top_k=1,
         verbose=use_progress_bar,
