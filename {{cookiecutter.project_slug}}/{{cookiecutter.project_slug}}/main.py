@@ -105,12 +105,21 @@ def main():
     # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
     if orion.client.cli.IS_ORION_ON:
         exp_name = os.getenv('ORION_EXPERIMENT_NAME', 'orion_exp')
+        {%- if cookiecutter.dl_framework == 'pytorch' %}
+        tags = {'mlflow.runName': os.getenv('ORION_TRIAL_ID')}
+        {%- endif %}
     else:
         exp_name = hyper_params.get('exp_name', 'exp')
+        {%- if cookiecutter.dl_framework == 'pytorch' %}
+        tags = {}
+        {%- endif %}
     mlflow.set_experiment(exp_name)
     {%- if cookiecutter.dl_framework == 'pytorch' %}
+    save_dir = os.getenv('MLFLOW_TRACKING_URI', './mlruns')
     mlf_logger = MLFlowLogger(
-        experiment_name=exp_name
+        experiment_name=exp_name,
+        tags=tags,
+        save_dir=save_dir
     )
 
     if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
