@@ -22,7 +22,7 @@ pip freeze
 sh config/hooks/pre-commit
 
 # run tests
-pytest .
+pytest --cov={{cookiecutter.project_slug}}
 
 # run the examples
 cd examples/local

@@ -30,9 +30,9 @@ jobs:
     - name: print env
       run: |
         env
-    - name: pytest
+    - name: pytest_and_coverage
       run: |
-        pytest
+        pytest --cov={{cookiecutter.project_slug}}
     - name: end2end-toyexp
       run: |
         cd examples/local

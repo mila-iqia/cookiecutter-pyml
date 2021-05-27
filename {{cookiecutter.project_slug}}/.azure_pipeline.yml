@@ -19,8 +19,8 @@ jobs:
   - script: sh config/hooks/pre-commit
     displayName: 'Running commit hook'
 
-  - script: pytest
-    displayName: 'Run pytest'
+  - script: pytest --cov={{cookiecutter.project_slug}}
+    displayName: 'Run pytest and display test coverage'
 
   - script: sh run.sh
     workingDirectory: examples/local
