@@ -22,7 +22,7 @@ pip freeze
 sh config/hooks/pre-commit
 
 # run tests
-pytest --cov={{cookiecutter.project_slug}}
+pytest --cov=wonderful_project
 
 # run the examples
 cd examples/local
