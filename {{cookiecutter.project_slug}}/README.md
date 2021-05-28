@@ -50,14 +50,39 @@ link your local git to the remote project, which should look like this:
     git remote add origin git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
     git push -u origin master
 
-### Add Travis
-A travis configuration file (`.travis.yml`) is already in your repository (so, no need to
-create it). This will run `flake8` and run the tests under `tests`.
+### Setup Continuous Integration
+
+Continuous integration will run the following:
+- Unit tests under `tests`.
+- End-to-end test under `exmaples/local`.
+- `flake8` to check the code syntax.
+- Checks on documentation presence and format (using `sphinx`).
+
+We support the following Continuous Integration providers.
+Check the following instructions for more details.
+
+#### GitHub Actions
+
+Github actions are already configured in `.github/workflows/tests.yml`.
+Github actions are already enabled by default when using Github, so, when
+pushing to github, they will be executed automatically for pull requests to
+`master` and to `develop`.
+
+#### Travis
+
+Travis is already configured in (`.travis.yml`).
 
 To enable it server-side, just go to https://travis-ci.com/account/repositories and click
 ` Manage repositories on GitHub`. Give the permission to run on the git repository you just created.
 
 Note, the link for public project may be https://travis-ci.org/account/repositories .
+
+#### Azure
+
+Azure Continuous Integration is already configured in (`.azure_pipeline.yml`).
+
+To enable it server-side, just in azure and select `.azure_pipeline.yml` as the 
+configuration one for Continuous Integration.
 
 ## Running the code
 

@@ -1,21 +1,31 @@
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+import datetime
+import glob
+{%- endif %}
 import logging
 import os
+{%- if cookiecutter.dl_framework == 'pytorch' %}
+import shutil
+{%- endif %}
 
 import mlflow
 import orion
 import yaml
 {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+import mlflow.tensorflow as mt
 import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping
+from pathlib import Path
 {%- endif %}
-import time
 {%- if cookiecutter.dl_framework == 'pytorch' %}
-import torch
+import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 {%- endif %}
-import tqdm
-from mlflow import log_metric
 from orion.client import report_results
 from yaml import dump
 from yaml import load
+
+from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
 
@@ -24,55 +34,37 @@ LAST_MODEL_NAME = 'last_model'
 STAT_FILE_NAME = 'stats.yaml'
 
 
-def reload_model(output, model_name, model, optimizer,
-                 start_from_scratch=False):  # pragma: no cover
-    """Reload a model.
+def train(**kwargs):  # pragma: no cover
+    """Training loop wrapper. Used to catch exception if Orion is being used."""
+    try:
+        best_dev_metric = train_impl(**kwargs)
+    except RuntimeError as err:
+        if orion.client.cli.IS_ORION_ON and 'CUDA out of memory' in str(err):
+            logger.error(err)
+            logger.error('model was out of memory - assigning a bad score to tell Orion to avoid'
+                         'too big model')
+            best_dev_metric = -999
+        else:
+            raise err
 
-    Can be useful for model checkpointing, hyper-parameter optimization, etc.
+    report_results([dict(
+        name='dev_metric',
+        type='objective',
+        # note the minus - cause orion is always trying to minimize (cit. from the guide)
+        value=-float(best_dev_metric))])
+{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+
+
+def load_stats(output):
+    """Load the latest statistics.
 
     Args:
-        output (str): Output directory.
-        model_name (str): Name of the saved model.
-        model (obj): A model object.
-        optimizer (obj): Optimizer used during training.
-        start_from_scratch (bool): starts training from scratch even if a saved moel is present.
+        output (str): Output directory
     """
-    saved_model = os.path.join(output, model_name)
-    if start_from_scratch and os.path.exists(saved_model):
-        logger.info('saved model file "{}" already exists - but NOT loading it '
-                    '(cause --start_from_scratch)'.format(output))
-        return
-    if os.path.exists(saved_model):
-        logger.info('saved model file "{}" already exists - loading it'.format(output))
-        {%- if cookiecutter.dl_framework == 'pytorch' %}
-        model.load_state_dict(torch.load(saved_model))
-        {%- endif %}
-        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-        ckpt = tf.train.Checkpoint(model=model, optimizer=optimizer)
-        ckpt_manager_best_model = tf.train.CheckpointManager(ckpt, saved_model, max_to_keep=1)
-        status = ckpt.restore(ckpt_manager_best_model.latest_checkpoint)
-        # NOTE: not using assert_consumed because it fails (see
-        # https://github.com/tensorflow/tensorflow/issues/33150) given that some variables
-        # are in the saved_model but not in the model. This seems more a bug with tensorflow.
-        # You can use assert_existing_objects_matched that checks only the variables in the
-        # model.
-        # In any case, we use expect_partial here because otherwise the restoring would complain
-        # when restoring the multitask model for prediction (given that - in that case - we only
-        # load the model part related to the main task).
-        # status.assert_consumed()
-        status.assert_existing_objects_matched()
-        # status.expect_partial()
-        {%- endif %}
-
-        stats = load_stats(output)
-        logger.info('model status: {}'.format(stats))
-        return stats
-    if os.path.exists(output):
-        logger.info('saved model file not found')
-        return
-
-    logger.info('output folder not found')
-    os.makedirs(output)
+    with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
+        stats = load(stream, Loader=yaml.FullLoader)
+    return stats['best_dev_metric'], stats['epoch'], stats['remaining_patience'], \
+        stats['mlflow_run_id']
 
 
 def write_stats(output, best_eval_score, epoch, remaining_patience):
@@ -93,54 +85,35 @@ def write_stats(output, best_eval_score, epoch, remaining_patience):
         dump(to_store, stream)
 
 
-def load_stats(output):
-    """Load the latest statistics.
+def reload_model(output, model_name, start_from_scratch=False):  # pragma: no cover
+    """Reload a model.
+
+    Can be useful for model checkpointing, hyper-parameter optimization, etc.
 
     Args:
-        output (str): Output directory
-    """
-    with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
-        stats = load(stream, Loader=yaml.FullLoader)
-    return stats['best_dev_metric'], stats['epoch'], stats['remaining_patience'], \
-        stats['mlflow_run_id']
-
-
-def train(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-          max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
-    """Training loop wrapper. Used to catch exception (and to handle them) if Orion is being used.
-
-    Args:
-        model (obj): The neural network model object.
-        optimizer (obj): Optimizer used during training.
-        loss_fun (obj): Loss function that will be optimized.
-        train_loader (obj): Dataloader for the training set.
-        dev_loader (obj): Dataloader for the validation set.
-        patience (int): max number of epochs without improving on `best_eval_score`.
-            After this point, the train ends.
         output (str): Output directory.
-        max_epoch (int): Max number of epochs to train for.
-        use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
-        start_from_scratch (bool): Start training from scratch (ignore checkpoints)
+        model_name (str): Model name to relaod.
+        start_from_scratch (bool): starts training from scratch even if a saved moel is present.
     """
-    try:
-        best_dev_metric = train_impl(
-            model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-            max_epoch, use_progress_bar, start_from_scratch)
-    except RuntimeError as err:
-        if orion.client.cli.IS_ORION_ON and 'CUDA out of memory' in str(err):
-            logger.error(err)
-            logger.error('model was out of memory - assigning a bad score to tell Orion to avoid'
-                         'too big model')
-            best_dev_metric = -999
-        else:
-            raise err
+    saved_model_folder = os.path.join(output, model_name)
+    if start_from_scratch and os.path.exists(saved_model_folder):
+        logger.info('saved model file "{}" already exists - but NOT loading it '
+                    '(cause --start_from_scratch)'.format(output))
+        restored = None
+    elif os.path.exists(saved_model_folder):
+        logger.info('loading model from {}'.format(saved_model_folder))
+        model = tf.keras.models.load_model(
+            os.path.join(output, LAST_MODEL_NAME)
+        )
 
-    report_results([dict(
-        name='dev_metric',
-        type='objective',
-        # note the minus - cause orion is always trying to minimize (cit. from the guide)
-        value=-float(best_dev_metric))])
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+        stats = load_stats(output)
+        logger.info('model status: {}'.format(stats))
+
+        restored = model, stats
+    else:
+        logger.info('no model found to restore.')
+        restored = None
+    return restored
 
 
 def init_model(model, train_loader):  # pragma: no cover
@@ -153,11 +126,10 @@ def init_model(model, train_loader):  # pragma: no cover
     model_input, model_target = next(iter(train_loader))
     _ = model(model_input)
     model.summary(print_fn=logger.info)
-{%- endif %}
 
 
-def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, output,
-               max_epoch, use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
+def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, output, hyper_params,
+               use_progress_bar=True, start_from_scratch=False):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -166,154 +138,203 @@ def train_impl(model, optimizer, loss_fun, train_loader, dev_loader, patience, o
         loss_fun (obj): Loss function that will be optimized.
         train_loader (obj): Dataloader for the training set.
         dev_loader (obj): Dataloader for the validation set.
-        patience (int): max number of epochs without improving on `best_eval_score`.
-            After this point, the train ends.
         output (str): Output directory.
-        max_epoch (int): Max number of epochs to train for.
+        hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
     """
-    if use_progress_bar:
-        pb = tqdm.tqdm
+    check_and_log_hp(['max_epoch', 'patience'], hyper_params)
+
+    restored = reload_model(output, LAST_MODEL_NAME, start_from_scratch)
+
+    if restored is None:
+        best_dev_metric = None
+        remaining_patience = hyper_params['patience']
+        start_epoch = 0
+
+        model.compile(
+            optimizer=optimizer,
+            loss=loss_fun,
+            metrics=[],
+        )
     else:
-        def pb(x, total):
-            return x
-    {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
+        restored_model, stats = restored
+        best_dev_metric, start_epoch, remaining_patience, _ = stats
+        model = restored_model
 
     init_model(model, train_loader)
-    ckpt_last = tf.train.Checkpoint(model=model, optimizer=optimizer)
-    ckpt_manager_last_model = tf.train.CheckpointManager(
-        ckpt_last, os.path.join(output, LAST_MODEL_NAME), max_to_keep=1)
-    ckpt_best = tf.train.Checkpoint(model=model, optimizer=optimizer)
-    ckpt_manager_best_model = tf.train.CheckpointManager(
-        ckpt_best, os.path.join(output, BEST_MODEL_NAME), max_to_keep=1)
-    {%- endif %}
 
-    stats = reload_model(output, LAST_MODEL_NAME, model, optimizer, start_from_scratch)
-    if stats is None:
-        best_dev_metric = None
-        remaining_patience = patience
-        start_epoch = 0
-    else:
-        best_dev_metric, start_epoch, remaining_patience, _ = stats
+    es = EarlyStoppingWithModelSave(
+        monitor='val_loss', min_delta=0, patience=hyper_params['patience'],
+        verbose=use_progress_bar, mode='min', restore_best_weights=False, baseline=best_dev_metric,
+        output=output, remaining_patience=remaining_patience
+    )
 
-    if remaining_patience <= 0:
-        logger.warning(
-            'remaining patience is zero - not training (and returning best dev score {})'.format(
-                best_dev_metric))
-        return best_dev_metric
-    if start_epoch >= max_epoch:
-        logger.warning(
-            'start epoch {} > max epoch {} - not training (and returning best dev score '
-            '{})'.format(start_epoch, max_epoch, best_dev_metric))
-        return best_dev_metric
-    {%- if cookiecutter.dl_framework == 'pytorch' %}
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-    {%- endif %}
+    # set tensorflow/keras logging
+    mt.autolog(every_n_iter=1)
 
-    for epoch in range(start_epoch, max_epoch):
+    history = model.fit(x=train_loader, validation_data=dev_loader, callbacks=[es],
+                        epochs=hyper_params['max_epoch'], verbose=use_progress_bar,
+                        initial_epoch=start_epoch)
 
-        start = time.time()
-        # train
-        train_cumulative_loss = 0.0
-        examples = 0
-        {%- if cookiecutter.dl_framework == 'pytorch' %}
-        model.train()
-        train_steps = len(train_loader)
-        {%- endif %}
-        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-        train_steps = sum(1 for _ in train_loader)
-        {%- endif %}
-        for i, data in pb(enumerate(train_loader, 0), total=train_steps):
-            model_input, model_target = data
-            # forward + backward + optimize
-            {%- if cookiecutter.dl_framework == 'pytorch' %}
-            optimizer.zero_grad()
-            outputs = model(model_input.to(device))
-            model_target = torch.squeeze(model_target.to(device))
-            loss = loss_fun(outputs, model_target)
-            loss.backward()
-            optimizer.step()
+    best_val_loss = min(history.history['val_loss'])
+    return best_val_loss
 
-            train_cumulative_loss += loss.item()
-            {%- endif %}
-            {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-            with tf.GradientTape() as tape:
-                outputs = model(model_input)
-                loss = loss_fun(model_target, outputs)
-            gradients = tape.gradient(loss, model.trainable_variables)
-            optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
-            train_cumulative_loss += float(loss.numpy())
-            {%- endif %}
-            examples += model_target.shape[0]
+class EarlyStoppingWithModelSave(EarlyStopping):
+    """Keras callback that extends the early stopping.
 
-        train_end = time.time()
-        avg_train_loss = train_cumulative_loss / examples
+    Adds the functionality to save the models in the new TF format. (both best and last model)
+    """
 
-        # dev
-        {%- if cookiecutter.dl_framework == 'pytorch' %}
-        model.eval()
-        dev_steps = len(dev_loader)
-        {%- endif %}
-        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-        dev_steps = sum(1 for _ in dev_loader)
-        {%- endif %}
-        dev_cumulative_loss = 0.0
-        examples = 0
-        for i, data in pb(enumerate(dev_loader, 0), total=dev_steps):
-            model_input, model_target = data
-            {%- if cookiecutter.dl_framework == 'pytorch' %}
-            with torch.no_grad():
-                outputs = model(model_input.to(device))
-                model_target = torch.squeeze(model_target.to(device))
-                loss = loss_fun(outputs, model_target)
-                dev_cumulative_loss += loss.item()
-            {%- endif %}
-            {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-            outputs = model(model_input)
-            loss = loss_fun(model_target, outputs)
-            dev_cumulative_loss += float(loss.numpy())
-            {%- endif %}
-            examples += model_target.shape[0]
+    def __init__(self, output, remaining_patience, **kwargs):
+        """Main constructor - initializes the parent.
 
-        avg_dev_loss = dev_cumulative_loss / examples
-        log_metric("dev_loss", avg_dev_loss, step=epoch)
-        log_metric("train_loss", avg_train_loss, step=epoch)
+        output (str): path to folder where to store the models.
+        remaining_patience (int): patience left when starting early stopping.
+            (in general it's equal to patience - but it may be less if train is resumed)
+        """
+        super(EarlyStoppingWithModelSave, self).__init__(**kwargs)
+        self.output = output
+        self.wait = self.patience - remaining_patience
 
-        dev_end = time.time()
-        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-        ckpt_manager_last_model.save()
-        {%- endif %}
-        {%- if cookiecutter.dl_framework == 'pytorch' %}
-        torch.save(model.state_dict(), os.path.join(output, LAST_MODEL_NAME))
-        {%- endif %}
+    def on_train_begin(self, logs=None):
+        """See parent class doc."""
+        super(EarlyStoppingWithModelSave, self).on_train_begin(logs)
+        Path(self.output).mkdir(parents=True, exist_ok=True)
 
-        if best_dev_metric is None or avg_dev_loss < best_dev_metric:
-            best_dev_metric = avg_dev_loss
-            remaining_patience = patience
-            {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-            ckpt_manager_best_model.save()
-            {%- endif %}
-            {%- if cookiecutter.dl_framework == 'pytorch' %}
-            torch.save(model.state_dict(), os.path.join(output, BEST_MODEL_NAME))
-            {%- endif %}
+    # copy-pasted in order to modify what happens when we improve (see comment below)
+    def on_epoch_end(self, epoch, logs=None):
+        """See parent class doc."""
+        current = self.get_monitor_value(logs)
+        if current is None:
+            return
+        if self.monitor_op(current - self.min_delta, self.best):
+            self.best = current
+            self.wait = 0
+            if self.restore_best_weights:
+                self.best_weights = self.model.get_weights()
+
+            self.model.save(os.path.join(self.output, BEST_MODEL_NAME))
         else:
-            remaining_patience -= 1
+            self.wait += 1
+            if self.wait >= self.patience:
+                self.stopped_epoch = epoch
+                self.model.stop_training = True
+                if self.restore_best_weights:
+                    if self.verbose > 0:
+                        print('Restoring model weights from the end of the best epoch.')
+                    self.model.set_weights(self.best_weights)
 
-        logger.info(
-            'done #epoch {:3} => loss {:5.3f} - dev loss {:3.2f} (will try for {} more epoch) - '
-            'train min. {:4.2f} / dev min. {:4.2f}'.format(
-                epoch, avg_train_loss, avg_dev_loss, remaining_patience, (train_end - start) / 60,
-                (dev_end - train_end) / 60))
+        self.model.save(os.path.join(self.output, LAST_MODEL_NAME))
+        write_stats(self.output, self.best, epoch, self.patience - self.wait)
+{%- endif %}
+{%- if cookiecutter.dl_framework == 'pytorch' %}
 
-        write_stats(output, best_dev_metric, epoch + 1, remaining_patience)
-        log_metric("best_dev_metric", best_dev_metric)
 
-        if remaining_patience <= 0:
-            logger.info('done! best dev metric is {}'.format(best_dev_metric))
-            break
-    logger.info('training completed (epoch done {} - max epoch {})'.format(epoch + 1, max_epoch))
-    logger.info('Finished Training')
-    return best_dev_metric
+def load_mlflow(output):
+    """Load the mlflow run id.
+
+    Args:
+        output (str): Output directory
+    """
+    with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
+        stats = load(stream, Loader=yaml.FullLoader)
+    return stats['mlflow_run_id']
+
+
+def write_mlflow(output):
+    """Write the mlflow info to resume the training plotting..
+
+    Args:
+        output (str): Output directory
+    """
+    mlflow_run = mlflow.active_run()
+    mlflow_run_id = mlflow_run.info.run_id if mlflow_run is not None else 'NO_MLFLOW'
+    to_store = {'mlflow_run_id': mlflow_run_id}
+    with open(os.path.join(output, STAT_FILE_NAME), 'w') as stream:
+        dump(to_store, stream)
+
+
+def train_impl(model, datamodule, output, hyper_params,
+               use_progress_bar, start_from_scratch, mlf_logger, gpus):  # pragma: no cover
+    """Main training loop implementation.
+
+    Args:
+        model (obj): The neural network model object.
+        datamodule (obj): lightning data module that will instantiate data loaders.
+        output (str): Output directory.
+        hyper_params (dict): Dict containing hyper-parameters.
+        use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
+        start_from_scratch (bool): Start training from scratch (ignore checkpoints)
+        mlf_logger (obj): MLFlow logger callback.
+        gpus: number of GPUs to use.
+    """
+    check_and_log_hp(['max_epoch', 'patience'], hyper_params)
+    write_mlflow(output)
+
+    best_model_path = os.path.join(output, BEST_MODEL_NAME)
+    best_checkpoint_callback = ModelCheckpoint(
+        dirpath=best_model_path,
+        filename='model',
+        save_top_k=1,
+        verbose=use_progress_bar,
+        monitor="val_loss",
+        mode="auto",
+        period=1,
+    )
+
+    last_model_path = os.path.join(output, LAST_MODEL_NAME)
+    last_checkpoint_callback = ModelCheckpoint(
+        dirpath=last_model_path,
+        filename='model',
+        verbose=use_progress_bar,
+        period=1,
+    )
+
+    resume_from_checkpoint = handle_previous_models(output, last_model_path, best_model_path,
+                                                    start_from_scratch)
+
+    early_stopping = EarlyStopping("val_loss", mode="auto", patience=hyper_params['patience'],
+                                   verbose=use_progress_bar)
+    trainer = pl.Trainer(
+        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
+        checkpoint_callback=True,
+        logger=mlf_logger,
+        max_epochs=hyper_params['max_epoch'],
+        resume_from_checkpoint=resume_from_checkpoint,
+        gpus=gpus
+    )
+
+    trainer.fit(model, datamodule=datamodule)
+    best_dev_result = float(early_stopping.best_score.cpu().numpy())
+    return best_dev_result
+
+
+def handle_previous_models(output, last_model_path, best_model_path, start_from_scratch):
+    """Moves the previous models in a new timestamp folder."""
+    last_models = glob.glob(last_model_path + os.sep + '*')
+    best_models = glob.glob(best_model_path + os.sep + '*')
+
+    if len(last_models + best_models) > 0:
+        now = datetime.datetime.now()
+        timestamp = now.strftime('%Y%m%d_%H%M%S')
+        new_folder = output + os.path.sep + timestamp
+        os.mkdir(new_folder)
+        shutil.move(last_model_path, new_folder)
+        shutil.move(best_model_path, new_folder)
+        logger.info(f'old models found - moving them to {new_folder}')
+        # need to change the last model pointer to the new location
+        last_models = glob.glob(new_folder + os.path.sep + LAST_MODEL_NAME + os.sep + '*')
+
+    if start_from_scratch:
+        logger.info('will not load any pre-existent checkpoint (because of "--start-from-scratch")')
+        resume_from_checkpoint = None
+    elif len(last_models) >= 1:
+        resume_from_checkpoint = sorted(last_models)[-1]
+        logger.info(f'models found - resuming from {resume_from_checkpoint}')
+    else:
+        logger.info('no model found - starting training from scratch')
+        resume_from_checkpoint = None
+    return resume_from_checkpoint
+{%- endif %}
