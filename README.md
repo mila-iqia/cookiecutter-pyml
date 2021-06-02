@@ -13,7 +13,7 @@ A cookiecutter is a generic project template that will instantiate a new project
 * Flake8
 * Pytest
 
-More information on what a cookiecutter is [here.](https://cookiecutter.readthedocs.io/en/)
+More information on what a cookiecutter is [here.](https://cookiecutter.readthedocs.io)
 
 Quickstart
 ----------
