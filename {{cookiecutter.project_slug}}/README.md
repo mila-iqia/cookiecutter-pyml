@@ -45,7 +45,7 @@ Go on github and follow the instructions to create a new project.
 When done, do not add any file, and follow the instructions to
 link your local git to the remote project, which should look like this:
 (PS: these instructions are reported here for your convenience.
-WE suggest to also look at the GitHub project page for more up-to-date info)
+We suggest to also look at the GitHub project page for more up-to-date info)
 
     git remote add origin git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
     git branch -M main
