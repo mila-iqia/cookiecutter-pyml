@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.png?branch=master)](https://travis-ci.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }})
-
 {% set is_open_source = cookiecutter.open_source_license != 'Not open source' -%}
 
 # {{ cookiecutter.project_name }}
@@ -46,9 +44,12 @@ These hooks will:
 Go on github and follow the instructions to create a new project.
 When done, do not add any file, and follow the instructions to
 link your local git to the remote project, which should look like this:
+(PS: these instructions are reported here for your convenience.
+WE suggest to also look at the GitHub project page for more up-to-date info)
 
     git remote add origin git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
-    git push -u origin master
+    git branch -M main
+    git push -u origin main
 
 ### Setup Continuous Integration
 
@@ -66,7 +67,7 @@ Check the following instructions for more details.
 Github actions are already configured in `.github/workflows/tests.yml`.
 Github actions are already enabled by default when using Github, so, when
 pushing to github, they will be executed automatically for pull requests to
-`master` and to `develop`.
+`main` and to `develop`.
 
 #### Travis
 
