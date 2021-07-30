@@ -4,11 +4,11 @@ on:
   # but only for the main/develop branch
   push:
     branches:
-      - master
+      - main
       - develop
   pull_request:
     branches:
-      - master
+      - main
       - develop
 jobs:
   build:
