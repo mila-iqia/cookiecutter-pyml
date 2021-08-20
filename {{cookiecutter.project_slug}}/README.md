@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.png?branch=master)](https://travis-ci.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }})
-
 {% set is_open_source = cookiecutter.open_source_license != 'Not open source' -%}
 
 # {{ cookiecutter.project_name }}
@@ -46,9 +44,12 @@ These hooks will:
 Go on github and follow the instructions to create a new project.
 When done, do not add any file, and follow the instructions to
 link your local git to the remote project, which should look like this:
+(PS: these instructions are reported here for your convenience.
+We suggest to also look at the GitHub project page for more up-to-date info)
 
     git remote add origin git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
-    git push -u origin master
+    git branch -M main
+    git push -u origin main
 
 ### Setup Continuous Integration
 
@@ -66,7 +67,7 @@ Check the following instructions for more details.
 Github actions are already configured in `.github/workflows/tests.yml`.
 Github actions are already enabled by default when using Github, so, when
 pushing to github, they will be executed automatically for pull requests to
-`master` and to `develop`.
+`main` and to `develop`.
 
 #### Travis
 
@@ -120,12 +121,10 @@ Note you have two new folders now:
 You can run mlflow from this folder (`examples/local`) by running
 `mlflow ui`.
 
-#### Run on the Mila cluster
-(NOTE: this example also apply to Compute Canada - use the folders
-`slurm_cc` and `slurm_cc_orion` instead of `slurm_mila` and `slurm_mila_orion`.)
+#### Run on a remote cluster (with Slurm)
 
-First, bring you project on the Mila cluster (assuming you didn't create your
-project directly there). To do so, simply login on the Mila cluster and git
+First, bring you project on the cluster (assuming you didn't create your
+project directly there). To do so, simply login on the cluster and git
 clone your project:
 
     git clone git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
@@ -135,12 +134,13 @@ Then activate your virtual env, and install the dependencies:
     cd {{ cookiecutter.project_slug }}
     pip install -e .
 
-To run with SLURM, just:
+To run with Slurm, just:
 
-    cd examples/slurm_mila
+    cd examples/slurm
     sh run.sh
 
 Check the log to see that you got an almost perfect loss (i.e., 0).
+{%- if cookiecutter.environment == 'mila' %}
 
 #### Measure GPU time (and others) on the Mila cluster
 
@@ -184,11 +184,12 @@ In a separate shell on your local computer, run the following command:
 where `<username>` is your user name on the Mila cluster and `<hostname>` is the name of the machine your job is currenty running on (`leto35` in our example). You can then navigate your local browser to `http://localhost:19999/` to view the ressources being used on the cluster and monitor your job. You should see something like this:
 
 ![image](https://user-images.githubusercontent.com/18450628/88088807-fe2acd80-cb58-11ea-8ab2-bd090e8a826c.png)
+{%- endif %}
 
-#### Run with Orion on the Mila cluster
+#### Run with Orion on the Slurm cluster
 
 This example will run orion for 2 trials (see the orion config file).
-To do so, go into `examples/slurm_mila_orion`.
+To do so, go into `examples/slurm_orion`.
 Here you can find the orion config file (`orion_config.yaml`), as well as the config
 file (`config.yaml`) for your project (that contains the hyper-parameters).
 
@@ -204,7 +205,7 @@ Inside these folders, you can find the models (the best one and the last one), t
 the hyper-parameters for this trial, and the log file.
 
 You can check orion status with the following commands:
-(to be run from `examples/slurm_mila_orion`)
+(to be run from `examples/slurm_orion`)
 
     export ORION_DB_ADDRESS='orion_db.pkl'
     export ORION_DB_TYPE='pickleddb'
