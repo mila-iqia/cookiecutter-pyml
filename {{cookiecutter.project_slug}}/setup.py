@@ -17,7 +17,7 @@ setup(
         'pyyaml>=5.3',
         'pytest>=4.6',
         'pytest-cov',
-        'sphinx',
+        'sphinx==3.5.4',
         'sphinx-autoapi==1.8.1',
         'sphinx-rtd-theme==0.5.2',
         'sphinxcontrib-napoleon==0.7',
