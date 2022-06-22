@@ -29,9 +29,6 @@ jobs:
     - name: pytorch-test
       run: |
         ./tests/end2end_pytorch/run.sh
-    - name: tensorflow-test
-      run: |
-        ./tests/end2end_tensorflow/run.sh
     - name: doc-creation-test
       run: |
         ./tests/test_docs/run.sh

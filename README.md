@@ -5,7 +5,7 @@ About
 
 A cookiecutter is a generic project template that will instantiate a new project with sane defaults. This repo contains our custom cookiecutter (`cookiecutter-pyml`) which will generate a new python deep learning package preconfigured with best practices in mind. It currently supports:
 
-* Pytorch/Tensorflow
+* Pytorch(PyTorch Lightning)
 * Travis CI
 * Sphinx (documentation)
 * MLFlow (experiment management)

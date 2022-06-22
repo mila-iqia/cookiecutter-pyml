@@ -17,12 +17,6 @@
 Add new dependencies (if needed) to setup.py.
 
     pip install -e .
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-
-Note: if running tensorflow, you may need:
-
-    pip install -U setuptools
-{%- endif %}
 
 ### Add git:
 

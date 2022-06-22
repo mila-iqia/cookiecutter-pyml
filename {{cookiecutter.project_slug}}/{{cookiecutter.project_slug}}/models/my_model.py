@@ -1,20 +1,14 @@
 import logging
 import typing
 
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-import tensorflow as tf
-{%- endif %}
-{%- if cookiecutter.dl_framework == 'pytorch' %}
 import torch
 import pytorch_lightning as pl
 
 from {{cookiecutter.project_slug}}.models.optim import load_loss, load_optimizer
-{%- endif %}
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
-{%- if cookiecutter.dl_framework == 'pytorch' %}
 
 
 class BaseModel(pl.LightningModule):
@@ -62,10 +56,9 @@ class BaseModel(pl.LightningModule):
         """Runs a prediction step for testing, logging the loss."""
         loss = self._generic_step(batch, batch_idx)
         self.log("test_loss", loss)
-{%- endif %}
 
 
-class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}BaseModel{%- else %}tf.keras.Model{%- endif %}):  # pragma: no cover
+class MyModel(BaseModel):  # pragma: no cover
     """Simple Model Class.
 
     Inherits from the given framework's model class. This is a simple MLP model.
@@ -80,22 +73,6 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}BaseModel{%- else 
         super(MyModel, self).__init__()
 
         check_and_log_hp(['size'], hyper_params)
-        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-        self.hyper_params = hyper_params
-        self.dense1 = tf.keras.layers.Dense(hyper_params['size'])
-        self.dense2 = tf.keras.layers.Dense(1)
-
-    def call(self, inputs):
-        """call.
-
-        Args:
-            inputs (tensor): The inputs to the model.
-        """
-        hidden1 = tf.keras.activations.relu(self.dense1(inputs))
-        hidden2 = self.dense2(hidden1)
-        return hidden2
-        {%- endif %}
-        {%- if cookiecutter.dl_framework == 'pytorch' %}
         self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
         self.linear1 = torch.nn.Linear(5, hyper_params['size'])
         self.linear2 = torch.nn.Linear(hyper_params['size'], 1)
@@ -114,4 +91,3 @@ class MyModel({%- if cookiecutter.dl_framework == 'pytorch' %}BaseModel{%- else 
         hidden = torch.nn.functional.relu(self.linear1(data))
         result = self.linear2(hidden)
         return result.squeeze()
-        {%- endif %}

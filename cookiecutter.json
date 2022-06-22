@@ -6,7 +6,6 @@
   "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
   "project_short_description": "{{ cookiecutter.project_name }} is wonderful!",
   "python_version": "3.8",
-  "dl_framework": ["pytorch", "tensorflow_cpu", "tensorflow_gpu"],
   "environment": ["generic", "mila"],
   "pypi_username": "{{ cookiecutter.github_username }}",
   "version": "0.0.1",
