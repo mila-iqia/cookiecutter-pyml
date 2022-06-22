@@ -7,12 +7,6 @@ setup(
     packages=find_packages(include=['{{ cookiecutter.project_slug }}', '{{ cookiecutter.project_slug }}.*']),
     python_requires='>={{ cookiecutter.python_version }}',
     install_requires=[
-        {%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-        'numpy==1.19.2',
-        'scipy==1.4.1',
-        'setuptools>=41.0.0',
-        'six>=1.15.0',
-        {%- endif %}
         'flake8',
         'flake8-docstrings',
         'gitpython',
@@ -23,21 +17,15 @@ setup(
         'pyyaml>=5.3',
         'pytest>=4.6',
         'pytest-cov',
-        'sphinx',
-        'sphinx-autoapi',
-        'sphinx-rtd-theme',
-        'sphinxcontrib-napoleon',
-        'sphinxcontrib-katex',
-        'recommonmark',
-        {%- if cookiecutter.dl_framework == 'pytorch' %}
-        'torch==1.8.1', 'pytorch_lightning==1.2.7'],
-        {%- endif %}
-        {%- if cookiecutter.dl_framework == 'tensorflow_cpu' %}
-        'tensorflow==2.4.0'],
-        {%- endif %}
-        {%- if cookiecutter.dl_framework == 'tensorflow_gpu' %}
-        'tensorflow-gpu==2.4.0'],
-        {%- endif %}
+        'jinja2<3.1.0',
+        'sphinx==3.5.4',
+        'sphinx-autoapi==1.8.1',
+        'sphinx-rtd-theme==0.5.2',
+        'sphinxcontrib-napoleon==0.7',
+        'sphinxcontrib-katex==0.7.2',
+        'recommonmark==0.7.1',
+        'torch==1.8.1',
+        'pytorch_lightning==1.2.7'],
     entry_points={
         'console_scripts': [
             'main={{ cookiecutter.project_slug }}.main:main'

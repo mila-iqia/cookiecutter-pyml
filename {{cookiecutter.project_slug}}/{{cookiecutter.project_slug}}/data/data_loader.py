@@ -2,15 +2,8 @@ import os
 import typing
 
 import numpy as np
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-import tensorflow as tf
-
-BUFFER_SIZE = 100
-{%- endif %}
-{%- if cookiecutter.dl_framework == 'pytorch' %}
 import pytorch_lightning as pl
 from torch.utils.data import Dataset, DataLoader
-{%- endif %}
 # __TODO__ change the dataloader to suit your needs...
 
 
@@ -39,32 +32,6 @@ def get_data(
             targets.append(float(line))
     tar_data = np.array(targets, dtype=np.float32)
     return in_data, tar_data
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-
-
-def load_data(data_dir, hyper_params):  # pragma: no cover
-    """Prepare the data into datasets.
-
-    Args:
-        data_dir (str): path to the folder containing the data
-        hyper_params (dict): hyper parameters from the config file
-
-    Retruns:
-        train_dataset (obj): iterable training dataset object
-        dev_dataset (obj): iterable validation dataset object
-
-
-    """
-    # __TODO__ load the data
-    train_examples, train_labels = get_data(data_dir, 'train')
-    train_dataset = tf.data.Dataset.from_tensor_slices((train_examples, train_labels))
-    dev_examples, dev_labels = get_data(data_dir, 'dev')
-    dev_dataset = tf.data.Dataset.from_tensor_slices((dev_examples, dev_labels))
-    train_dataset = train_dataset.shuffle(BUFFER_SIZE).batch(batch_size=hyper_params['batch_size'])
-    dev_dataset = dev_dataset.batch(batch_size=hyper_params['batch_size'])
-    return train_dataset, dev_dataset
-{%- endif %}
-{%- if cookiecutter.dl_framework == 'pytorch' %}
 
 
 class MyDataset(Dataset):  # pragma: no cover
@@ -156,4 +123,3 @@ def load_data(data_dir, hyper_params):  # pragma: no cover
     """
     # __TODO__ if you have different data modules, add whatever code is needed to select them here
     return MyDataModule(data_dir, hyper_params)
-{%- endif %}
