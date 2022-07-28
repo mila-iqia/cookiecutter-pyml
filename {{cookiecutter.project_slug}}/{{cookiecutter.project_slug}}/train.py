@@ -4,14 +4,10 @@ import logging
 import os
 import shutil
 
-import mlflow
 import orion
-import yaml
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from orion.client import report_results
-from yaml import dump
-from yaml import load
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 
@@ -42,32 +38,8 @@ def train(**kwargs):  # pragma: no cover
         value=-float(best_dev_metric))])
 
 
-def load_mlflow(output):
-    """Load the mlflow run id.
-
-    Args:
-        output (str): Output directory
-    """
-    with open(os.path.join(output, STAT_FILE_NAME), 'r') as stream:
-        stats = load(stream, Loader=yaml.FullLoader)
-    return stats['mlflow_run_id']
-
-
-def write_mlflow(output):
-    """Write the mlflow info to resume the training plotting..
-
-    Args:
-        output (str): Output directory
-    """
-    mlflow_run = mlflow.active_run()
-    mlflow_run_id = mlflow_run.info.run_id if mlflow_run is not None else 'NO_MLFLOW'
-    to_store = {'mlflow_run_id': mlflow_run_id}
-    with open(os.path.join(output, STAT_FILE_NAME), 'w') as stream:
-        dump(to_store, stream)
-
-
 def train_impl(model, datamodule, output, hyper_params,
-               use_progress_bar, start_from_scratch, mlf_logger, gpus):  # pragma: no cover
+               use_progress_bar, start_from_scratch, gpus):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -77,11 +49,9 @@ def train_impl(model, datamodule, output, hyper_params,
         hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         start_from_scratch (bool): Start training from scratch (ignore checkpoints)
-        mlf_logger (obj): MLFlow logger callback.
         gpus: number of GPUs to use.
     """
     check_and_log_hp(['max_epoch', 'patience'], hyper_params)
-    write_mlflow(output)
 
     best_model_path = os.path.join(output, BEST_MODEL_NAME)
     best_checkpoint_callback = ModelCheckpoint(
@@ -90,8 +60,8 @@ def train_impl(model, datamodule, output, hyper_params,
         save_top_k=1,
         verbose=use_progress_bar,
         monitor="val_loss",
-        mode="auto",
-        period=1,
+        mode="max",
+        every_n_epochs=1,
     )
 
     last_model_path = os.path.join(output, LAST_MODEL_NAME)
@@ -99,18 +69,17 @@ def train_impl(model, datamodule, output, hyper_params,
         dirpath=last_model_path,
         filename='model',
         verbose=use_progress_bar,
-        period=1,
+        every_n_epochs=1,
     )
 
     resume_from_checkpoint = handle_previous_models(output, last_model_path, best_model_path,
                                                     start_from_scratch)
 
-    early_stopping = EarlyStopping("val_loss", mode="auto", patience=hyper_params['patience'],
+    early_stopping = EarlyStopping("val_loss", mode="max", patience=hyper_params['patience'],
                                    verbose=use_progress_bar)
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         checkpoint_callback=True,
-        logger=mlf_logger,
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
         gpus=gpus
