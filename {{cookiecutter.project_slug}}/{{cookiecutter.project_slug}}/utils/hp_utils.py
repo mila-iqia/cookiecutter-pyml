@@ -1,7 +1,5 @@
 import logging
 
-from mlflow import log_param
-
 logger = logging.getLogger(__name__)
 
 
@@ -48,6 +46,5 @@ def log_hp(names, hps):  # pragma: no cover
         hps (dict): all hyper-parameters from the config file
     """
     for name in sorted(names):
-        log_param(name, hps[name])
         logger.info('\thp "{}" => "{}"'.format(name, hps[name]))
     logger.info('\n')
