@@ -1,11 +1,9 @@
 import logging
-import mlflow
 import os
 import socket
 
 from pip._internal.operations import freeze
 from git import InvalidGitRepositoryError, Repo
-from mlflow.utils.mlflow_tags import MLFLOW_RUN_NOTE
 
 logger = logging.getLogger(__name__)
 
@@ -70,4 +68,3 @@ def log_exp_details(script_location, args):  # pragma: no cover
                   hostname, git_hash, args.data, os.path.abspath(args.data),
                   '\n'.join(dependencies))
     logger.info('Experiment info:' + details + '\n')
-    mlflow.set_tag(key=MLFLOW_RUN_NOTE, value=details)

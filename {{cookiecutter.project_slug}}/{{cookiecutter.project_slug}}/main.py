@@ -5,15 +5,10 @@ import logging
 import os
 import sys
 
-import mlflow
-import orion
 import yaml
 from yaml import load
 
-from pytorch_lightning.loggers import MLFlowLogger
 from {{cookiecutter.project_slug}}.data.data_loader import load_data
-from {{cookiecutter.project_slug}}.train import STAT_FILE_NAME
-from {{cookiecutter.project_slug}}.train import load_mlflow
 from {{cookiecutter.project_slug}}.train import train
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
@@ -89,33 +84,13 @@ def main():
     else:
         hyper_params = {}
 
-    # to be done as soon as possible otherwise mlflow will not log with the proper exp. name
-    if orion.client.cli.IS_ORION_ON:
-        exp_name = os.getenv('ORION_EXPERIMENT_NAME', 'orion_exp')
-        tags = {'mlflow.runName': os.getenv('ORION_TRIAL_ID')}
-    else:
-        exp_name = hyper_params.get('exp_name', 'exp')
-        tags = {}
-    mlflow.set_experiment(exp_name)
-    save_dir = os.getenv('MLFLOW_TRACKING_URI', './mlruns')
-    mlf_logger = MLFlowLogger(
-        experiment_name=exp_name,
-        tags=tags,
-        save_dir=save_dir
-    )
-
-    if os.path.exists(os.path.join(args.output, STAT_FILE_NAME)):
-        mlf_logger._run_id = load_mlflow(args.output)
-
-    mlflow.start_run(run_id=mlf_logger.run_id)
-    run(args, data_dir, output_dir, hyper_params, mlf_logger)
-    mlflow.end_run()
+    run(args, data_dir, output_dir, hyper_params)
 
     if args.tmp_folder is not None:
         rsync_folder(output_dir + os.path.sep, args.output)
 
 
-def run(args, data_dir, output_dir, hyper_params, mlf_logger):
+def run(args, data_dir, output_dir, hyper_params):
     """Setup and run the dataloaders, training loops, etc.
 
     Args:
@@ -123,7 +98,6 @@ def run(args, data_dir, output_dir, hyper_params, mlf_logger):
         data_dir (str): path to input folder
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
-        mlf_logger (obj): MLFlow logger callback.
     """
     # __TODO__ change the hparam that are used from the training algorithm
     # (and NOT the model - these will be specified in the model itself)
@@ -142,7 +116,7 @@ def run(args, data_dir, output_dir, hyper_params, mlf_logger):
 
     train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
           use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch,
-          mlf_logger=mlf_logger, gpus=args.gpus)
+          gpus=args.gpus)
 
 
 if __name__ == '__main__':
