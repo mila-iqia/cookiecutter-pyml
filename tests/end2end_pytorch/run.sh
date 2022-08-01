@@ -21,8 +21,6 @@ pip freeze
 # run flake8 test first
 sh config/hooks/pre-commit
 
-exit 1
-
 # run tests
 pytest --cov=wonderful_project
 
