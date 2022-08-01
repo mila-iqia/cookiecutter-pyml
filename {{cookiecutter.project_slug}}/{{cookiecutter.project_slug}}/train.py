@@ -79,8 +79,8 @@ def train_impl(model, datamodule, output, hyper_params,
                                    verbose=use_progress_bar)
 
     logger = pl.loggers.TensorBoardLogger(
-            save_dir=output,
-            default_hp_metric=False,
+        save_dir=output,
+        default_hp_metric=False,
     )
 
     trainer = pl.Trainer(
