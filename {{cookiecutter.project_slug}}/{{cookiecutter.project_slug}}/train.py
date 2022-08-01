@@ -78,7 +78,11 @@ def train_impl(model, datamodule, output, hyper_params,
     early_stopping = EarlyStopping("val_loss", mode="max", patience=hyper_params['patience'],
                                    verbose=use_progress_bar)
 
-    logger = pl.loggers.TensorBoardLogger(save_dir=output)
+    logger = pl.loggers.TensorBoardLogger(
+            save_dir=output,
+            default_hp_metric=False,
+    )
+
 
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
@@ -90,7 +94,11 @@ def train_impl(model, datamodule, output, hyper_params,
     )
 
     trainer.fit(model, datamodule=datamodule)
+
+    # Log the best result and associated hyper parameters
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
+    logger.log_hyperparams(hyper_params, metrics={'best_dev_metric': best_dev_result})
+
     return best_dev_result
 
 
