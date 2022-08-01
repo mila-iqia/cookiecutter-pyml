@@ -77,12 +77,16 @@ def train_impl(model, datamodule, output, hyper_params,
 
     early_stopping = EarlyStopping("val_loss", mode="max", patience=hyper_params['patience'],
                                    verbose=use_progress_bar)
+
+    logger = pl.loggers.TensorBoardLogger(save_dir=output)
+
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         checkpoint_callback=True,
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
-        gpus=gpus
+        gpus=gpus,
+        logger=logger,
     )
 
     trainer.fit(model, datamodule=datamodule)
