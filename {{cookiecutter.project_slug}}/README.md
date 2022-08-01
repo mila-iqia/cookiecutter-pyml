@@ -27,7 +27,7 @@ These hooks will:
 * validate flake8 before any commit
 * check that jupyter notebook outputs have been stripped
 
-    cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
+    cd .git/hooks/ && ln -s ../../hooks/pre-commit . && cd -
 
 ### Commit the code
 
