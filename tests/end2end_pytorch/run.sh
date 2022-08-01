@@ -15,14 +15,13 @@ git commit -m "initial commit"
 pip install -e . --quiet
 pip install flake8 pytest --quiet
 
-# necessary cause tf dependencies are sometimes not updated
-pip install -U setuptools numpy six --quiet
-
 # print all dependencies
 pip freeze
 
 # run flake8 test first
 sh config/hooks/pre-commit
+
+exit 1
 
 # run tests
 pytest --cov=wonderful_project
