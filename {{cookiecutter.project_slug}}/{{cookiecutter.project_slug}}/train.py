@@ -83,7 +83,6 @@ def train_impl(model, datamodule, output, hyper_params,
             default_hp_metric=False,
     )
 
-
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         checkpoint_callback=True,
