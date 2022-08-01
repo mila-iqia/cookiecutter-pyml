@@ -19,7 +19,7 @@ pip install flake8 pytest --quiet
 pip freeze
 
 # run flake8 test first
-sh config/hooks/pre-commit
+sh hooks/pre-commit
 
 # run tests
 pytest --cov=wonderful_project
