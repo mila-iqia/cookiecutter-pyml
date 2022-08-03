@@ -1,8 +1,6 @@
-import datetime
 import glob
 import logging
 import os
-import shutil
 
 import orion
 import pytorch_lightning as pl
@@ -15,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 BEST_MODEL_NAME = 'best_model'
 LAST_MODEL_NAME = 'last_model'
-STAT_FILE_NAME = 'stats.yaml'
 
 
 def train(**kwargs):  # pragma: no cover
@@ -102,7 +99,6 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
 def handle_previous_models(output, last_model_path, best_model_path):
     """Moves the previous models in a new timestamp folder."""
     last_models = glob.glob(last_model_path + os.sep + '*')
-    best_models = glob.glob(best_model_path + os.sep + '*')
 
     if len(last_models) >= 1:
         resume_from_checkpoint = sorted(last_models)[-1]
