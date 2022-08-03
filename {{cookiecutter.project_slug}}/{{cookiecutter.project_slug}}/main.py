@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import shutil
 import sys
 
 import yaml
@@ -51,7 +52,13 @@ def main():
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    if not os.path.exists(args.output):
+    if os.path.exists(args.output) and args.start_from_scratch:
+        logger.info('Starting from scratch, removing any previous experiments.')
+        shutil.rmtree(args.output)
+
+    if os.path.exists(args.output):
+        logger.info("Previous experiment found, resuming from checkpoint")
+    else:
         os.makedirs(args.output)
 
     if args.tmp_folder is not None:
@@ -115,8 +122,7 @@ def run(args, data_dir, output_dir, hyper_params):
     model = load_model(hyper_params)
 
     train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
-          use_progress_bar=not args.disable_progressbar, start_from_scratch=args.start_from_scratch,
-          gpus=args.gpus)
+          use_progress_bar=not args.disable_progressbar, gpus=args.gpus)
 
 
 if __name__ == '__main__':
