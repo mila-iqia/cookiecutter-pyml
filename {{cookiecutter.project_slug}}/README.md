@@ -63,15 +63,6 @@ Github actions are already enabled by default when using Github, so, when
 pushing to github, they will be executed automatically for pull requests to
 `main` and to `develop`.
 
-#### Travis
-
-Travis is already configured in (`.travis.yml`).
-
-To enable it server-side, just go to https://travis-ci.com/account/repositories and click
-` Manage repositories on GitHub`. Give the permission to run on the git repository you just created.
-
-Note, the link for public project may be https://travis-ci.org/account/repositories .
-
 #### Azure
 
 Azure Continuous Integration is already configured in (`.azure_pipeline.yml`).
