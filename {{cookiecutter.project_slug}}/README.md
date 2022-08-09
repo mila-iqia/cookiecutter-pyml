@@ -100,11 +100,14 @@ For example, to run on your local machine without Orion:
 This will run a simple MLP on a simple toy task: sum 5 float numbers.
 You should see an almost perfect loss of 0 after a few epochs.
 
-Note you have two new folders now:
-* output: contains the models and a summary of the results.
-* mlruns: produced by mlflow, contains all the data for visualization.
-You can run mlflow from this folder (`examples/local`) by running
-`mlflow ui`.
+Note you have a new `output` folder which contains models and a summary of results:
+* best_model: the best model checkpoint during training
+* last_model: the last model checkpoint during training
+* lightning_logs: contains the tensorboard logs.
+
+To view tensorboard logs, simply run:
+
+    tensorboard --logdir output
 
 #### Run on a remote cluster (with Slurm)
 
@@ -181,8 +184,7 @@ file (`config.yaml`) for your project (that contains the hyper-parameters).
 In general, you will want to run Orion in parallel over N slurm jobs.
 To do so, simply run `sh run.sh` N times.
 
-When Orion has completed the trials, you will find the orion db file and the
-mlruns folder (i.e., the folder containing the mlflow results).
+When Orion has completed the trials, you will find the orion db file. 
 
 You will also find the output of your experiments in `orion_working_dir`, which
 will contain a folder for every trial.
