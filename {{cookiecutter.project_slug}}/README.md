@@ -17,12 +17,6 @@
 Add new dependencies (if needed) to setup.py.
 
     pip install -e .
-{%- if cookiecutter.dl_framework in ['tensorflow_cpu', 'tensorflow_gpu'] %}
-
-Note: if running tensorflow, you may need:
-
-    pip install -U setuptools
-{%- endif %}
 
 ### Add git:
 
@@ -33,7 +27,7 @@ These hooks will:
 * validate flake8 before any commit
 * check that jupyter notebook outputs have been stripped
 
-    cd .git/hooks/ && ln -s ../../config/hooks/pre-commit . && cd -
+    cd .git/hooks/ && ln -s ../../hooks/pre-commit . && cd -
 
 ### Commit the code
 
@@ -68,15 +62,6 @@ Github actions are already configured in `.github/workflows/tests.yml`.
 Github actions are already enabled by default when using Github, so, when
 pushing to github, they will be executed automatically for pull requests to
 `main` and to `develop`.
-
-#### Travis
-
-Travis is already configured in (`.travis.yml`).
-
-To enable it server-side, just go to https://travis-ci.com/account/repositories and click
-` Manage repositories on GitHub`. Give the permission to run on the git repository you just created.
-
-Note, the link for public project may be https://travis-ci.org/account/repositories .
 
 #### Azure
 
