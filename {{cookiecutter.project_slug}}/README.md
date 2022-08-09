@@ -100,8 +100,14 @@ For example, to run on your local machine without Orion:
 This will run a simple MLP on a simple toy task: sum 5 float numbers.
 You should see an almost perfect loss of 0 after a few epochs.
 
-Note you have two new folders now:
-* output: contains the models and a summary of the results.
+Note you have a new `output` folder which contains models and a summary of results:
+* best_model: the best model checkpoint during training
+* last_model: the last model checkpoint during training
+* lightning_logs: contains the tensorboard logs.
+
+To view tensorboard logs, simply run:
+
+    tensorboard --logdir output
 
 #### Run on a remote cluster (with Slurm)
 
