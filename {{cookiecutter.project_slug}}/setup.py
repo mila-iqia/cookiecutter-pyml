@@ -21,6 +21,16 @@ setup(
         'tqdm==4.64.0',
         'torch==1.12.0',
     ],
+    extras_require={
+        'dev': [
+            'myst-parser==0.18.0',
+            'sphinx==5.1.1',
+            'sphinx-autoapi==1.9.0',
+            'sphinx-rtd-theme==1.0.0',
+            'sphinxcontrib-napoleon==0.7',
+            'sphinxcontrib-katex==0.8.6',
+        ]
+    },
     entry_points={
         'console_scripts': [
             'main={{ cookiecutter.project_slug }}.main:main'
