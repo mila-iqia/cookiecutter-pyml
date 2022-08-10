@@ -201,7 +201,12 @@ You can check orion status with the following commands:
 
 ### Building docs:
 
-To automatically generate docs for your project, cd to the `docs` folder then run:
+To automatically generate docs for your project, cd to the `docs` folder and 
+install the appropriate requirements: 
+    cd docs
+    pip install -r requirements.txt
+
+then run:
 
     make html
 
