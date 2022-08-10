@@ -5,11 +5,11 @@ on:
   push:
     branches:
       - master
-      - develop
+      - development
   pull_request:
     branches:
       - master
-      - develop
+      - development
 jobs:
   build:
     runs-on: ubuntu-latest
