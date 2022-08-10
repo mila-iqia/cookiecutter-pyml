@@ -33,7 +33,7 @@ extensions.append('myst_parser')
 
 # use the readthedocs theme
 extensions.append('sphinx_rtd_theme')
-extensions.append('sphinxcontrib.napoleon')
+extensions.append('sphinx.ext.napoleon')
 extensions.append('sphinxcontrib.katex')
 
 # autoapi extension for doc strings
