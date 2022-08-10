@@ -13,4 +13,5 @@ pip install -U setuptools numpy six --quiet
 
 # Build the docs
 cd docs
+pip install -r requirements.txt
 sphinx-build -b html -d _build/doctrees . _build/html
