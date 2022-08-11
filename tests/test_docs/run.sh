@@ -6,7 +6,7 @@ cd ${DIR}
 
 cookiecutter ../.. --no-input --output-dir=./
 cd wonderful_project
-pip install -e .'[dev]' --quiet
+pip install -e . --quiet
 
 # necessary cause tf dependencies are sometimes not updated
 pip install -U setuptools numpy six --quiet
