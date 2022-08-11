@@ -201,8 +201,10 @@ You can check orion status with the following commands:
 
 ### Building docs:
 
-To automatically generate docs for your project, cd to the `docs` folder then run:
+Documentation is built using sphinx. It will automatically document all functions based on docstrings.
+To automatically generate docs for your project, navigate to the `docs` folder and build the documentation: 
 
+    cd docs
     make html
 
 To view the docs locally, open `docs/_build/html/index.html` in your browser.
