@@ -201,11 +201,9 @@ You can check orion status with the following commands:
 
 ### Building docs:
 
-To automatically generate docs for your project, install the additional requirements with:
+Documentation is built using sphinx. It will automatically document all functions based on docstrings.
+To automatically generate docs for your project, navigate to the `docs` folder and build the documentation: 
 
-    pip install -e .'[dev]'
-
-then, navigate to the `docs` folder and build the documentation: 
     cd docs
     make html
 
