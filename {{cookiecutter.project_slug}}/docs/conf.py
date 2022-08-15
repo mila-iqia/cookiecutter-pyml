@@ -1,4 +1,3 @@
-from recommonmark.transform import AutoStructify
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -30,11 +29,11 @@ author = '{{cookiecutter.full_name}}'
 extensions = []
 
 # enable use of markdown files
-extensions.append('recommonmark')
+extensions.append('myst_parser')
 
 # use the readthedocs theme
 extensions.append('sphinx_rtd_theme')
-extensions.append('sphinxcontrib.napoleon')
+extensions.append('sphinx.ext.napoleon')
 extensions.append('sphinxcontrib.katex')
 
 # autoapi extension for doc strings
@@ -57,7 +56,6 @@ def check_skip_member(app, what, name, obj, skip, options):
 def setup(app):
     """Handler to connect to the autoapi app."""
     app.connect("autoapi-skip-member", check_skip_member)
-    app.add_transform(AutoStructify)
 
 
 # Add any paths that contain templates here, relative to this directory.
