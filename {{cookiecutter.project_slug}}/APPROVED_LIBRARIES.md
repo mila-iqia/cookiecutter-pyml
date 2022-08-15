@@ -6,7 +6,7 @@ There are two options that the company can choose:
 - Keep a list of the libraries, and when a new library is added, add it to the list and ask the company to approve.
 
 If the former is selected, you can delete this file.
-If the latter, this file represent the list.
+If the latter, this file represents the list.
 
 The way it works is the following:
 - First, make sure that all the licenses listed below are still valid (i.e., they did not change). You can use the link to speedup this process.
