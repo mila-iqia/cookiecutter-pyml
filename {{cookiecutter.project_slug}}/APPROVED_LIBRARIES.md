@@ -1,4 +1,24 @@
 {%- if cookiecutter.environment == 'mila' %}
+__TODO_START__
+When starting a project, the other company needs to approve the libraries/tools that we use.
+There are two options that the company can choose:
+- Send a generic approval (via email) that all the libraries that we decide to use are pre-approved.
+- Keep a list of the libraries, and when a new library is added, add it to the list and ask the company to approve.
+
+If the former is selected, you can delete this file.
+If the latter, this file represents the list.
+
+The way it works is the following:
+- First, make sure that all the licenses listed below are still valid (i.e., they did not change). You can use the link to speedup this process.
+- Note that the last time the list was checked was on 2022-August-12.
+- Then, ask the company to approve the list by writing "approved" (or similar), with their git account (this will prove that the company approval is authentic).
+- When new libraries are added, create a new section below (`Dependencies as of ...`), where you copy the old list and you modify it according to your needs.
+- Ask the company to approve with the method above (git commit).
+
+Those instructions between TODO_START and TODO_END can be deleted.
+
+__TODO_END__
+
 Here is the list of dependencies required by Mila for the project development.
 Note that the following dependencies will trigger some other dependencies and for sake of simplicity,
 we are not listing them all. Modifications since last approved version are in **bold**.
@@ -15,6 +35,8 @@ we are not listing them all. Modifications since last approved version are in **
 * ZSH: MIT-like [zsh](http://zsh.sourceforge.net/)
 * OH-MY-ZSH: MIT [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh/)
 * TMUX - ISC [tmux](https://github.com/tmux/tmux/)
+* [ipdb](https://pypi.org/project/ipdb/) BSD License (BSD), - A very useful debugger.
+* [ipython](https://pypi.org/project/ipython/) BSD, - A very useful interactive ipython shell
 
 ## Library dependencies
 (see `setup.py`)
@@ -37,16 +59,8 @@ we are not listing them all. Modifications since last approved version are in **
 * 'sphinxcontrib-napoleon', BSD ([https://pypi.org/project/sphinxcontrib-napoleon/](https://pypi.org/project/sphinxcontrib-napoleon/))
 * 'sphinxcontrib-katex', BSD (MIT) ([https://pypi.org/project/sphinxcontrib-katex/](https://pypi.org/project/sphinxcontrib-katex/))
 * 'tensorboard', Apache License 2.0 ([https://github.com/tensorflow/tensorboard](https://github.com/tensorflow/tensorboard))
-* 'tqdm', MIT ([https://pypi.org/project/tqdm/](https://pypi.org/project/tqdm/))
+* 'tqdm', MIT+Mozilla Public license ([https://pypi.org/project/tqdm/](https://pypi.org/project/tqdm/))
 * 'torch', BSD-3 ([https://pypi.org/project/torch/](https://pypi.org/project/torch/))
-
-## External dependencies to the project
-
-* [ipdb](https://pypi.org/project/ipdb/) BSD License (BSD), - A very useful debugger.
-* [ipython](https://pypi.org/project/ipython/) BSD, - A very useful interactive ipython shell
-* [jupytext](https://jupytext.readthedocs.io/en/latest/index.html)  MIT, - this library allows us to easily convert and sync .ipynb and .py files simultaneously - very useful for notebooks without needing a browser.
-* [pepermill](https://papermill.readthedocs.io/en/latest/) BSD, - very useful for running jupyter notebooks end-to-end directly from the CLI
-* [jupyter-vim-binding](https://github.com/lambdalisue/jupyter-vim-binding), MIT
 
 ## Pre-trained models
 
