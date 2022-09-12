@@ -110,7 +110,8 @@ def run(args, data_dir, output_dir, hyper_params):
     # (and NOT the model - these will be specified in the model itself)
     logger.info('List of hyper-parameters:')
     check_and_log_hp(
-        ['architecture', 'batch_size', 'exp_name', 'max_epoch', 'optimizer', 'patience', 'seed'],
+        ['architecture', 'batch_size', 'exp_name', 'max_epoch', 'optimizer', 'seed',
+         'early_stopping'],
         hyper_params)
 
     if hyper_params["seed"] is not None:

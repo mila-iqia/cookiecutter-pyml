@@ -46,7 +46,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
         gpus: number of GPUs to use.
     """
-    check_and_log_hp(['max_epoch', 'patience'], hyper_params)
+    check_and_log_hp(['max_epoch'], hyper_params)
 
     best_model_path = os.path.join(output, BEST_MODEL_NAME)
     best_checkpoint_callback = ModelCheckpoint(
@@ -69,8 +69,13 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
 
     resume_from_checkpoint = handle_previous_models(output, last_model_path, best_model_path)
 
-    early_stopping = EarlyStopping("val_loss", mode="max", patience=hyper_params['patience'],
-                                   verbose=use_progress_bar)
+    early_stopping_params = hyper_params['early_stopping']
+    check_and_log_hp(['metric', 'mode', 'patience'], hyper_params['early_stopping'])
+    early_stopping = EarlyStopping(
+        early_stopping_params['metric'],
+        mode=early_stopping_params['mode'],
+        patience=early_stopping_params['patience'],
+        verbose=use_progress_bar)
 
     logger = pl.loggers.TensorBoardLogger(
         save_dir=output,
