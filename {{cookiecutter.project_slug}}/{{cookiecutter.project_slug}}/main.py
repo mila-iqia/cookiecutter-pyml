@@ -86,10 +86,6 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
-    # to intercept any print statement:
-    sys.stdout = LoggerWriter(logger.info)
-    sys.stderr = LoggerWriter(logger.warning)
-
     if args.config is not None:
         with open(args.config, 'r') as stream:
             hyper_params = load(stream, Loader=yaml.FullLoader)
