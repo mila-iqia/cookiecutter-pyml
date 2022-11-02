@@ -4,10 +4,11 @@ import os
 
 import orion
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, RichProgressBar, RichModelSummary
 from orion.client import report_results
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
+
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,9 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         patience=early_stopping_params['patience'],
         verbose=use_progress_bar)
 
+    progress_bar = RichProgressBar()
+    model_summary = RichModelSummary()
+
     logger = pl.loggers.TensorBoardLogger(
         save_dir=output,
         default_hp_metric=False,
@@ -84,7 +88,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
     )
 
     trainer = pl.Trainer(
-        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
+        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback, progress_bar, model_summary],
         checkpoint_callback=True,
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
