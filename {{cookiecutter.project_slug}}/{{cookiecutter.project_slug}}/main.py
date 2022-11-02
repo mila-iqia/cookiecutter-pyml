@@ -25,6 +25,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+
 def main():
     """Main entry point of the program.
 

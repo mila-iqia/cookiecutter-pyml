@@ -4,7 +4,9 @@ import os
 
 import orion
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, RichProgressBar, RichModelSummary
+from pytorch_lightning.callbacks import (
+    ModelCheckpoint, EarlyStopping, RichProgressBar, RichModelSummary
+)
 from orion.client import report_results
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
@@ -88,7 +90,13 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
     )
 
     trainer = pl.Trainer(
-        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback, progress_bar, model_summary],
+        callbacks=[
+            early_stopping,
+            best_checkpoint_callback,
+            last_checkpoint_callback,
+            progress_bar,
+            model_summary
+        ],
         checkpoint_callback=True,
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
