@@ -8,17 +8,22 @@ import sys
 
 import yaml
 from yaml import load
+from rich.logging import RichHandler
 
 from {{cookiecutter.project_slug}}.data.data_loader import load_data
 from {{cookiecutter.project_slug}}.train import train
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
 from {{cookiecutter.project_slug}}.utils.file_utils import rsync_folder
-from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
+from {{cookiecutter.project_slug}}.utils.logging_utils import log_exp_details
 from {{cookiecutter.project_slug}}.utils.reproducibility_utils import set_seed
 
-logger = logging.getLogger(__name__)
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+)
 
+logger = logging.getLogger(__name__)
 
 def main():
     """Main entry point of the program.
