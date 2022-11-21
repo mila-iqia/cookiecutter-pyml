@@ -2,6 +2,7 @@ import logging
 import typing
 
 import torch
+from torch import nn
 import pytorch_lightning as pl
 
 from {{cookiecutter.project_slug}}.models.optim import load_loss, load_optimizer
@@ -63,7 +64,6 @@ class MyModel(BaseModel):  # pragma: no cover
 
     Inherits from the given framework's model class. This is a simple MLP model.
     """
-
     def __init__(self, hyper_params: typing.Dict[typing.AnyStr, typing.Any]):
         """__init__.
 
@@ -74,20 +74,31 @@ class MyModel(BaseModel):  # pragma: no cover
 
         check_and_log_hp(['size'], hyper_params)
         self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
-        self.linear1 = torch.nn.Linear(5, hyper_params['size'])
-        self.linear2 = torch.nn.Linear(hyper_params['size'], 1)
+        num_classes = 10 # FIXME, get it from hparams
+        hidden_dim = 128 # FIXME
         self.loss_fn = load_loss(hyper_params)  # 'load_loss' could be part of the model itself...
 
-    def forward(self, data):
-        """Forward method of the model.
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(1, 32, 5, padding="same"),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(32, 32, 5, padding="same"),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+        self.flatten = nn.Flatten()
+        self.mlp_layers = nn.Sequential(
+            nn.Linear(
+                1568, hidden_dim,
+            ),  # The input size for the linear layer is determined by the previous operations
+            nn.ReLU(),
+            nn.Linear(
+                hidden_dim, num_classes
+            ),  # Here we get exactly num_classes logits at the output
+        )
 
-        Args:
-            data (tensor): The data to be passed to the model.
-
-        Returns:
-            tensor: the output of the model computation.
-
-        """
-        hidden = torch.nn.functional.relu(self.linear1(data))
-        result = self.linear2(hidden)
-        return result.squeeze()
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = self.flatten(x)  # Flatten is necessary to pass from CNNs to MLP
+        x = self.mlp_layers(x)
+        return x

@@ -40,7 +40,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
 
     Args:
         model (obj): The neural network model object.
-        datamodule (obj): lightning data module that will instantiate data loaders.
+        Datamodule (obj): lightning data module that will instantiate data loaders.
         output (str): Output directory.
         hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).

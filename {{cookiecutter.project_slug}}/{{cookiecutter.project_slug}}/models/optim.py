@@ -45,8 +45,8 @@ def load_loss(hyper_params):  # pragma: no cover
         loss (obj): The loss for the given model
     """
     loss_name = hyper_params['loss']
-    if loss_name == 'L1':
-        loss = torch.nn.L1Loss(reduction='sum')
+    if loss_name == 'cross-entropy':
+        loss = torch.nn.CrossEntropyLoss()
     else:
         raise ValueError('loss {} not supported'.format(loss_name))
     return loss
