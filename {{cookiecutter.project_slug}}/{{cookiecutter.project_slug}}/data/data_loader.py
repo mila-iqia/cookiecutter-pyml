@@ -82,6 +82,11 @@ class FashionMnistDM(pl.LightningDataModule):  # pragma: no cover
             self.val_dataset = FashionMnistDS(
                 raw_data.val_images, raw_data.val_labels, transform
             )
+        if stage == "validate" or stage is None:
+            self.val_dataset = FashionMnistDS(
+                raw_data.val_images, raw_data.val_labels, transform
+            )
+
         if stage == "test" or stage is None:
             self.val_dataset = FashionMnistDS(
                 raw_data.test_images, raw_data.test_labels, transform

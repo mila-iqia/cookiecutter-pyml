@@ -92,6 +92,10 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         logger=logger,
     )
 
+    # run a full validation and report the values
+    trainer.validate(model, datamodule=datamodule)
+
+    # do the actual training
     trainer.fit(model, datamodule=datamodule)
 
     # Log the best result and associated hyper parameters
