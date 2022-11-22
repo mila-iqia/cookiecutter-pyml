@@ -1,7 +1,6 @@
 import logging
 import typing
 
-import torch
 from torch import nn
 import pytorch_lightning as pl
 
@@ -59,7 +58,7 @@ class BaseModel(pl.LightningModule):
         self.log("test_loss", loss)
 
 
-class MyModel(BaseModel):  # pragma: no cover
+class SimpleMLP(BaseModel):  # pragma: no cover
     """Simple Model Class.
 
     Inherits from the given framework's model class. This is a simple MLP model.
@@ -70,12 +69,50 @@ class MyModel(BaseModel):  # pragma: no cover
         Args:
             hyper_params (dict): hyper parameters from the config file.
         """
-        super(MyModel, self).__init__()
+        super(SimpleMLP, self).__init__()
 
-        check_and_log_hp(['size'], hyper_params)
+        check_and_log_hp(['hidden_dim', 'num_classes'], hyper_params)
         self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
-        num_classes = 10 # FIXME, get it from hparams
-        hidden_dim = 128 # FIXME
+        num_classes = hyper_params['num_classes']
+        hidden_dim = hyper_params['hidden_dim']
+        self.loss_fn = load_loss(hyper_params)  # 'load_loss' could be part of the model itself...
+
+        self.flatten = nn.Flatten()
+        self.mlp_layers = nn.Sequential(
+            nn.Linear(
+                784, hidden_dim,
+            ),  # The input size for the linear layer is determined by the previous operations
+            nn.ReLU(),
+            nn.Linear(
+                hidden_dim, num_classes
+            ),  # Here we get exactly num_classes logits at the output
+        )
+
+    def forward(self, x):
+        # x = self.conv_layers(x)
+        x = self.flatten(x)  # Flatten is necessary to pass from CNNs to MLP
+        x = self.mlp_layers(x)
+        return x
+
+
+class SimpleCNN(BaseModel):  # pragma: no cover
+    """Simple Model Class.
+
+    Inherits from the given framework's model class. This is a simple CNN model.
+    """
+    def __init__(self, hyper_params: typing.Dict[typing.AnyStr, typing.Any]):
+        """__init__.
+
+        Args:
+            hyper_params (dict): hyper parameters from the config file.
+        """
+        super(SimpleCNN, self).__init__()
+
+        check_and_log_hp(['hidden_dim', 'num_classes'], hyper_params)
+        self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
+
+        num_classes = hyper_params['hidden_dim']
+        hidden_dim = hyper_params['num_classes']
         self.loss_fn = load_loss(hyper_params)  # 'load_loss' could be part of the model itself...
 
         self.conv_layers = nn.Sequential(

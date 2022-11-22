@@ -1,7 +1,7 @@
 # general
 batch_size: 32
 optimizer: adam
-loss: cross-entropy
+loss: cross_entropy
 max_epoch: 99
 exp_name: my_exp_1
 # set to null to avoid setting a seed (can speed up GPU computation, but
@@ -9,8 +9,9 @@ exp_name: my_exp_1
 seed: 1234
 
 # architecture
-size: 10
-architecture: my_model
+hidden_dim: 256
+num_classes: 10
+architecture: simple_mlp
 
 # early stopping
 early_stopping:
