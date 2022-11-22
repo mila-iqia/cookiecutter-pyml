@@ -1,5 +1,6 @@
 # exit at the first error
 set -e
+rm -rf wonderful_project # if it already exists
 # go to the test folder
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd ${DIR}
