@@ -61,6 +61,7 @@ we are not listing them all. Modifications since last approved version are in **
 * 'tensorboard', Apache License 2.0 ([https://github.com/tensorflow/tensorboard](https://github.com/tensorflow/tensorboard))
 * 'tqdm', MIT+Mozilla Public license ([https://pypi.org/project/tqdm/](https://pypi.org/project/tqdm/))
 * 'torch', BSD-3 ([https://pypi.org/project/torch/](https://pypi.org/project/torch/))
+* 'torchvision', BSD, ([https://pypi.org/project/torchvision/](https://pypi.org/project/torchvision/))
 
 ## Pre-trained models
 
