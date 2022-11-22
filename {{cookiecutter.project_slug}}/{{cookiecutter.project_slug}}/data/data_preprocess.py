@@ -13,7 +13,13 @@ BASE_URL = "https://github.com/zalandoresearch/fashion-mnist/raw/master/data/fas
 
 
 class FashionMnistParser:
+    """Parser for the Fashion MNIST dataset.
+
+    This parser will download the original data and process it to numpy arrays.
+    It will also generate train/val/test splits.
+    """
     def __init__(self, data_dir):
+        """Processing occurs on init."""
         self.data_dir = data_dir
         self.prepare_dataset()
 
@@ -41,11 +47,11 @@ class FashionMnistParser:
             urllib.request.urlretrieve(url, output_fname)
 
     @staticmethod
-    def extract_images(fname):
+    def extract_images(fname: typing.AnyStr):
         """Extract raw bytes to numpy arrays.
 
-        See: https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python"""
-
+        See: https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python
+        """
         with gzip.open(fname, "r") as f:
             # skip first 4 bytes
             _ = int.from_bytes(f.read(4), "big")
@@ -65,7 +71,8 @@ class FashionMnistParser:
             return images
 
     @staticmethod
-    def extract_labels(fname):
+    def extract_labels(fname: typing.AnyStr):
+        """Extract the labels [0-9] for the dataset."""
         with gzip.open(fname, "r") as f:
             # skip first 4 bytes
             _ = int.from_bytes(f.read(4), "big")
@@ -78,7 +85,7 @@ class FashionMnistParser:
             return labels
 
     @staticmethod
-    def val_from_train(images, labels, val_pct):
+    def val_from_train(images: np.array, labels: np.array, val_pct: float):
         """Fashion mnist doesn't have a validation set, we create one here."""
         assert 0 < val_pct < 1
         num_samples = len(images)
@@ -94,11 +101,12 @@ class FashionMnistParser:
         return train_images, train_labels, val_images, val_labels
 
     @staticmethod
-    def subsample_dataset(images, labels, num_samples):
+    def subsample_dataset(images: np.array, labels: np.array, num_samples: int):
         """Extract a subset of the dataset to speed up training."""
         return images[:num_samples], labels[:num_samples]
 
     def prepare_dataset(self):
+        """Download, processes and splits the data."""
         data_dir = self.data_dir
         self.download_dataset(data_dir=data_dir)
 

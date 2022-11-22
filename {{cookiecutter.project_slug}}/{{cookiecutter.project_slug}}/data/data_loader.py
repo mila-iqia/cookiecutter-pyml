@@ -24,8 +24,9 @@ class FashionMnistDS(Dataset):  # pragma: no cover
         """Initialize Dataset.
 
         Args:
-            input_data (np.array): Image data.
-            target_data (np.array): Target data.
+            images (np.array): Image data [batch, height, width].
+            labels (np.array): Target data [batch,].
+            transform (list[transforms]): Valid tensor transformations.
         """
         self.images = images
         self.labels = labels

@@ -89,7 +89,7 @@ class SimpleMLP(BaseModel):  # pragma: no cover
         )
 
     def forward(self, x):
-        # x = self.conv_layers(x)
+        """Model forward."""
         x = self.flatten(x)  # Flatten is necessary to pass from CNNs to MLP
         x = self.mlp_layers(x)
         return x
@@ -135,6 +135,7 @@ class SimpleCNN(BaseModel):  # pragma: no cover
         )
 
     def forward(self, x):
+        """Model forward."""
         x = self.conv_layers(x)
         x = self.flatten(x)  # Flatten is necessary to pass from CNNs to MLP
         x = self.mlp_layers(x)
