@@ -1,11 +1,10 @@
 import os
 import logging
-import urllib.request 
+import urllib.request
 import gzip
 import typing
 
 import numpy as np
-import sys
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 BASE_URL = "https://github.com/zalandoresearch/fashion-mnist/raw/master/data/fashion/"
 
 
-class FashionMnistParser():
+class FashionMnistParser:
     def __init__(self, data_dir):
         self.data_dir = data_dir
         self.prepare_dataset()
@@ -41,37 +40,37 @@ class FashionMnistParser():
             logger.info(f"downloading {fname} to {data_dir}")
             urllib.request.urlretrieve(url, output_fname)
 
-
     @staticmethod
     def extract_images(fname):
         """Extract raw bytes to numpy arrays.
-        
+
         See: https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python"""
-        
-        with gzip.open(fname, 'r') as f:
+
+        with gzip.open(fname, "r") as f:
             # skip first 4 bytes
-            _ = int.from_bytes(f.read(4), 'big')
+            _ = int.from_bytes(f.read(4), "big")
             # second 4 bytes is the number of images
-            image_count = int.from_bytes(f.read(4), 'big')
+            image_count = int.from_bytes(f.read(4), "big")
             # third 4 bytes is the row count
-            row_count = int.from_bytes(f.read(4), 'big')
+            row_count = int.from_bytes(f.read(4), "big")
             # fourth 4 bytes is the column count
-            column_count = int.from_bytes(f.read(4), 'big')
+            column_count = int.from_bytes(f.read(4), "big")
             # rest is the image pixel data, each pixel is stored as an unsigned byte
             # pixel values are 0 to 255
             image_data = f.read()
-            images = np.frombuffer(image_data, dtype=np.uint8)\
-                .reshape((image_count, row_count, column_count))
+            images = np.frombuffer(image_data, dtype=np.uint8).reshape(
+                (image_count, row_count, column_count)
+            )
             # images = np.expand_dims(images, axis=-1) # add greyscale color channel
             return images
 
     @staticmethod
     def extract_labels(fname):
-        with gzip.open(fname, 'r') as f:
+        with gzip.open(fname, "r") as f:
             # skip first 4 bytes
-            _ = int.from_bytes(f.read(4), 'big')
+            _ = int.from_bytes(f.read(4), "big")
             # second 4 bytes is the number of labels
-            _ = int.from_bytes(f.read(4), 'big')
+            _ = int.from_bytes(f.read(4), "big")
             # rest is the label data, each label is stored as unsigned byte
             # label values are 0 to 9
             label_data = f.read()
@@ -99,7 +98,6 @@ class FashionMnistParser():
         """Extract a subset of the dataset to speed up training."""
         return images[:num_samples], labels[:num_samples]
 
-
     def prepare_dataset(self):
         data_dir = self.data_dir
         self.download_dataset(data_dir=data_dir)
@@ -112,10 +110,10 @@ class FashionMnistParser():
             os.path.join(data_dir, "train-labels-idx1-ubyte.gz")
         )
 
-        images, labels = self.subsample_dataset(
-            images, labels, num_samples=20000
+        images, labels = self.subsample_dataset(images, labels, num_samples=20000)
+        train_images, train_labels, val_images, val_labels = self.val_from_train(
+            images, labels, val_pct=0.2
         )
-        train_images, train_labels, val_images, val_labels = self.val_from_train(images, labels, val_pct=0.2)
 
         test_images = self.extract_images(
             os.path.join(data_dir, "t10k-images-idx3-ubyte.gz")
@@ -125,11 +123,10 @@ class FashionMnistParser():
         )
 
         self.train_images = train_images
-        self.train_labels = train_labels 
+        self.train_labels = train_labels
 
         self.val_images = val_images
-        self.val_labels = val_labels 
+        self.val_labels = val_labels
 
         self.test_images = test_images
         self.test_labels = test_labels
-

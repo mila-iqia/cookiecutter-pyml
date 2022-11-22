@@ -1,6 +1,6 @@
 import logging
 
-from {{cookiecutter.project_slug}}.models.my_model import *
+from {{cookiecutter.project_slug}}.models.my_model import SimpleMLP, SimpleCNN
 
 logger = logging.getLogger(__name__)
 
