@@ -26,7 +26,7 @@ setup(
         'tensorboard==2.9.1',
         'tqdm==4.64.0',
         'torch==1.12.0',
-        'torchvision==0.14.0'
+        'torchvision==0.13.0'
     ],
     entry_points={
         'console_scripts': [
