@@ -2,6 +2,7 @@ import logging
 import typing
 
 from torch import nn
+import torchmetrics
 import pytorch_lightning as pl
 
 from {{cookiecutter.project_slug}}.models.optim import load_loss, load_optimizer
@@ -13,6 +14,29 @@ logger = logging.getLogger(__name__)
 
 class BaseModel(pl.LightningModule):
     """Base class for Pytorch Lightning model - useful to reuse the same *_step methods."""
+
+    def __init__(self):
+        """init."""
+        super(BaseModel, self).__init__()
+        self.init_metrics()
+
+    def init_metrics(self):
+        """Initialize torchmetrics metrics."""
+        self.train_acc = torchmetrics.Accuracy()
+        self.val_acc = torchmetrics.Accuracy()
+        self.test_acc = torchmetrics.Accuracy()
+
+        self.train_f1 = torchmetrics.F1Score(task="multiclass", num_classes=10)
+        self.val_f1 = torchmetrics.F1Score(task="multiclass", num_classes=10)
+        self.test_f1 = torchmetrics.F1Score(task="multiclass", num_classes=10)
+
+        self.train_recall = torchmetrics.Recall(task="multiclass", num_classes=10)
+        self.val_recall = torchmetrics.Recall(task="multiclass", num_classes=10)
+        self.test_recall = torchmetrics.Recall(task="multiclass", num_classes=10)
+
+        self.train_precision = torchmetrics.Precision(task="multiclass", num_classes=10)
+        self.val_precision = torchmetrics.Precision(task="multiclass", num_classes=10)
+        self.test_precision = torchmetrics.Precision(task="multiclass", num_classes=10)
 
     def configure_optimizers(self):
         """Returns the combination of optimizer(s) and learning rate scheduler(s) to train with.
@@ -34,27 +58,58 @@ class BaseModel(pl.LightningModule):
             batch_idx: int,
     ) -> typing.Any:
         """Runs the prediction + evaluation step for training/validation/testing."""
-        input_data, targets = batch
-        preds = self(input_data)  # calls the forward pass of the model
+        inputs, targets = batch
+        preds = self(inputs)  # calls the forward pass of the model
         loss = self.loss_fn(preds, targets)
-        return loss
+        return loss, preds, targets
 
     def training_step(self, batch, batch_idx):
         """Runs a prediction step for training, returning the loss."""
-        loss = self._generic_step(batch, batch_idx)
+        loss, preds, targets = self._generic_step(batch, batch_idx)
+
+        self.train_acc(preds, targets)
+        self.train_f1(preds, targets)
+        self.train_precision(preds, targets)
+        self.train_recall(preds, targets)
+
+        self.log("train_acc", self.train_acc)
+        self.log("train_f1", self.train_f1)
+        self.log("train_precision", self.train_precision)
+        self.log("train_recall", self.train_recall)
         self.log("train_loss", loss)
+
         self.log("epoch", self.current_epoch)
         self.log("step", self.global_step)
         return loss  # this function is required, as the loss returned here is used for backprop
 
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
-        loss = self._generic_step(batch, batch_idx)
+        loss, preds, targets = self._generic_step(batch, batch_idx)
+
+        self.val_acc(preds, targets)
+        self.val_f1(preds, targets)
+        self.val_precision(preds, targets)
+        self.val_recall(preds, targets)
+
+        self.log("val_acc", self.val_acc)
+        self.log("val_f1", self.val_f1)
+        self.log("val_precision", self.val_precision)
+        self.log("val_recall", self.val_recall)
         self.log("val_loss", loss)
 
     def test_step(self, batch, batch_idx):
         """Runs a prediction step for testing, logging the loss."""
-        loss = self._generic_step(batch, batch_idx)
+        loss, preds, targets = self._generic_step(batch, batch_idx)
+
+        self.test_acc(preds, targets)
+        self.test_f1(preds, targets)
+        self.test_precision(preds, targets)
+        self.test_recall(preds, targets)
+
+        self.log("test_acc", self.test_acc)
+        self.log("test_f1", self.test_f1)
+        self.log("test_precision", self.test_precision)
+        self.log("test_recall", self.test_recall)
         self.log("test_loss", loss)
 
 
