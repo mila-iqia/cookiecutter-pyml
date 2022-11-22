@@ -50,7 +50,7 @@ class FashionMnistParser:
     def extract_images(fname: typing.AnyStr):
         """Extract raw bytes to numpy arrays.
 
-        See: https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python
+        See: https://stackoverflow.com/questions/40427435/extract-images-from-idx3-ubyte-file-or-gzip-via-python # noqa
         """
         with gzip.open(fname, "r") as f:
             # skip first 4 bytes
