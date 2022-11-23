@@ -109,7 +109,6 @@ class SimpleMLP(BaseModel):  # pragma: no cover
 
     Inherits from the given framework's model class. This is a simple MLP model.
     """
-
     def __init__(self, hparams: typing.Dict[typing.AnyStr, typing.Any]):
         """__init__.
 
