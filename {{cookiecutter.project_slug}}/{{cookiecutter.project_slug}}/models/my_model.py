@@ -15,9 +15,12 @@ logger = logging.getLogger(__name__)
 class BaseModel(pl.LightningModule):
     """Base class for Pytorch Lightning model - useful to reuse the same *_step methods."""
 
-    def __init__(self):
+    def __init__(self, hparams):
         """init."""
         super(BaseModel, self).__init__()
+        self.save_hyperparameters(
+            hparams, logger=True
+        )  # they will become available via model.hparams
         self.init_metrics()
 
     def init_metrics(self):
@@ -26,15 +29,23 @@ class BaseModel(pl.LightningModule):
         Note that we assume we collect the exact same metrics accross splits.
         See https://torchmetrics.readthedocs.io/en/stable/pages/overview.html for more info.
         """
-        metrics = torchmetrics.MetricCollection([
-            torchmetrics.Accuracy(),
-            torchmetrics.classification.MulticlassF1Score(num_classes=10, average='macro'),
-            torchmetrics.classification.MulticlassPrecision(num_classes=10, average='macro'),
-            torchmetrics.classification.MulticlassRecall(num_classes=10, average='macro')
-        ])
-        self.train_metrics = metrics.clone(prefix='train_')
-        self.val_metrics = metrics.clone(prefix='val_')
-        self.test_metrics = metrics.clone(prefix='test_')
+        metrics = torchmetrics.MetricCollection(
+            [
+                torchmetrics.Accuracy(),
+                torchmetrics.classification.MulticlassF1Score(
+                    num_classes=10, average="macro"
+                ),
+                torchmetrics.classification.MulticlassPrecision(
+                    num_classes=10, average="macro"
+                ),
+                torchmetrics.classification.MulticlassRecall(
+                    num_classes=10, average="macro"
+                ),
+            ]
+        )
+        self.train_metrics = metrics.clone(prefix="train_")
+        self.val_metrics = metrics.clone(prefix="val_")
+        self.test_metrics = metrics.clone(prefix="test_")
 
     def configure_optimizers(self):
         """Returns the combination of optimizer(s) and learning rate scheduler(s) to train with.
@@ -51,9 +62,9 @@ class BaseModel(pl.LightningModule):
         return load_optimizer(self.hparams, self)
 
     def _generic_step(
-            self,
-            batch: typing.Any,
-            batch_idx: int,
+        self,
+        batch: typing.Any,
+        batch_idx: int,
     ) -> typing.Any:
         """Runs the prediction + evaluation step for training/validation/testing."""
         inputs, targets = batch
@@ -98,24 +109,27 @@ class SimpleMLP(BaseModel):  # pragma: no cover
 
     Inherits from the given framework's model class. This is a simple MLP model.
     """
-    def __init__(self, hyper_params: typing.Dict[typing.AnyStr, typing.Any]):
+
+    def __init__(self, hparams: typing.Dict[typing.AnyStr, typing.Any]):
         """__init__.
 
         Args:
-            hyper_params (dict): hyper parameters from the config file.
+            hparams (dict): hyper parameters from the config file.
         """
-        super(SimpleMLP, self).__init__()
+        super(SimpleMLP, self).__init__(hparams)
 
-        check_and_log_hp(['hidden_dim', 'num_classes'], hyper_params)
-        self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
-        num_classes = hyper_params['num_classes']
-        hidden_dim = hyper_params['hidden_dim']
-        self.loss_fn = load_loss(hyper_params)  # 'load_loss' could be part of the model itself...
+        check_and_log_hp(["hidden_dim", "num_classes"], hparams)
+        num_classes = hparams["num_classes"]
+        hidden_dim = hparams["hidden_dim"]
+        self.loss_fn = load_loss(
+            hparams
+        )  # 'load_loss' could be part of the model itself...
 
         self.flatten = nn.Flatten()
         self.mlp_layers = nn.Sequential(
             nn.Linear(
-                784, hidden_dim,
+                784,
+                hidden_dim,
             ),  # The input size for the linear layer is determined by the previous operations
             nn.ReLU(),
             nn.Linear(
@@ -135,20 +149,21 @@ class SimpleCNN(BaseModel):  # pragma: no cover
 
     Inherits from the given framework's model class. This is a simple CNN model.
     """
-    def __init__(self, hyper_params: typing.Dict[typing.AnyStr, typing.Any]):
+
+    def __init__(self, hparams: typing.Dict[typing.AnyStr, typing.Any]):
         """__init__.
 
         Args:
-            hyper_params (dict): hyper parameters from the config file.
+            hparams (dict): hyper parameters from the config file.
         """
-        super(SimpleCNN, self).__init__()
+        super(SimpleCNN, self).__init__(hparams)
 
-        check_and_log_hp(['hidden_dim', 'num_classes'], hyper_params)
-        self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
-
-        num_classes = hyper_params['hidden_dim']
-        hidden_dim = hyper_params['num_classes']
-        self.loss_fn = load_loss(hyper_params)  # 'load_loss' could be part of the model itself...
+        check_and_log_hp(["hidden_dim", "num_classes"], hparams)
+        num_classes = hparams["hidden_dim"]
+        hidden_dim = hparams["num_classes"]
+        self.loss_fn = load_loss(
+            hparams
+        )  # 'load_loss' could be part of the model itself...
 
         self.conv_layers = nn.Sequential(
             nn.Conv2d(1, 32, 5, padding="same"),
@@ -161,7 +176,8 @@ class SimpleCNN(BaseModel):  # pragma: no cover
         self.flatten = nn.Flatten()
         self.mlp_layers = nn.Sequential(
             nn.Linear(
-                1568, hidden_dim,
+                1568,
+                hidden_dim,
             ),  # The input size for the linear layer is determined by the previous operations
             nn.ReLU(),
             nn.Linear(
