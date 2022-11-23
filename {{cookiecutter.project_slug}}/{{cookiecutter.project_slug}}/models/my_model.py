@@ -21,22 +21,20 @@ class BaseModel(pl.LightningModule):
         self.init_metrics()
 
     def init_metrics(self):
-        """Initialize torchmetrics metrics."""
-        self.train_acc = torchmetrics.Accuracy()
-        self.val_acc = torchmetrics.Accuracy()
-        self.test_acc = torchmetrics.Accuracy()
+        """Initialize torchmetrics metrics.
 
-        self.train_f1 = torchmetrics.classification.MulticlassF1Score(num_classes=10)
-        self.val_f1 = torchmetrics.classification.MulticlassF1Score(num_classes=10)
-        self.test_f1 = torchmetrics.classification.MulticlassF1Score(num_classes=10)
-
-        self.train_recall = torchmetrics.classification.MulticlassRecall(num_classes=10)
-        self.val_recall = torchmetrics.classification.MulticlassRecall(num_classes=10)
-        self.test_recall = torchmetrics.classification.MulticlassRecall(num_classes=10)
-
-        self.train_precision = torchmetrics.classification.MulticlassPrecision(num_classes=10)
-        self.val_precision = torchmetrics.classification.MulticlassPrecision(num_classes=10)
-        self.test_precision = torchmetrics.classification.MulticlassPrecision(num_classes=10)
+        Note that we assume we collect the exact same metrics accross splits.
+        See https://torchmetrics.readthedocs.io/en/stable/pages/overview.html for more info.
+        """
+        metrics = torchmetrics.MetricCollection([
+            torchmetrics.Accuracy(),
+            torchmetrics.classification.MulticlassF1Score(num_classes=10, average='macro'),
+            torchmetrics.classification.MulticlassPrecision(num_classes=10, average='macro'),
+            torchmetrics.classification.MulticlassRecall(num_classes=10, average='macro')
+        ])
+        self.train_metrics = metrics.clone(prefix='train_')
+        self.val_metrics = metrics.clone(prefix='val_')
+        self.test_metrics = metrics.clone(prefix='test_')
 
     def configure_optimizers(self):
         """Returns the combination of optimizer(s) and learning rate scheduler(s) to train with.
@@ -59,23 +57,18 @@ class BaseModel(pl.LightningModule):
     ) -> typing.Any:
         """Runs the prediction + evaluation step for training/validation/testing."""
         inputs, targets = batch
-        preds = self(inputs)  # calls the forward pass of the model
-        loss = self.loss_fn(preds, targets)
-        return loss, preds, targets
+        logits = self(inputs)  # calls the forward pass of the model
+        loss = self.loss_fn(logits, targets)
+        return loss, logits, targets
 
     def training_step(self, batch, batch_idx):
         """Runs a prediction step for training, returning the loss."""
-        loss, preds, targets = self._generic_step(batch, batch_idx)
+        loss, logits, targets = self._generic_step(batch, batch_idx)
 
-        self.train_acc(preds, targets)
-        self.train_f1(preds, targets)
-        self.train_precision(preds, targets)
-        self.train_recall(preds, targets)
-
-        self.log("train_acc", self.train_acc)
-        self.log("train_f1", self.train_f1)
-        self.log("train_precision", self.train_precision)
-        self.log("train_recall", self.train_recall)
+        metrics = self.train_metrics(logits, targets)
+        # use log_dict instead of log
+        # metrics are logged with keys: train_Accuracy, train_Precision and train_Recall
+        self.log_dict(metrics)
         self.log("train_loss", loss)
 
         self.log("epoch", self.current_epoch)
@@ -84,33 +77,20 @@ class BaseModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
-        loss, preds, targets = self._generic_step(batch, batch_idx)
-
-        self.val_acc(preds, targets)
-        self.val_f1(preds, targets)
-        self.val_precision(preds, targets)
-        self.val_recall(preds, targets)
-
-        self.log("val_acc", self.val_acc)
-        self.log("val_f1", self.val_f1)
-        self.log("val_precision", self.val_precision)
-        self.log("val_recall", self.val_recall)
+        loss, logits, targets = self._generic_step(batch, batch_idx)
+        self.val_metrics.update(logits, targets)
         self.log("val_loss", loss)
+
+    def validation_epoch_end(self, outputs):
+        """Collects the metrics at the end of validation."""
+        # use log_dict instead of log
+        # metrics are logged with keys: val_Accuracy, etc.
+        metrics = self.val_metrics.compute()
+        self.log_dict(metrics)
 
     def test_step(self, batch, batch_idx):
         """Runs a prediction step for testing, logging the loss."""
         loss, preds, targets = self._generic_step(batch, batch_idx)
-
-        self.test_acc(preds, targets)
-        self.test_f1(preds, targets)
-        self.test_precision(preds, targets)
-        self.test_recall(preds, targets)
-
-        self.log("test_acc", self.test_acc)
-        self.log("test_f1", self.test_f1)
-        self.log("test_precision", self.test_precision)
-        self.log("test_recall", self.test_recall)
-        self.log("test_loss", loss)
 
 
 class SimpleMLP(BaseModel):  # pragma: no cover
