@@ -20,7 +20,7 @@ class BaseModel(pl.LightningModule):
         super(BaseModel, self).__init__()
         self.save_hyperparameters(
             hparams, logger=True
-        )  # they will become available via model.hparams
+        )  # they will become available via model.hparams and in the logger tool
         self.init_metrics()
 
     def init_metrics(self):
