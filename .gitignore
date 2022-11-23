@@ -1,5 +1,6 @@
 .idea
 mlruns
+tests/end2end_pytorch/wonderful_project
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
