@@ -22,6 +22,7 @@ class LoggerWriter:  # pragma: no cover
             printer: (fn) function used to print message (e.g., logger.info).
         """
         self.printer = printer
+        self.encoding = None
 
     def write(self, message):
         """write.
