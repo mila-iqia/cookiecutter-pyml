@@ -17,7 +17,7 @@ setup(
         'pyyaml==6.0',
         'pytest==7.1.2',
         'pytest-cov==3.0.0',
-        'pytorch_lightning==1.6.5',
+        'pytorch_lightning==1.8.3',
         'sphinx==5.1.1',
         'sphinx-autoapi==1.9.0',
         'sphinx-rtd-theme==1.0.0',
