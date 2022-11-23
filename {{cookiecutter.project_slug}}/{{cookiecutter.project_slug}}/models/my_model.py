@@ -26,17 +26,17 @@ class BaseModel(pl.LightningModule):
         self.val_acc = torchmetrics.Accuracy()
         self.test_acc = torchmetrics.Accuracy()
 
-        self.train_f1 = torchmetrics.F1Score(task="multiclass", num_classes=10)
-        self.val_f1 = torchmetrics.F1Score(task="multiclass", num_classes=10)
-        self.test_f1 = torchmetrics.F1Score(task="multiclass", num_classes=10)
+        self.train_f1 = torchmetrics.classification.MulticlassF1Score(num_classes=10)
+        self.val_f1 = torchmetrics.classification.MulticlassF1Score(num_classes=10)
+        self.test_f1 = torchmetrics.classification.MulticlassF1Score(num_classes=10)
 
-        self.train_recall = torchmetrics.Recall(task="multiclass", num_classes=10)
-        self.val_recall = torchmetrics.Recall(task="multiclass", num_classes=10)
-        self.test_recall = torchmetrics.Recall(task="multiclass", num_classes=10)
+        self.train_recall = torchmetrics.classification.MulticlassRecall(num_classes=10)
+        self.val_recall = torchmetrics.classification.MulticlassRecall(num_classes=10)
+        self.test_recall = torchmetrics.classification.MulticlassRecall(num_classes=10)
 
-        self.train_precision = torchmetrics.Precision(task="multiclass", num_classes=10)
-        self.val_precision = torchmetrics.Precision(task="multiclass", num_classes=10)
-        self.test_precision = torchmetrics.Precision(task="multiclass", num_classes=10)
+        self.train_precision = torchmetrics.classification.MulticlassPrecision(num_classes=10)
+        self.val_precision = torchmetrics.classification.MulticlassPrecision(num_classes=10)
+        self.test_precision = torchmetrics.classification.MulticlassPrecision(num_classes=10)
 
     def configure_optimizers(self):
         """Returns the combination of optimizer(s) and learning rate scheduler(s) to train with.
