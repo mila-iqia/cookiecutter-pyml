@@ -48,7 +48,7 @@ class BaseModel(pl.LightningModule):
         self.test_metrics = metrics.clone(prefix="test_")
 
         conf_mat = torchmetrics.MetricCollection(
-                torchmetrics.ConfusionMatrix(num_classes=10),
+            torchmetrics.ConfusionMatrix(num_classes=10),
         )
 
         self.train_cm = conf_mat.clone(prefix="train_")
@@ -139,6 +139,7 @@ class SimpleMLP(BaseModel):  # pragma: no cover
 
     Inherits from the given framework's model class. This is a simple MLP model.
     """
+
     def __init__(self, hparams: typing.Dict[typing.AnyStr, typing.Any]):
         """__init__.
 
