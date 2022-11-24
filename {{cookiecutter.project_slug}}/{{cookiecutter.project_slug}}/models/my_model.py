@@ -1,6 +1,7 @@
 import logging
 import typing
 
+import torch
 from torch import nn
 import torchmetrics
 import pytorch_lightning as pl
@@ -89,8 +90,9 @@ class BaseModel(pl.LightningModule):
         """Runs a prediction step for training, returning the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
 
-        metrics = self.train_metrics(logits, targets)
-        self.train_cm.update(logits, targets)
+        probs = torch.nn.functional.softmax(logits)
+        metrics = self.train_metrics(probs, targets)
+        self.train_cm.update(probs, targets)
         # use log_dict instead of log
         # metrics are logged with keys: train_Accuracy, train_Precision and train_Recall
         self.log_dict(metrics)
@@ -114,8 +116,10 @@ class BaseModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
-        self.val_metrics.update(logits, targets)
-        self.val_cm.update(logits, targets)
+
+        probs = torch.nn.functional.softmax(logits)
+        self.val_metrics.update(probs, targets)
+        self.val_cm.update(probs, targets)
         self.val_loss.append(loss)
 
     def validation_epoch_end(self, outputs):
