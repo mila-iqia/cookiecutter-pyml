@@ -72,6 +72,10 @@ class BaseModel(pl.LightningModule):
         loss = self.loss_fn(logits, targets)
         return loss, logits, targets
 
+    def on_train_start(self):
+        """Reset train metrics."""
+        self.train_metrics.reset()
+
     def training_step(self, batch, batch_idx):
         """Runs a prediction step for training, returning the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
@@ -85,6 +89,10 @@ class BaseModel(pl.LightningModule):
         self.log("epoch", self.current_epoch)
         self.log("step", self.global_step)
         return loss  # this function is required, as the loss returned here is used for backprop
+
+    def on_validation_start(self):
+        """Reset validation metrics."""
+        self.val_metrics.reset()
 
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
