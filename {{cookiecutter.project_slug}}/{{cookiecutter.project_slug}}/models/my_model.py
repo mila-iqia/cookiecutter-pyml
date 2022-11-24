@@ -47,6 +47,14 @@ class BaseModel(pl.LightningModule):
         self.val_metrics = metrics.clone(prefix="val_")
         self.test_metrics = metrics.clone(prefix="test_")
 
+        conf_mat = torchmetrics.MetricCollection(
+                torchmetrics.ConfusionMatrix(num_classes=10),
+        )
+
+        self.train_cm = conf_mat.clone(prefix="train_")
+        self.val_cm = conf_mat.clone(prefix="val_")
+        self.test_cm = conf_mat.clone(prefix="test_")
+
     def configure_optimizers(self):
         """Returns the combination of optimizer(s) and learning rate scheduler(s) to train with.
 
@@ -75,12 +83,14 @@ class BaseModel(pl.LightningModule):
     def on_train_start(self):
         """Reset train metrics."""
         self.train_metrics.reset()
+        self.train_cm.reset()
 
     def training_step(self, batch, batch_idx):
         """Runs a prediction step for training, returning the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
 
         metrics = self.train_metrics(logits, targets)
+        self.train_cm.update(logits, targets)
         # use log_dict instead of log
         # metrics are logged with keys: train_Accuracy, train_Precision and train_Recall
         self.log_dict(metrics)
@@ -90,15 +100,21 @@ class BaseModel(pl.LightningModule):
         self.log("step", self.global_step)
         return loss  # this function is required, as the loss returned here is used for backprop
 
+    def on_train_epoch_end(self):
+        conf_mats = self.train_cm.compute()
+        logger.info(f"\n***Train Confusion Matrix***\n {conf_mats}")
+
     def on_validation_start(self):
         """Reset validation metrics."""
         self.val_metrics.reset()
+        self.val_cm.reset()
         self.val_loss = []
 
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
         self.val_metrics.update(logits, targets)
+        self.val_cm.update(logits, targets)
         self.val_loss.append(loss)
 
     def validation_epoch_end(self, outputs):
@@ -110,6 +126,8 @@ class BaseModel(pl.LightningModule):
 
         self.val_epoch_loss = sum(self.val_loss) / len(self.val_loss)
         self.log("val_loss", self.val_epoch_loss)
+        conf_mats = self.val_cm.compute()
+        logger.info(f"\n***Val Confusion Matrix***\n {conf_mats}")
 
     def test_step(self, batch, batch_idx):
         """Runs a prediction step for testing, logging the loss."""
