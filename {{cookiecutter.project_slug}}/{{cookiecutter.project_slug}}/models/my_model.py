@@ -101,6 +101,7 @@ class BaseModel(pl.LightningModule):
         return loss  # this function is required, as the loss returned here is used for backprop
 
     def on_train_epoch_end(self):
+        """Log confusion matrix at end of train epoch."""
         conf_mats = self.train_cm.compute()
         logger.info(f"\n***Train Confusion Matrix***\n {conf_mats}")
 
