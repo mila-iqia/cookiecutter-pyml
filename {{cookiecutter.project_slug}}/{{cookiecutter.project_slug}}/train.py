@@ -99,6 +99,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
 
     # Log the best result and associated hyper parameters
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
+    # NOTE: the hyper parameters only show up at the end of training.
     logger.log_hyperparams(hyper_params, metrics={'best_dev_metric': best_dev_result})
 
     return best_dev_result
