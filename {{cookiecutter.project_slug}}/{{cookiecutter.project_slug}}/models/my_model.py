@@ -93,12 +93,13 @@ class BaseModel(pl.LightningModule):
     def on_validation_start(self):
         """Reset validation metrics."""
         self.val_metrics.reset()
+        self.val_loss = []
 
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
         self.val_metrics.update(logits, targets)
-        self.log("val_loss", loss)
+        self.val_loss.append(loss)
 
     def validation_epoch_end(self, outputs):
         """Collects the metrics at the end of validation."""
@@ -106,6 +107,9 @@ class BaseModel(pl.LightningModule):
         # metrics are logged with keys: val_Accuracy, etc.
         metrics = self.val_metrics.compute()
         self.log_dict(metrics)
+
+        self.val_epoch_loss = sum(self.val_loss) / len(self.val_loss)
+        self.log("val_loss", self.val_epoch_loss)
 
     def test_step(self, batch, batch_idx):
         """Runs a prediction step for testing, logging the loss."""
