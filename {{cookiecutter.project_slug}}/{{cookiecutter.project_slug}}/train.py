@@ -8,6 +8,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from orion.client import report_results
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
+from {{cookiecutter.project_slug}}.utils.callbacks import ComputeMetrics, LogConfusionMatrix
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,8 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
     )
 
     resume_from_checkpoint = handle_previous_models(output, last_model_path, best_model_path)
+    compute_metrics = ComputeMetrics()
+    log_conf_mats = LogConfusionMatrix()
 
     early_stopping_params = hyper_params['early_stopping']
     check_and_log_hp(['metric', 'mode', 'patience'], hyper_params['early_stopping'])
@@ -84,7 +87,13 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
     )
 
     trainer = pl.Trainer(
-        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
+        callbacks=[
+            early_stopping,
+            best_checkpoint_callback,
+            last_checkpoint_callback,
+            compute_metrics,
+            log_conf_mats,
+        ],
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
         gpus=gpus,

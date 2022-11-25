@@ -1,9 +1,7 @@
 import logging
 import typing
 
-import torch
 from torch import nn
-import torchmetrics
 import pytorch_lightning as pl
 
 from {{cookiecutter.project_slug}}.models.optim import load_loss, load_optimizer
@@ -22,39 +20,6 @@ class BaseModel(pl.LightningModule):
         self.save_hyperparameters(
             hparams, logger=True
         )  # they will become available via model.hparams and in the logger tool
-        self.init_metrics()
-
-    def init_metrics(self):
-        """Initialize torchmetrics metrics.
-
-        Note that we assume we collect the exact same metrics accross splits.
-        See https://torchmetrics.readthedocs.io/en/stable/pages/overview.html for more info.
-        """
-        metrics = torchmetrics.MetricCollection(
-            [
-                torchmetrics.Accuracy(),
-                torchmetrics.classification.MulticlassF1Score(
-                    num_classes=10, average="macro"
-                ),
-                torchmetrics.classification.MulticlassPrecision(
-                    num_classes=10, average="macro"
-                ),
-                torchmetrics.classification.MulticlassRecall(
-                    num_classes=10, average="macro"
-                ),
-            ]
-        )
-        self.train_metrics = metrics.clone(prefix="train_")
-        self.val_metrics = metrics.clone(prefix="val_")
-        self.test_metrics = metrics.clone(prefix="test_")
-
-        conf_mat = torchmetrics.MetricCollection(
-            torchmetrics.ConfusionMatrix(num_classes=10),
-        )
-
-        self.train_cm = conf_mat.clone(prefix="train_")
-        self.val_cm = conf_mat.clone(prefix="val_")
-        self.test_cm = conf_mat.clone(prefix="test_")
 
     def configure_optimizers(self):
         """Returns the combination of optimizer(s) and learning rate scheduler(s) to train with.
@@ -81,62 +46,47 @@ class BaseModel(pl.LightningModule):
         loss = self.loss_fn(logits, targets)
         return loss, logits, targets
 
-    def on_train_start(self):
-        """Reset train metrics."""
-        self.train_metrics.reset()
-        self.train_cm.reset()
-
     def training_step(self, batch, batch_idx):
         """Runs a prediction step for training, returning the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
 
-        probs = torch.nn.functional.softmax(logits)
-        metrics = self.train_metrics(probs, targets)
-        self.train_cm.update(probs, targets)
-        # use log_dict instead of log
-        # metrics are logged with keys: train_Accuracy, train_Precision and train_Recall
-        self.log_dict(metrics)
         self.log("train_loss", loss)
-
         self.log("epoch", self.current_epoch)
         self.log("step", self.global_step)
-        return loss  # this function is required, as the loss returned here is used for backprop
-
-    def on_train_epoch_end(self):
-        """Log confusion matrix at end of train epoch."""
-        conf_mats = self.train_cm.compute()
-        logger.info(f"\n***Train Confusion Matrix***\n {conf_mats}")
+        return {
+            "loss": loss,
+            "logits": logits,
+            "targets": targets,
+        }
 
     def on_validation_start(self):
-        """Reset validation metrics."""
-        self.val_metrics.reset()
-        self.val_cm.reset()
+        """Reset validation loss."""
         self.val_loss = []
 
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
         loss, logits, targets = self._generic_step(batch, batch_idx)
 
-        probs = torch.nn.functional.softmax(logits)
-        self.val_metrics.update(probs, targets)
-        self.val_cm.update(probs, targets)
         self.val_loss.append(loss)
+        return {
+            "loss": loss,
+            "logits": logits,
+            "targets": targets,
+        }
 
     def validation_epoch_end(self, outputs):
-        """Collects the metrics at the end of validation."""
-        # use log_dict instead of log
-        # metrics are logged with keys: val_Accuracy, etc.
-        metrics = self.val_metrics.compute()
-        self.log_dict(metrics)
-
+        """Log average loss at the end of the epoch."""
         self.val_epoch_loss = sum(self.val_loss) / len(self.val_loss)
         self.log("val_loss", self.val_epoch_loss)
-        conf_mats = self.val_cm.compute()
-        logger.info(f"\n***Val Confusion Matrix***\n {conf_mats}")
 
     def test_step(self, batch, batch_idx):
         """Runs a prediction step for testing, logging the loss."""
-        loss, preds, targets = self._generic_step(batch, batch_idx)
+        loss, logits, targets = self._generic_step(batch, batch_idx)
+        return {
+            "loss": loss,
+            "logits": logits,
+            "targets": targets,
+        }
 
 
 class SimpleMLP(BaseModel):  # pragma: no cover
