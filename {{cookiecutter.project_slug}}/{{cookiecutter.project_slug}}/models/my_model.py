@@ -111,7 +111,7 @@ class SimpleMLP(BaseModel):  # pragma: no cover
             hparams
         )  # 'load_loss' could be part of the model itself...
 
-        self.example_input_array = torch.rand((1, 1, 28, 28)) # will allow logging graph
+        self.example_input_array = torch.rand((1, 1, 28, 28))  # will allow logging graph
         self.flatten = nn.Flatten()
         self.mlp_layers = nn.Sequential(
             nn.Linear(
@@ -148,7 +148,7 @@ class SimpleCNN(BaseModel):  # pragma: no cover
         check_and_log_hp(["hidden_dim", "num_classes"], hparams)
         num_classes = hparams["num_classes"]
         hidden_dim = hparams["hidden_dim"]
-        self.example_input_array = torch.rand((1, 1, 28, 28)) # useful for logging the graph
+        self.example_input_array = torch.rand((1, 1, 28, 28))  # useful for logging the graph
 
         self.loss_fn = load_loss(
             hparams
