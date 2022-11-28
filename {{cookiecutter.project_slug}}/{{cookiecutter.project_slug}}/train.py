@@ -8,7 +8,11 @@ from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from orion.client import report_results
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
-from {{cookiecutter.project_slug}}.utils.callbacks import ComputeMetrics, LogConfusionMatrix
+from {{cookiecutter.project_slug}}.utils.callbacks import (
+    ComputeMetrics,
+    LogConfusionMatrix,
+    PlotValidationResults,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +84,8 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         patience=early_stopping_params['patience'],
         verbose=use_progress_bar)
 
+    plot_val_results = PlotValidationResults()
+
     logger = pl.loggers.TensorBoardLogger(
         save_dir=output,
         default_hp_metric=False,
@@ -93,6 +99,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
             last_checkpoint_callback,
             compute_metrics,
             log_conf_mats,
+            plot_val_results,
         ],
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,

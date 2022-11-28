@@ -28,6 +28,10 @@ class FashionMnistDS(Dataset):  # pragma: no cover
             labels (np.array): Target data [batch,].
             transform (list[transforms]): Valid tensor transformations.
         """
+        self.classes = (
+            'T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+            'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot'
+        )
         self.images = images
         self.labels = labels
         self.transform = transform
