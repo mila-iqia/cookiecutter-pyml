@@ -144,8 +144,8 @@ class SimpleCNN(BaseModel):  # pragma: no cover
         super(SimpleCNN, self).__init__(hparams)
 
         check_and_log_hp(["hidden_dim", "num_classes"], hparams)
-        num_classes = hparams["hidden_dim"]
-        hidden_dim = hparams["num_classes"]
+        num_classes = hparams["num_classes"]
+        hidden_dim = hparams["hidden_dim"]
         self.loss_fn = load_loss(
             hparams
         )  # 'load_loss' could be part of the model itself...
