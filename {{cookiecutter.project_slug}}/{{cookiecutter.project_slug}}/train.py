@@ -84,6 +84,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         save_dir=output,
         default_hp_metric=False,
         version=0,  # Necessary to resume tensorboard logging
+        log_graph=True,
     )
 
     trainer = pl.Trainer(
