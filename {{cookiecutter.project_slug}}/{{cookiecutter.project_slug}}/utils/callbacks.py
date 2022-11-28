@@ -48,7 +48,7 @@ def plot_images_preds(model, images, targets, classes):
     num_cols = 4
     num_rows = len(images) // num_cols
 
-    fig, axs = plt.subplots(num_rows, num_cols, figsize=(num_cols * 6, num_rows * 6))
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(num_cols * 4, num_rows * 4))
 
     for idx, image in enumerate(images):
         pred = preds[idx]
