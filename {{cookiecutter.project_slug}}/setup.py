@@ -12,6 +12,7 @@ setup(
         'gitpython==3.1.27',
         'jupyter==1.0.0',
         'jinja2<3.1.0',
+        'matplotlib==3.6.2',
         'myst-parser==0.18.0',
         'orion>=0.2.4.post1',
         'pyyaml==6.0',

@@ -46,6 +46,7 @@ we are not listing them all. Modifications since last approved version are in **
 * 'gitpython', BSD ([https://pypi.org/project/GitPython/](https://pypi.org/project/GitPython/))
 * 'jupyter', BSD ([https://github.com/jupyter/jupyter/blob/master/LICENSE](https://github.com/jupyter/jupyter/blob/master/LICENSE))
 * 'jinja2', [3-clause BSD](https://jinja.palletsprojects.com/en/3.1.x/license/) ([https://palletsprojects.com/p/jinja/](https://palletsprojects.com/p/jinja/))
+* 'matplotlib', PSF, ([https://pypi.org/project/matplotlib/](https://pypi.org/project/matplotlib/))
 * 'myst-parser, MIT, ([https://github.com/executablebooks/MyST-Parser](https://github.com/executablebooks/MyST-Parser))
 * 'orion', BSD [https://github.com/Epistimio/orion/blob/develop/LICENSE](https://github.com/Epistimio/orion/blob/develop/LICENSE)
 * 'pyyaml', MIT ([https://pypi.org/project/PyYAML/](https://pypi.org/project/PyYAML/))
@@ -66,5 +67,5 @@ we are not listing them all. Modifications since last approved version are in **
 
 ## Pre-trained models
 
-* ADD IF USED 
+* ADD IF USED
 {%- endif %}
