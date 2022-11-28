@@ -46,6 +46,7 @@ we are not listing them all. Modifications since last approved version are in **
 * 'gitpython', BSD ([https://pypi.org/project/GitPython/](https://pypi.org/project/GitPython/))
 * 'jupyter', BSD ([https://github.com/jupyter/jupyter/blob/master/LICENSE](https://github.com/jupyter/jupyter/blob/master/LICENSE))
 * 'jinja2', [3-clause BSD](https://jinja.palletsprojects.com/en/3.1.x/license/) ([https://palletsprojects.com/p/jinja/](https://palletsprojects.com/p/jinja/))
+* 'matplotlib', PSF, ([https://pypi.org/project/matplotlib/](https://pypi.org/project/matplotlib/))
 * 'myst-parser, MIT, ([https://github.com/executablebooks/MyST-Parser](https://github.com/executablebooks/MyST-Parser))
 * 'orion', BSD [https://github.com/Epistimio/orion/blob/develop/LICENSE](https://github.com/Epistimio/orion/blob/develop/LICENSE)
 * 'pyyaml', MIT ([https://pypi.org/project/PyYAML/](https://pypi.org/project/PyYAML/))
@@ -61,8 +62,10 @@ we are not listing them all. Modifications since last approved version are in **
 * 'tensorboard', Apache License 2.0 ([https://github.com/tensorflow/tensorboard](https://github.com/tensorflow/tensorboard))
 * 'tqdm', MIT+Mozilla Public license ([https://pypi.org/project/tqdm/](https://pypi.org/project/tqdm/))
 * 'torch', BSD-3 ([https://pypi.org/project/torch/](https://pypi.org/project/torch/))
+* 'torchvision', BSD, ([https://pypi.org/project/torchvision/](https://pypi.org/project/torchvision/))
+* 'torchmetrics', Apache 2.0, ([https://pypi.org/project/torchmetrics/](https://pypi.org/project/torchmetrics/))
 
 ## Pre-trained models
 
-* ADD IF USED 
+* ADD IF USED
 {%- endif %}

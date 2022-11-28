@@ -12,12 +12,13 @@ setup(
         'gitpython==3.1.27',
         'jupyter==1.0.0',
         'jinja2<3.1.0',
+        'matplotlib==3.6.2',
         'myst-parser==0.18.0',
         'orion>=0.2.4.post1',
         'pyyaml==6.0',
         'pytest==7.1.2',
         'pytest-cov==3.0.0',
-        'pytorch_lightning==1.6.5',
+        'pytorch_lightning==1.8.3',
         'sphinx==5.1.1',
         'sphinx-autoapi==1.9.0',
         'sphinx-rtd-theme==1.0.0',
@@ -26,6 +27,8 @@ setup(
         'tensorboard==2.9.1',
         'tqdm==4.64.0',
         'torch==1.12.0',
+        'torchmetrics==0.10.3',
+        'torchvision==0.13.0',
     ],
     entry_points={
         'console_scripts': [
