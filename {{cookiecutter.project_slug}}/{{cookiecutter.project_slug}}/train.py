@@ -8,6 +8,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from orion.client import report_results
 
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
+from {{cookiecutter.project_slug}}.utils.callbacks import ComputeMetrics, LogConfusionMatrix
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,8 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
     )
 
     resume_from_checkpoint = handle_previous_models(output, last_model_path, best_model_path)
+    compute_metrics = ComputeMetrics()
+    log_conf_mats = LogConfusionMatrix()
 
     early_stopping_params = hyper_params['early_stopping']
     check_and_log_hp(['metric', 'mode', 'patience'], hyper_params['early_stopping'])
@@ -81,21 +84,32 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         save_dir=output,
         default_hp_metric=False,
         version=0,  # Necessary to resume tensorboard logging
+        log_graph=True,
     )
 
     trainer = pl.Trainer(
-        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
-        checkpoint_callback=True,
+        callbacks=[
+            early_stopping,
+            best_checkpoint_callback,
+            last_checkpoint_callback,
+            compute_metrics,
+            log_conf_mats,
+        ],
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
         gpus=gpus,
         logger=logger,
     )
 
+    # run a full validation and report the values
+    trainer.validate(model, datamodule=datamodule)
+
+    # do the actual training
     trainer.fit(model, datamodule=datamodule)
 
     # Log the best result and associated hyper parameters
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
+    # NOTE: the hyper parameters only show up at the end of training.
     logger.log_hyperparams(hyper_params, metrics={'best_dev_metric': best_dev_result})
 
     return best_dev_result
