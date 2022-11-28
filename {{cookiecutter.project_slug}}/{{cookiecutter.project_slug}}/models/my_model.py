@@ -111,8 +111,8 @@ class SimpleCNN(BaseModel):  # pragma: no cover
         check_and_log_hp(['hidden_dim', 'num_classes'], hyper_params)
         self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
 
-        num_classes = hyper_params['hidden_dim']
-        hidden_dim = hyper_params['num_classes']
+        num_classes = hyper_params['num_classes']
+        hidden_dim = hyper_params['hidden_dims']
         self.loss_fn = load_loss(hyper_params)  # 'load_loss' could be part of the model itself...
 
         self.conv_layers = nn.Sequential(
