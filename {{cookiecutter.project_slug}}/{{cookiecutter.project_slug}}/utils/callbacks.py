@@ -50,7 +50,7 @@ class ComputeMetrics(Callback):
         targets = outputs["targets"]
         probs = torch.nn.functional.softmax(logits)
         metrics = self.train_metrics(probs, targets)
-        pl_module.log_dict(metrics)
+        self.log_dict(metrics)
 
     def on_validation_start(self, trainer, pl_module):
         """Reset validation metrics."""
