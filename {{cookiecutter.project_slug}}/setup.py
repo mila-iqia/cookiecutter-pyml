@@ -30,6 +30,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
+            # TODO: change amlrt- prefix, placeholder for now.
             'amlrt-train={{ cookiecutter.project_slug }}.train:main',
         ],
     }
