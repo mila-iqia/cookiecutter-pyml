@@ -7,6 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 from {{cookiecutter.project_slug}}.data.data_preprocess import FashionMnistParser
+from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
 # __TODO__ change the dataloader to suit your needs...
@@ -63,8 +64,10 @@ class FashionMnistDM(pl.LightningDataModule):  # pragma: no cover
     ):
         """Validates the hyperparameter config dictionary and sets up internal attributes."""
         super().__init__()
+        check_and_log_hp(["batch_size", "num_workers"], hyper_params)
         self.data_dir = (data_dir,)
         self.batch_size = hyper_params["batch_size"]
+        self.num_workers = hyper_params["num_workers"]
 
     def setup(self, stage=None):
         """Parses and splits all samples across the train/valid/test parsers."""
@@ -89,12 +92,12 @@ class FashionMnistDM(pl.LightningDataModule):  # pragma: no cover
 
     def train_dataloader(self) -> DataLoader:
         """Creates the training dataloader using the training data parser."""
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
 
     def val_dataloader(self):
         """Creates the validation dataloader using the validation data parser."""
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
     def test_dataloader(self):
         """Creates the testing dataloader using the testing data parser."""
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
