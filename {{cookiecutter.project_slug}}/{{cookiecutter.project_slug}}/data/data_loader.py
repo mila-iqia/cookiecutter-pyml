@@ -65,14 +65,14 @@ class FashionMnistDM(pl.LightningDataModule):  # pragma: no cover
         """Validates the hyperparameter config dictionary and sets up internal attributes."""
         super().__init__()
         check_and_log_hp(["batch_size", "num_workers"], hyper_params)
-        self.data_dir = (data_dir,)
+        self.data_dir = data_dir
         self.batch_size = hyper_params["batch_size"]
         self.num_workers = hyper_params["num_workers"]
 
     def setup(self, stage=None):
         """Parses and splits all samples across the train/valid/test parsers."""
         # here, we will actually assign train/val datasets for use in dataloaders
-        raw_data = FashionMnistParser(data_dir="fashionmnist")
+        raw_data = FashionMnistParser(data_dir=self.data_dir)
 
         transform = transforms.Compose(
             [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
