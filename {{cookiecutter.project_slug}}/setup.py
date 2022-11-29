@@ -30,7 +30,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'main={{ cookiecutter.project_slug }}.main:main'
+            'amlrt-train={{ cookiecutter.project_slug }}.main:main'
         ],
     }
 )
