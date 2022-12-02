@@ -1,8 +1,10 @@
 import logging
+from typing import Callable
 import typing
 
 import numpy as np
 import pytorch_lightning as pl
+import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
@@ -20,14 +22,15 @@ class FashionMnistDS(Dataset):  # pragma: no cover
         self,
         images: np.ndarray,
         labels: np.ndarray,
-        transform: typing.List = None,
+        transform: Callable[[torch.tensor], torch.tensor] = None,
     ):
         """Initialize Dataset.
 
         Args:
             images (np.array): Image data [batch, height, width].
             labels (np.array): Target data [batch,].
-            transform (list[transforms]): Valid tensor transformations.
+            transform (Callable[[torch.tensor], torch.tensor], optional): Valid tensor transformations.
+            Defaults to None.
         """
         self.images = images
         self.labels = labels
