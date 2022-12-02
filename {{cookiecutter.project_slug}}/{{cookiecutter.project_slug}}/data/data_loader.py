@@ -29,7 +29,7 @@ class FashionMnistDS(Dataset):  # pragma: no cover
         Args:
             images (np.array): Image data [batch, height, width].
             labels (np.array): Target data [batch,].
-            transform (Callable[[torch.tensor], torch.tensor], optional): Valid tensor transformations.
+            transform (Callable[[torch.tensor], torch.tensor], optional): Valid tensor transformations.  # noqa
             Defaults to None.
         """
         self.images = images
