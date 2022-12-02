@@ -9,7 +9,7 @@ import sys
 import yaml
 from yaml import load
 
-from {{cookiecutter.project_slug}}.data.data_loader import load_data
+from {{cookiecutter.project_slug}}.data.data_loader import FashionMnistDM
 from {{cookiecutter.project_slug}}.train import train
 from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
 from {{cookiecutter.project_slug}}.models.model_loader import load_model
@@ -119,7 +119,7 @@ def run(args, data_dir, output_dir, hyper_params):
 
     log_exp_details(os.path.realpath(__file__), args)
 
-    datamodule = load_data(data_dir, hyper_params)
+    datamodule = FashionMnistDM(data_dir, hyper_params)
     model = load_model(hyper_params)
 
     train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
