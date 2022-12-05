@@ -85,7 +85,6 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
 
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
-        checkpoint_callback=True,
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
         gpus=gpus,
