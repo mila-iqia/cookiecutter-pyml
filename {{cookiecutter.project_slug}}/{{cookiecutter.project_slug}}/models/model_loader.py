@@ -1,6 +1,6 @@
 import logging
 
-from {{cookiecutter.project_slug}}.models.my_model import SimpleMLP, SimpleCNN
+from {{cookiecutter.project_slug}}.models.my_model import SimpleMLP
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +18,6 @@ def load_model(hyper_params):  # pragma: no cover
     # __TODO__ fix architecture list
     if architecture == 'simple_mlp':
         model_class = SimpleMLP
-    elif architecture == 'simple_cnn':
-        model_class = SimpleCNN
     else:
         raise ValueError('architecture {} not supported'.format(architecture))
     logger.info('selected architecture: {}'.format(architecture))
