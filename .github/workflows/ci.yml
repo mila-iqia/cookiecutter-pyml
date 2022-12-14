@@ -4,10 +4,12 @@ on:
   # but only for the main branch
   push:
     branches:
+      - main
       - master
       - development
   pull_request:
     branches:
+      - main
       - master
       - development
 jobs:
