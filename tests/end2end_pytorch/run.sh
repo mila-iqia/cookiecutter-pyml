@@ -1,12 +1,8 @@
 # exit at the first error
 set -e
 
-# go to the test folder
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd ${DIR}
-
-# run the example
-cd examples/local
+# go to the examples folder and run the example
+cd $GITHUB_WORKSPACE/examples/local
 sh run.sh
 mv output outout_OLD
 # re-run the example to check reproducibility
@@ -21,8 +17,7 @@ else
 fi
 
 # run Orion
-cd ../..
-cd examples/local_orion
+cd $GITHUB_WORKSPACE/examples/local
 sh run.sh
 mv orion_working_dir orion_working_dir_OLD
 # re-run the example to check reproducibility
