@@ -23,7 +23,7 @@
 ##SBATCH --wckey=my_tag
 # remove one # if you prefer receiving emails
 ##SBATCH --mail-type=all
-##SBATCH --mail-user={{ cookiecutter.email }}
+##SBATCH --mail-user=amlrt_email@mila.quebec
 
 export MLFLOW_TRACKING_URI='mlruns'
 

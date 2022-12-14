@@ -20,7 +20,7 @@
 #SBATCH --error=logs/%x__%j.err
 # remove one # if you prefer receiving emails
 ##SBATCH --mail-type=all
-##SBATCH --mail-user={{ cookiecutter.email }}
+##SBATCH --mail-user=amlrt_email@mila.quebec
 
 export MLFLOW_TRACKING_URI='mlruns'
 export ORION_DB_ADDRESS='orion_db.pkl'
