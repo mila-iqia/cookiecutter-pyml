@@ -17,7 +17,7 @@ else
 fi
 
 # run Orion
-cd $GITHUB_WORKSPACE/examples/local
+cd $GITHUB_WORKSPACE/examples/local_orion
 sh run.sh
 mv orion_working_dir orion_working_dir_OLD
 # re-run the example to check reproducibility
