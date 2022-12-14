@@ -5,7 +5,7 @@ setup(
     name='amlrt_project',
     version='0.0.1',
     packages=find_packages(include=['amlrt_project', 'amlrt_project.*']),
-    python_requires='>=3.10',
+    python_requires='>=3.9',
     install_requires=[
         'flake8==4.0.1',
         'flake8-docstrings==1.6.0',
