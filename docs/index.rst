@@ -1,9 +1,9 @@
-.. {{cookiecutter.project_slug}} documentation master file, created by
+.. amlrt_project documentation master file, created by
    sphinx-quickstart on Fri Jul  3 10:11:19 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to {{cookiecutter.project_slug}}'s documentation!
+Welcome to amlrt_project's documentation!
 =============================================
 
 About the project

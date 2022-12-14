@@ -4,9 +4,9 @@ import typing
 from torch import nn
 import pytorch_lightning as pl
 
-from {{cookiecutter.project_slug}}.models.optim import load_loss, load_optimizer
+from amlrt_project.models.optim import load_loss, load_optimizer
 
-from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
+from amlrt_project.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
 

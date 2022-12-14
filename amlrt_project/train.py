@@ -13,12 +13,12 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from orion.client import report_results
 
-from {{cookiecutter.project_slug}}.data.data_loader import FashionMnistDM
-from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
-from {{cookiecutter.project_slug}}.models.model_loader import load_model
-from {{cookiecutter.project_slug}}.utils.file_utils import rsync_folder
-from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter, log_exp_details
-from {{cookiecutter.project_slug}}.utils.reproducibility_utils import set_seed
+from amlrt_project.data.data_loader import FashionMnistDM
+from amlrt_project.utils.hp_utils import check_and_log_hp
+from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.file_utils import rsync_folder
+from amlrt_project.utils.logging_utils import LoggerWriter, log_exp_details
+from amlrt_project.utils.reproducibility_utils import set_seed
 
 logger = logging.getLogger(__name__)
 
