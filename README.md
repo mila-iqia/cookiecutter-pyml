@@ -1,6 +1,6 @@
 {% set is_open_source = cookiecutter.open_source_license != 'Not open source' -%}
 
-# {{ cookiecutter.project_name }}
+# amlrt_project
 
 
 {{ cookiecutter.project_short_description }}
