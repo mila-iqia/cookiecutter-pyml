@@ -1,13 +1,7 @@
-{% set is_open_source = cookiecutter.open_source_license != 'Not open source' -%}
-
 # amlrt_project
 
 
-{{ cookiecutter.project_short_description }}
-
-{% if is_open_source %}
-* Free software: {{ cookiecutter.open_source_license }}
-{% endif %}
+Replace this line with a short description about your project!
 
 
 ## Instructions to setup the project
@@ -41,7 +35,7 @@ link your local git to the remote project, which should look like this:
 (PS: these instructions are reported here for your convenience.
 We suggest to also look at the GitHub project page for more up-to-date info)
 
-    git remote add origin git@github.com:{{ cookiecutter.github_username }}/amlrt_project.git
+    git remote add origin git@github.com:{$GITHUB_USERNAME}/amlrt_project.git
     git branch -M main
     git push -u origin main
 
@@ -115,7 +109,7 @@ First, bring you project on the cluster (assuming you didn't create your
 project directly there). To do so, simply login on the cluster and git
 clone your project:
 
-    git clone git@github.com:{{ cookiecutter.github_username }}/amlrt_project.git
+    git clone git@github.com:<$GITHUB_USERNAME>/amlrt_project.git
 
 Then activate your virtual env, and install the dependencies:
 
@@ -128,7 +122,6 @@ To run with Slurm, just:
     sh run.sh
 
 Check the log to see that you got an almost perfect loss (i.e., 0).
-{%- if cookiecutter.environment == 'mila' %}
 
 #### Measure GPU time (and others) on the Mila cluster
 
