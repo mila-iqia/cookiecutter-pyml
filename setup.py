@@ -2,9 +2,9 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='{{ cookiecutter.project_slug }}',
+    name='amlrt_project',
     version='{{ cookiecutter.version }}',
-    packages=find_packages(include=['{{ cookiecutter.project_slug }}', '{{ cookiecutter.project_slug }}.*']),
+    packages=find_packages(include=['amlrt_project', 'amlrt_project.*']),
     python_requires='>={{ cookiecutter.python_version }}',
     install_requires=[
         'flake8==4.0.1',
@@ -31,8 +31,8 @@ setup(
     entry_points={
         'console_scripts': [
             # TODO: change amlrt- prefix, placeholder for now.
-            'amlrt-train={{ cookiecutter.project_slug }}.train:main',
-            'amlrt-eval={{ cookiecutter.project_slug }}.evaluate:main',
+            'amlrt-train=amlrt_project.train:main',
+            'amlrt-eval=amlrt_project.evaluate:main',
         ],
     }
 )

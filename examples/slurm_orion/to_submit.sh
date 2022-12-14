@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name={{ cookiecutter.project_slug }}
+#SBATCH --job-name=amlrt_project
 {%- if cookiecutter.environment == 'mila' %}
 ## this is for the mila cluster (uncomment it if you need it):
 ##SBATCH --account=rrg-bengioy-ad

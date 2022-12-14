@@ -15,7 +15,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=5G
 #SBATCH --time=0:05:00
-#SBATCH --job-name={{ cookiecutter.project_slug }}
+#SBATCH --job-name=amlrt_project
 #SBATCH --output=logs/%x__%j.out
 #SBATCH --error=logs/%x__%j.err
 # to attach a tag to your run (e.g., used to track the GPU time)

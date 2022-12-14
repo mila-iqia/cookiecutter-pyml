@@ -41,7 +41,7 @@ link your local git to the remote project, which should look like this:
 (PS: these instructions are reported here for your convenience.
 We suggest to also look at the GitHub project page for more up-to-date info)
 
-    git remote add origin git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
+    git remote add origin git@github.com:{{ cookiecutter.github_username }}/amlrt_project.git
     git branch -M main
     git push -u origin main
 
@@ -115,11 +115,11 @@ First, bring you project on the cluster (assuming you didn't create your
 project directly there). To do so, simply login on the cluster and git
 clone your project:
 
-    git clone git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
+    git clone git@github.com:{{ cookiecutter.github_username }}/amlrt_project.git
 
 Then activate your virtual env, and install the dependencies:
 
-    cd {{ cookiecutter.project_slug }}
+    cd amlrt_project
     pip install -e .
 
 To run with Slurm, just:
@@ -153,16 +153,16 @@ It can be useful to monitor and profile how you utilise your GPU (usage, memory,
 
 Once you have launched your job on the mila cluster, open the log for your current experiment:
 
-`head logs/{{ cookiecutter.project_slug }}__<your_slurm_job_id>.err`
+`head logs/amlrt_project__<your_slurm_job_id>.err`
 
 You should see printed in the first few lines the hostname of your machine, e.g.,
 
 ```
-INFO:{{ cookiecutter.project_slug }}.utils.logging_utils:Experiment info:
+INFO:amlrt_project.utils.logging_utils:Experiment info:
 hostname: leto35
 git code hash: a51bfc5447d188bd6d31fac3afbd5757650ef524
 data folder: ../data
-data folder (abs): /network/tmp1/bronzimi/20191105_cookiecutter/{{ cookiecutter.project_slug }}/examples/data
+data folder (abs): /network/tmp1/bronzimi/20191105_cookiecutter/amlrt_project/examples/data
 ```
 
 In a separate shell on your local computer, run the following command:
