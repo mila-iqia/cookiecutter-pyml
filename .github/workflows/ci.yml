@@ -21,14 +21,19 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: install-dependencies
+
+    - name: linting checks
       run: |
         python -m pip install --upgrade pip
-        pip install -e .
-    - name: print env
+        pip install flake8 flake8-docstrings
+        sh hooks/pre-commit
+    - name: install project dependencies
       run: |
-        env
-    - name: pytorch-test
+        pip install -e .
+    -name: unit tests
+      run: |
+        pytest --cov=amlrt-project
+    - name: pytorch-end2end
       run: |
         ./tests/end2end_pytorch/run.sh
     - name: doc-creation-test
