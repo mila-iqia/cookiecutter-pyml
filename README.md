@@ -7,11 +7,12 @@ Replace this line with a short description about your project!
 ## Instructions to setup the project
 
 ### Install the dependencies:
-(remember to activate the virtual env if you want to use one)
-Add new dependencies (if needed) to setup.py.
+First, activate a virtual environment (recommended).
+Install the package in `editable` mode so you can modify the source directly:
 
     pip install -e .
 
+To add new dependencies, simply add them to the setup.py.
 ### Add git:
 
     git init
@@ -21,7 +22,7 @@ These hooks will:
 * validate flake8 before any commit
 * check that jupyter notebook outputs have been stripped
 
-    cd .git/hooks/ && ln -s ../../hooks/pre-commit . && cd -
+    cd .git/hooks/ && ln -s ../../hooks/pre-commit .
 
 ### Commit the code
 
