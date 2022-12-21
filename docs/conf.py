@@ -17,7 +17,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'amlrt_project'
-copyright = '2022, amlrt_team'
+copyright = '2023, amlrt_team'
 author = 'amlrt_team'
 
 
