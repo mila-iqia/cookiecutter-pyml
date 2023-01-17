@@ -13,4 +13,4 @@ Everybody loves Schrodinger's equation, why not put it everywhere?
 
 You can also add math or even link directly in your docstrings! For an example, click at the docstrings here:
 
-:py:meth:`{{cookiecutter.project_slug}}.models.optim.load_loss`
+:py:meth:`amlrt_project.models.optim.load_loss`

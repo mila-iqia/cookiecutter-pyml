@@ -8,8 +8,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
-from {{cookiecutter.project_slug}}.data.data_preprocess import FashionMnistParser
-from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
+from amlrt_project.data.data_preprocess import FashionMnistParser
+from amlrt_project.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
 # __TODO__ change the dataloader to suit your needs...

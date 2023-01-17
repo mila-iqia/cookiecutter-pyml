@@ -1,6 +1,6 @@
 import pytest
 
-from {{cookiecutter.project_slug}}.utils.hp_utils import check_hp
+from amlrt_project.utils.hp_utils import check_hp
 
 
 def test_check_hp__all_params_are_there():

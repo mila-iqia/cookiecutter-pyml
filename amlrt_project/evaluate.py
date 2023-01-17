@@ -7,10 +7,10 @@ from yaml import load
 
 import pytorch_lightning as pl
 
-from {{cookiecutter.project_slug}}.data.data_loader import FashionMnistDM
-from {{cookiecutter.project_slug}}.utils.hp_utils import check_and_log_hp
-from {{cookiecutter.project_slug}}.models.model_loader import load_model
-from {{cookiecutter.project_slug}}.utils.logging_utils import LoggerWriter
+from amlrt_project.data.data_loader import FashionMnistDM
+from amlrt_project.utils.hp_utils import check_and_log_hp
+from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.logging_utils import LoggerWriter
 
 logger = logging.getLogger(__name__)
 

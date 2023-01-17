@@ -1,6 +1,6 @@
 import logging
 
-from {{cookiecutter.project_slug}}.models.my_model import SimpleMLP
+from amlrt_project.models.my_model import SimpleMLP
 
 logger = logging.getLogger(__name__)
 

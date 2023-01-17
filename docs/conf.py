@@ -16,9 +16,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = '{{cookiecutter.project_slug}}'
-copyright = '2020, {{cookiecutter.full_name}}'
-author = '{{cookiecutter.full_name}}'
+project = 'amlrt_project'
+copyright = '2023, amlrt_team'
+author = 'amlrt_team'
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,7 +39,7 @@ extensions.append('sphinxcontrib.katex')
 # autoapi extension for doc strings
 extensions.append('autoapi.extension')
 autoapi_type = 'python'
-autoapi_dirs = ['../{{cookiecutter.project_slug}}/']
+autoapi_dirs = ['../amlrt_project/']
 
 
 # Skip docstrings for loggers and tests

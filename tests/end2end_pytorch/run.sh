@@ -1,32 +1,8 @@
 # exit at the first error
 set -e
-rm -rf wonderful_project # if it already exists
-# go to the test folder
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd ${DIR}
 
-cookiecutter ../.. --no-input --output-dir=./
-cd wonderful_project
-git init
-# setting some fake name/email for git:
-git config user.email "you@example.com"
-git config user.name "Your Name"
-git add -A
-git commit -m "initial commit"
-pip install -e . --quiet
-pip install flake8 pytest --quiet
-
-# print all dependencies
-pip freeze
-
-# run flake8 test first
-sh hooks/pre-commit
-
-# run tests
-pytest --cov=wonderful_project
-
-# run the example
-cd examples/local
+# go to the examples folder and run the example
+cd $GITHUB_WORKSPACE/examples/local
 sh run.sh
 mv output outout_OLD
 # re-run the example to check reproducibility
@@ -41,8 +17,7 @@ else
 fi
 
 # run Orion
-cd ../..
-cd examples/local_orion
+cd $GITHUB_WORKSPACE/examples/local_orion
 sh run.sh
 mv orion_working_dir orion_working_dir_OLD
 # re-run the example to check reproducibility
