@@ -1,11 +1,62 @@
+import dataclasses
+from typing import Any, Dict, Optional, Tuple, Type, Union
 import logging
 
 from amlrt_project.models.my_model import SimpleMLP
+from amlrt_project.models.factory import AdamFactory, OptimFactory, SGDFactory, PlateauFactory, SchedulerFactory, WarmupDecayFactory
 
 logger = logging.getLogger(__name__)
 
 
-def load_model(hyper_params):  # pragma: no cover
+OPTS = {
+    'SGD': SGDFactory,
+    'Adam': AdamFactory
+}
+
+SCHEDS = {
+    'Plateau': PlateauFactory,
+    'WarmupDecay': WarmupDecayFactory
+}
+
+
+def parse_opt_hp(hyper_params: Union[str, Dict[str, Any]]) -> OptimFactory:
+    """Parse the optimizer part of the config."""
+    if isinstance(hyper_params, str):
+        algo = hyper_params
+        args = {}
+    else:
+        algo = hyper_params['algo']
+        args = {key: hyper_params[key] for key in hyper_params if key != 'algo'}
+
+    if algo not in OPTS:
+        raise ValueError(f'Optimizer {algo} not supported')
+    else:
+        algo: Type[OptimFactory] = OPTS[algo]
+
+    return algo(**args)
+
+
+def parse_sched_hp(hyper_params: Optional[Union[str, Dict[str, Any]]]) -> Optional[SchedulerFactory]:
+    """Parse the scheduler part of the config."""
+    if hyper_params is None:
+        return None
+    elif isinstance(hyper_params, str):
+        algo = hyper_params
+        args = {}
+    else:
+        algo = hyper_params['algo']
+        args = {key: hyper_params[key] for key in hyper_params if key != 'algo'}
+
+    if algo not in SCHEDS:
+        raise ValueError(f'Scheduler {algo} not supported')
+    else:
+        algo: Type[SchedulerFactory] = SCHEDS[algo]
+
+    return algo(**args)
+
+
+
+def load_model(hyper_params: Dict[str, Any]):  # pragma: no cover
     """Instantiate a model.
 
     Args:
@@ -22,7 +73,9 @@ def load_model(hyper_params):  # pragma: no cover
         raise ValueError('architecture {} not supported'.format(architecture))
     logger.info('selected architecture: {}'.format(architecture))
 
-    model = model_class(hyper_params)
+    optim_fact = parse_opt_hp(hyper_params.get('optimizer', 'SGD'))
+    sched_fact = parse_sched_hp(hyper_params.get('scheduler', None))
+    model = model_class(optim_fact, sched_fact, hyper_params)
     logger.info('model info:\n' + str(model) + '\n')
 
     return model
