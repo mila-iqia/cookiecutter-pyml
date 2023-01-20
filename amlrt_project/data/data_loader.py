@@ -1,6 +1,6 @@
 import logging
 import typing
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 import pytorch_lightning as pl
@@ -22,7 +22,7 @@ class FashionMnistDS(Dataset):  # pragma: no cover
         self,
         images: np.ndarray,
         labels: np.ndarray,
-        transform: Callable[[torch.tensor], torch.tensor] = None,
+        transform: Optional[Callable[[torch.tensor], torch.tensor]] = None,
     ):
         """Initialize Dataset.
 
