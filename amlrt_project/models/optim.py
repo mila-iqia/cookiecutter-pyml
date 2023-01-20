@@ -3,7 +3,6 @@ import logging
 import torch
 from torch import optim
 
-
 logger = logging.getLogger(__name__)
 
 

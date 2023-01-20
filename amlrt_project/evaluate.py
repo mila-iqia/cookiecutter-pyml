@@ -2,14 +2,13 @@ import argparse
 import logging
 import sys
 
+import pytorch_lightning as pl
 import yaml
 from yaml import load
 
-import pytorch_lightning as pl
-
 from amlrt_project.data.data_loader import FashionMnistDM
-from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.utils.logging_utils import LoggerWriter
 
 logger = logging.getLogger(__name__)

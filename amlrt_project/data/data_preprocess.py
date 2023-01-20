@@ -1,8 +1,8 @@
-import os
-import logging
-import urllib.request
 import gzip
+import logging
+import os
 import typing
+import urllib.request
 
 import numpy as np
 
