@@ -1,11 +1,12 @@
-#!/bin/sh 
+#!/bin/sh
 
 # exit at the first error
 set -e
 
-# flake8 linting
+# linting
 flake8 --ignore D,W503 --max-line-length=100 .  # Check everything but docstrings
 flake8 --select D --ignore D104,D100,D401 --docstring-convention google --exclude tests/  # Check only the docstrings
+isort --check .  # Check imports
 
 # Raise error if any staged notebooks contain outputs
 GITDIR=$(git rev-parse --show-toplevel) # Full path to git working directory
@@ -17,7 +18,7 @@ if [ "$IPYNB_FILES" != "" ] && [ -z $ALLOW_IPYNB ]; then
         if [ "$DIFF" != "" ]; then
             echo "
             The notebook $GITDIR/$f contains outputs.
-            Remove them all before committing. 
+            Remove them all before committing.
             ***Hint*** use the command:
 
             jupyter nbconvert --ClearOutputPreprocessor.enabled=True --ClearMetadataPreprocessor.enabled=True --to notebook --inplace $GITDIR/$f

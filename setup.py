@@ -1,5 +1,4 @@
-from setuptools import setup, find_packages
-
+from setuptools import find_packages, setup
 
 setup(
     name='amlrt_project',
@@ -11,13 +10,14 @@ setup(
         'flake8-docstrings==1.6.0',
         'gitpython==3.1.27',
         'jupyter==1.0.0',
-        'jinja2<3.1.0',
+        'jinja2==3.1.2',
         'myst-parser==0.18.0',
         'orion>=0.2.4.post1',
         'pyyaml==6.0',
         'pytest==7.1.2',
         'pytest-cov==3.0.0',
         'pytorch_lightning==1.8.3',
+        'pytype==2023.1.17',
         'sphinx==5.1.1',
         'sphinx-autoapi==1.9.0',
         'sphinx-rtd-theme==1.0.0',

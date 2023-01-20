@@ -1,11 +1,11 @@
 import logging
-from typing import Callable
 import typing
+from typing import Callable, Optional
 
 import numpy as np
 import pytorch_lightning as pl
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
 from amlrt_project.data.data_preprocess import FashionMnistParser
@@ -22,7 +22,7 @@ class FashionMnistDS(Dataset):  # pragma: no cover
         self,
         images: np.ndarray,
         labels: np.ndarray,
-        transform: Callable[[torch.tensor], torch.tensor] = None,
+        transform: Optional[Callable[[torch.tensor], torch.tensor]] = None,
     ):
         """Initialize Dataset.
 
