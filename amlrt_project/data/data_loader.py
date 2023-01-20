@@ -1,7 +1,6 @@
 import logging
-from typing import Callable, Optional
 import typing
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 import pytorch_lightning as pl
