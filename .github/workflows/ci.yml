@@ -33,6 +33,9 @@ jobs:
     - name: pytorch-end2end
       run: |
         ./tests/end2end_pytorch/run.sh
+    - name: type checking
+      run: |
+        pytype amlrt_project/
     - name: doc-creation-test
       run: |
         ./tests/test_docs/run.sh
