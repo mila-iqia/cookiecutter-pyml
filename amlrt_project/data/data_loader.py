@@ -1,11 +1,12 @@
 import logging
 from typing import Callable, Optional
 import typing
+from typing import Callable
 
 import numpy as np
 import pytorch_lightning as pl
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
 from amlrt_project.data.data_preprocess import FashionMnistParser
