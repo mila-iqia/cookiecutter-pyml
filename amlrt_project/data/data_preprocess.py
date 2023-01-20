@@ -85,7 +85,7 @@ class FashionMnistParser:
             return labels
 
     @staticmethod
-    def val_from_train(images: np.array, labels: np.array, val_pct: float):
+    def val_from_train(images: np.ndarray, labels: np.ndarray, val_pct: float):
         """Fashion mnist doesn't have a validation set, we create one here."""
         assert 0 < val_pct < 1
         num_samples = len(images)
@@ -101,7 +101,7 @@ class FashionMnistParser:
         return train_images, train_labels, val_images, val_labels
 
     @staticmethod
-    def subsample_dataset(images: np.array, labels: np.array, num_samples: int):
+    def subsample_dataset(images: np.ndarray, labels: np.ndarray, num_samples: int):
         """Extract a subset of the dataset to speed up training."""
         return images[:num_samples], labels[:num_samples]
 
