@@ -1,13 +1,13 @@
 import logging
 import typing
 
-
 import pytorch_lightning as pl
-from torch import nn, FloatTensor, LongTensor
+from torch import FloatTensor, LongTensor, nn
 
+from amlrt_project.models.factory import (OptimFactory,
+                                          OptimizerConfigurationFactory,
+                                          SchedulerFactory)
 from amlrt_project.models.optim import load_loss
-from amlrt_project.models.factory import OptimFactory, OptimizerConfigurationFactory, SchedulerFactory
-
 from amlrt_project.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class BaseModel(pl.LightningModule):
         optim_fact: OptimFactory,
         sched_fact: SchedulerFactory,
     ):
-        """Initialize the LightningModule, with the actual model and loss"""
+        """Initialize the LightningModule, with the actual model and loss."""
         super().__init__()
         self.model = model
         self.loss_fn = loss_fn
@@ -42,6 +42,7 @@ class BaseModel(pl.LightningModule):
         return self.opt_fact(self.model.parameters())
 
     def forward(self, input_data: FloatTensor) -> FloatTensor:
+        """Invoke the model."""
         return self.model(input_data)
 
     def _generic_step(
@@ -88,6 +89,8 @@ class SimpleMLP(BaseModel):  # pragma: no cover
         """__init__.
 
         Args:
+            optim_fact (OptimFactory): factory for the optimizer.
+            sched_fact (SchedulerFactory): factory for the scheduler.
             hyper_params (dict): hyper parameters from the config file.
         """
         # TODO: Place this in a factory.

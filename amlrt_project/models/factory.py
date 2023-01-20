@@ -3,14 +3,12 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import MISSING, dataclass, field
-from enum import Enum, StrEnum
-from typing import Any, ClassVar, Dict, Iterable, Optional, Tuple, Type
-
+from enum import StrEnum
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 from torch.nn import Parameter
 from torch.optim import SGD, Adam, Optimizer
 from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
-
 
 
 class OptimFactory(ABC):
@@ -18,6 +16,7 @@ class OptimFactory(ABC):
 
     @abstractmethod
     def __call__(self, parameters: Iterable[Parameter]) -> Optimizer:
+        """Create an optimizer."""
         ...
 
 
@@ -35,6 +34,7 @@ class SchedulerFactory(ABC):
 
     @abstractmethod
     def __call__(self, optim: Optimizer) -> Dict[str, Any]:
+        """Create a scheduler."""
         ...
 
 
@@ -71,6 +71,7 @@ class PlateauFactory(SchedulerFactory):
     """Wait `patience` epoch before reducing the learning rate."""
 
     def __call__(self, optimizer: Optimizer) -> Dict[str, Any]:
+        """Create a scheduler."""
         scheduler = ReduceLROnPlateau(
             optimizer,
             mode=self.mode,
@@ -99,12 +100,14 @@ class WarmupDecayFactory(SchedulerFactory):
     r"""Safety value: `gamma` must be larger than this."""
 
     def __post_init__(self):
+        """Finish initialization."""
         self.gamma = max(min(self.gamma, 1.0), self.eps)
         # Clip gamma to something that make sense, just in case.
         self.warmup = max(self.warmup, 0)
         # Same for warmup.
 
     def __call__(self, optimizer: Optimizer) -> Dict[str, Any]:
+        """Create scheduler."""
 
         def fn(step: int) -> float:
             """Learning rate decay function."""
@@ -120,6 +123,7 @@ class WarmupDecayFactory(SchedulerFactory):
 
 @dataclass
 class SGDFactory(OptimFactory):
+    """Factory for SGD optimizers."""
     lr: float = MISSING
     momentum: float = 0
     dampening: float = 0
@@ -127,6 +131,7 @@ class SGDFactory(OptimFactory):
     nesterov: bool = False
 
     def __call__(self, parameters: Iterable[Parameter]) -> SGD:
+        """Create and initialize a SGD optimizer."""
         return SGD(
             parameters, lr=self.lr,
             momentum=self.momentum, dampening=self.dampening,
@@ -135,6 +140,7 @@ class SGDFactory(OptimFactory):
 
 @dataclass
 class AdamFactory(OptimFactory):
+    """Factory for ADAM optimizers."""
     lr: float = MISSING
     betas: Tuple[float, float] = (0.9, 0.999)
     eps: float = 1e-8
@@ -142,6 +148,7 @@ class AdamFactory(OptimFactory):
     amsgrad: bool = True  # NOTE: The pytorch default is False, for backward compatibility.
 
     def __call__(self, parameters: Iterable[Parameter]) -> Adam:
+        """Create and initialize an ADAM optimizer."""
         return Adam(
             parameters, lr=self.lr,
             betas=self.betas, eps=self.eps,

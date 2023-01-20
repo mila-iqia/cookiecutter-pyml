@@ -1,9 +1,10 @@
-import dataclasses
-from typing import Any, Dict, Optional, Tuple, Type, Union
 import logging
+from typing import Any, Dict, Optional, Type, Union
 
+from amlrt_project.models.factory import (AdamFactory, OptimFactory,
+                                          PlateauFactory, SchedulerFactory,
+                                          SGDFactory, WarmupDecayFactory)
 from amlrt_project.models.my_model import SimpleMLP
-from amlrt_project.models.factory import AdamFactory, OptimFactory, SGDFactory, PlateauFactory, SchedulerFactory, WarmupDecayFactory
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,9 @@ def parse_opt_hp(hyper_params: Union[str, Dict[str, Any]]) -> OptimFactory:
     return algo(**args)
 
 
-def parse_sched_hp(hyper_params: Optional[Union[str, Dict[str, Any]]]) -> Optional[SchedulerFactory]:
+def parse_sched_hp(
+    hyper_params: Optional[Union[str, Dict[str, Any]]]
+) -> Optional[SchedulerFactory]:
     """Parse the scheduler part of the config."""
     if hyper_params is None:
         return None
@@ -53,7 +56,6 @@ def parse_sched_hp(hyper_params: Optional[Union[str, Dict[str, Any]]]) -> Option
         algo: Type[SchedulerFactory] = SCHEDS[algo]
 
     return algo(**args)
-
 
 
 def load_model(hyper_params: Dict[str, Any]):  # pragma: no cover
