@@ -1,22 +1,21 @@
 import argparse
+import glob
 import logging
 import os
 import shutil
 import sys
-import glob
-
-import yaml
-from yaml import load
 
 import orion
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+import yaml
 from orion.client import report_results
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
-from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.models.model_loader import load_model
 from amlrt_project.utils.file_utils import rsync_folder
+from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.utils.logging_utils import LoggerWriter, log_exp_details
 from amlrt_project.utils.reproducibility_utils import set_seed
 

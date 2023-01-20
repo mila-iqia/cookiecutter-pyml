@@ -1,11 +1,10 @@
 import logging
 import typing
 
-from torch import nn
 import pytorch_lightning as pl
+from torch import nn
 
 from amlrt_project.models.optim import load_loss, load_optimizer
-
 from amlrt_project.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
