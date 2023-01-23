@@ -114,7 +114,7 @@ class WarmupDecayFactory(SchedulerFactory):
 @dataclass
 class SGDFactory(OptimFactory):
     """Factory for SGD optimizers."""
-    lr: float = MISSING
+    lr: float = MISSING   # Value is required.
     momentum: float = 0
     dampening: float = 0
     weight_decay: float = 0
@@ -131,7 +131,7 @@ class SGDFactory(OptimFactory):
 @dataclass
 class AdamFactory(OptimFactory):
     """Factory for ADAM optimizers."""
-    lr: float = MISSING
+    lr: float = 1e-3  # `MISSING` if we want to require an explicit value.
     betas: Tuple[float, float] = (0.9, 0.999)
     eps: float = 1e-8
     weight_decay: float = 0
