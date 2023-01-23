@@ -3,7 +3,6 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import MISSING, dataclass, field
-from enum import StrEnum
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 from torch.nn import Parameter
@@ -18,15 +17,6 @@ class OptimFactory(ABC):
     def __call__(self, parameters: Iterable[Parameter]) -> Optimizer:
         """Create an optimizer."""
         ...
-
-
-class Interval(StrEnum):
-    """Interval supported by Lightning.
-
-    Using an enum help avoiding invalid values.
-    """
-    EPOCH = "epoch"
-    STEP = "step"
 
 
 class SchedulerFactory(ABC):
@@ -79,7 +69,7 @@ class PlateauFactory(SchedulerFactory):
         return dict(
             scheduler=scheduler,
             frequency=1,
-            interval=Interval.EPOCH,
+            interval='epoch',
             monitor=self.metric)
 
 
@@ -118,7 +108,7 @@ class WarmupDecayFactory(SchedulerFactory):
             return 1.0
 
         scheduler = LambdaLR(optimizer, fn)
-        return dict(scheduler=scheduler, frequency=1, interval=Interval.STEP)
+        return dict(scheduler=scheduler, frequency=1, interval='step')
 
 
 @dataclass
