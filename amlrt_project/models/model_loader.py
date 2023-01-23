@@ -11,12 +11,16 @@ logger = logging.getLogger(__name__)
 
 OPTS = {
     'SGD': SGDFactory,
-    'Adam': AdamFactory
+    'sgd': SGDFactory,
+    'Adam': AdamFactory,
+    'adam': AdamFactory
 }
 
 SCHEDS = {
     'Plateau': PlateauFactory,
-    'WarmupDecay': WarmupDecayFactory
+    'plateau': PlateauFactory,
+    'WarmupDecay': WarmupDecayFactory,
+    'warmupdecay': WarmupDecayFactory
 }
 
 
