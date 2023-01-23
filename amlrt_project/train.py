@@ -14,6 +14,7 @@ from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.callbacks import ComputeMetrics, LogConfusionMatrix
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.utils.logging_utils import LoggerWriter, log_exp_details
@@ -193,6 +194,9 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         patience=early_stopping_params['patience'],
         verbose=use_progress_bar)
 
+    log_conf_mats = LogConfusionMatrix()
+    compute_metrics = ComputeMetrics()
+
     logger = pl.loggers.TensorBoardLogger(
         save_dir=output,
         default_hp_metric=False,
@@ -200,7 +204,10 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
     )
 
     trainer = pl.Trainer(
-        callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
+        callbacks=[
+            early_stopping,
+            best_checkpoint_callback,
+            last_checkpoint_callback, compute_metrics, log_conf_mats],
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
         gpus=gpus,

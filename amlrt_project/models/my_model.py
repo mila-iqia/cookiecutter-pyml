@@ -33,28 +33,34 @@ class BaseModel(pl.LightningModule):
             batch_idx: int,
     ) -> typing.Any:
         """Runs the prediction + evaluation step for training/validation/testing."""
-        input_data, targets = batch
-        preds = self(input_data)  # calls the forward pass of the model
-        loss = self.loss_fn(preds, targets)
-        return loss
+        inputs, targets = batch
+        logits = self(inputs)  # calls the forward pass of the model
+        loss = self.loss_fn(logits, targets)
+        return {
+            "loss": loss,
+            "logits": logits,
+            "targets": targets,
+        }
 
     def training_step(self, batch, batch_idx):
         """Runs a prediction step for training, returning the loss."""
-        loss = self._generic_step(batch, batch_idx)
-        self.log("train_loss", loss)
+        outputs = self._generic_step(batch, batch_idx)
+        self.log("train_loss", outputs["loss"])
         self.log("epoch", self.current_epoch)
         self.log("step", self.global_step)
-        return loss  # this function is required, as the loss returned here is used for backprop
+        return outputs
 
     def validation_step(self, batch, batch_idx):
         """Runs a prediction step for validation, logging the loss."""
-        loss = self._generic_step(batch, batch_idx)
-        self.log("val_loss", loss)
+        outputs = self._generic_step(batch, batch_idx)
+        self.log("val_loss", outputs["loss"])
+        return outputs
 
     def test_step(self, batch, batch_idx):
         """Runs a prediction step for testing, logging the loss."""
-        loss = self._generic_step(batch, batch_idx)
-        self.log("test_loss", loss)
+        outputs = self._generic_step(batch, batch_idx)
+        self.log("test_loss", outputs["loss"])
+        return outputs
 
 
 class SimpleMLP(BaseModel):  # pragma: no cover
