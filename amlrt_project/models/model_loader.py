@@ -29,9 +29,11 @@ def parse_opt_hp(hyper_params: Union[str, Dict[str, Any]]) -> OptimFactory:
     if isinstance(hyper_params, str):
         algo = hyper_params
         args = {}
-    else:
+    elif isinstance(hyper_params, dict):
         algo = hyper_params['algo']
         args = {key: hyper_params[key] for key in hyper_params if key != 'algo'}
+    else:
+        raise TypeError(f"hyper_params should be a str or a dict, got {type(hyper_params)}")
 
     if algo not in OPTS:
         raise ValueError(f'Optimizer {algo} not supported')
@@ -50,9 +52,11 @@ def parse_sched_hp(
     elif isinstance(hyper_params, str):
         algo = hyper_params
         args = {}
-    else:
+    elif isinstance(hyper_params, dict):
         algo = hyper_params['algo']
         args = {key: hyper_params[key] for key in hyper_params if key != 'algo'}
+    else:
+        raise TypeError(f"hyper_params should be a str or a dict, got {type(hyper_params)}")
 
     if algo not in SCHEDS:
         raise ValueError(f'Scheduler {algo} not supported')
