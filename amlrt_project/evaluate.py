@@ -85,7 +85,7 @@ def evaluate(args, data_dir, hyper_params):
     datamodule.setup()
 
     model = load_model(hyper_params)
-    model.load_from_checkpoint(args.ckpt_path)
+    model = model.load_from_checkpoint(args.ckpt_path)
 
     val_metrics = trainer.validate(model, datamodule=datamodule)
     test_metrics = trainer.test(model, datamodule=datamodule)
