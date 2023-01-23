@@ -10,8 +10,9 @@ logger = logging.getLogger(__name__)
 class ComputeMetrics(Callback):
     """Keeps track of the precision, recal, and f1-score and accuracy metrics."""
 
-    def __init__(self):
+    def __init__(self, num_classes: int):
         """Init."""
+        self.num_classes = num_classes
         self.train_metrics = None
         self.val_metrics = None
         self.test_metrics = None
@@ -20,15 +21,21 @@ class ComputeMetrics(Callback):
         """Initial setup of the metrics."""
         metrics = torchmetrics.MetricCollection(
             [
-                torchmetrics.Accuracy(),
+                torchmetrics.Accuracy(
+                    task='multiclass',
+                    num_classes=self.num_classes
+                ),
                 torchmetrics.classification.MulticlassF1Score(
-                    num_classes=10, average="macro"
+                    num_classes=self.num_classes,
+                    average="macro",
                 ),
                 torchmetrics.classification.MulticlassPrecision(
-                    num_classes=10, average="macro"
+                    num_classes=self.num_classes,
+                    average="macro",
                 ),
                 torchmetrics.classification.MulticlassRecall(
-                    num_classes=10, average="macro"
+                    num_classes=self.num_classes,
+                    average="macro",
                 ),
             ]
         )
@@ -77,8 +84,9 @@ class ComputeMetrics(Callback):
 class LogConfusionMatrix(Callback):
     """Log the confusion matrix for each data split."""
 
-    def __init__(self):
+    def __init__(self, num_classes):
         """init."""
+        self.num_classes = num_classes
         self.train_cm = None
         self.val_cm = None
         self.test_cm = None
@@ -86,7 +94,10 @@ class LogConfusionMatrix(Callback):
     def setup(self, trainer, pl_module, stage):
         """Initial setup of the confusion matrix."""
         conf_mat = torchmetrics.MetricCollection(
-            torchmetrics.ConfusionMatrix(num_classes=10),
+            torchmetrics.ConfusionMatrix(
+                task='multiclass',
+                num_classes=self.num_classes
+            ),
         )
 
         if self.train_cm is None:

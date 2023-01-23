@@ -78,7 +78,8 @@ def evaluate(args, data_dir, hyper_params):
         ['architecture', 'batch_size', 'exp_name', 'early_stopping'],
         hyper_params)
 
-    log_conf_mats = LogConfusionMatrix()
+    num_classes = hyper_params['num_classes']
+    log_conf_mats = LogConfusionMatrix(num_classes=num_classes)
 
     trainer = pl.Trainer(
         gpus=args.gpus,

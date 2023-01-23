@@ -194,8 +194,9 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         patience=early_stopping_params['patience'],
         verbose=use_progress_bar)
 
-    log_conf_mats = LogConfusionMatrix()
-    compute_metrics = ComputeMetrics()
+    num_classes = hyper_params['num_classes']
+    log_conf_mats = LogConfusionMatrix(num_classes=num_classes)
+    compute_metrics = ComputeMetrics(num_classes=num_classes)
 
     logger = pl.loggers.TensorBoardLogger(
         save_dir=output,
