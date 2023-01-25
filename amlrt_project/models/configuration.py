@@ -1,3 +1,14 @@
+r"""Parse the configuration into the 4 factories.
+
+This file is used to import the possible factories, and "register" them.
+Then, the configuration dictionary is used to create instances of the correct factories.
+
++ Import any new models to be able to use them.
++ Add the models to the dictionary, with the name(s) you want to use in configuration.
++ The same applies for losses.
+"""
+
+
 import logging
 from typing import Any, Dict, Optional, Type, Union
 
@@ -27,10 +38,12 @@ SCHEDS = {
     'warmupdecay': WarmupDecayFactory
 }
 
+# TODO: Add models here
 MODELS = {
     'simple_mlp': SimpleMLPFactory
 }
 
+# TODO: Add losses here, as needed.
 LOSSES = {
     'cross_entropy': CrossEntropyFactory
 }
@@ -125,8 +138,12 @@ def get_model(hyper_params: Dict[str, Any]) -> pl.LightningModule:
     Returns:
         model (obj): A neural network model object.
     """
+    # This is a patch to fit the current configuration.
+    # Create a dict with the correct parameters only, and scream if they are missing.
+    model_cfg = {k: hyper_params[k] for k in {'architecture', 'hidden_dim', 'num_classes'}}
     return ImageClassification(
-        parse_model_hp(hyper_params.get('architecture')),
-        parse_loss_hp(hyper_params.get('loss')),
-        parse_opt_hp(hyper_params.get('optimizer', 'SGD')),
+        parse_model_hp(model_cfg),
+        parse_loss_hp(hyper_params['loss']),
+        parse_opt_hp(hyper_params['optimizer']),
+        # Note: scheduler can be None or missing.
         parse_sched_hp(hyper_params.get('scheduler', None)))
