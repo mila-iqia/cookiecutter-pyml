@@ -13,7 +13,7 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
-from amlrt_project.models.model_loader import load_model
+from amlrt_project.models import get_model
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.utils.logging_utils import LoggerWriter, log_exp_details
@@ -125,7 +125,7 @@ def run(args, data_dir, output_dir, hyper_params):
     log_exp_details(os.path.realpath(__file__), args)
 
     datamodule = FashionMnistDM(data_dir, hyper_params)
-    model = load_model(hyper_params)
+    model = get_model(hyper_params)
 
     train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
           use_progress_bar=not args.disable_progressbar, gpus=args.gpus)

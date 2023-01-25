@@ -1,32 +1,63 @@
 import logging
-import typing
+from typing import Protocol, Tuple
 
 import pytorch_lightning as pl
+
 from torch import FloatTensor, LongTensor, nn
 
-from amlrt_project.models.factory import (OptimFactory,
-                                          OptimizerConfigurationFactory,
-                                          SchedulerFactory)
-from amlrt_project.models.optim import load_loss
-from amlrt_project.utils.hp_utils import check_and_log_hp
+from amlrt_project.models.optimization import (OptimFactory,
+                                               OptimizerConfigurationFactory,
+                                               SchedulerFactory)
 
 logger = logging.getLogger(__name__)
 
 
-class BaseModel(pl.LightningModule):
+# TODO: Add Batch namedtuple or dataclass, and return that from the collate function.
+#       This would document what is needed for the task, help avoid confusion.
+#       It does add a bit of boilerplate.
+
+
+class ModelFactory(Protocol):
+    """Interface for the model factory.
+
+    This is used to create the torch.nn.Module used for the task.
+    The LightningModule itself is only used as the glue that move data
+    around.
+    """
+
+    def __call__(self) -> nn.Module:
+        """Create the model."""
+        ...
+
+
+# TODO: Might want to include metrics, etc in the loss, which is not supported by nn.Module.
+class LossFactory(Protocol):
+    """Interface for the loss factory.
+
+    This is used to create the torch.nn.Module used for the loss.
+    The LightningModule itself is only used as the glue that move data
+    around. Any weights
+    """
+
+    def __call__(self) -> nn.Module:
+        """Create the loss function."""
+        ...
+
+
+class ImageClassification(pl.LightningModule):
     """Base class for Pytorch Lightning model - useful to reuse the same *_step methods."""
 
     def __init__(
         self,
-        model: nn.Module,
-        loss_fn: nn.Module,
+        model_fact: ModelFactory,
+        loss_fact: LossFactory,
         optim_fact: OptimFactory,
         sched_fact: SchedulerFactory,
     ):
         """Initialize the LightningModule, with the actual model and loss."""
         super().__init__()
-        self.model = model
-        self.loss_fn = loss_fn
+        self.model = model_fact()
+        self.loss_fn = loss_fact()
         self.opt_fact = OptimizerConfigurationFactory(optim_fact, sched_fact)
 
     def configure_optimizers(self):
@@ -47,7 +78,7 @@ class BaseModel(pl.LightningModule):
 
     def _generic_step(
             self,
-            batch: typing.Tuple[FloatTensor, LongTensor],
+            batch: Tuple[FloatTensor, LongTensor],
             batch_idx: int,
     ) -> FloatTensor:
         """Runs the prediction + evaluation step for training/validation/testing."""
@@ -73,43 +104,3 @@ class BaseModel(pl.LightningModule):
         """Runs a prediction step for testing, logging the loss."""
         loss = self._generic_step(batch, batch_idx)
         self.log("test_loss", loss)
-
-
-class SimpleMLP(BaseModel):  # pragma: no cover
-    """Simple Model Class.
-
-    Inherits from the given framework's model class. This is a simple MLP model.
-    """
-    def __init__(
-        self,
-        optim_fact: OptimFactory,
-        sched_fact: SchedulerFactory,
-        hyper_params: typing.Dict[typing.AnyStr, typing.Any]
-    ):
-        """__init__.
-
-        Args:
-            optim_fact (OptimFactory): factory for the optimizer.
-            sched_fact (SchedulerFactory): factory for the scheduler.
-            hyper_params (dict): hyper parameters from the config file.
-        """
-        # TODO: Place this in a factory.
-        check_and_log_hp(['hidden_dim', 'num_classes'], hyper_params)
-        num_classes: int = hyper_params['num_classes']
-        hidden_dim: int = hyper_params['hidden_dim']
-        flatten = nn.Flatten()
-        mlp_layers = nn.Sequential(
-            nn.Linear(
-                784, hidden_dim,
-            ),  # The input size for the linear layer is determined by the previous operations
-            nn.ReLU(),
-            nn.Linear(
-                hidden_dim, num_classes
-            ),  # Here we get exactly num_classes logits at the output
-        )
-        model = nn.Sequential(flatten, mlp_layers)
-
-        super().__init__(
-            model, load_loss(hyper_params),
-            optim_fact, sched_fact)
-        self.save_hyperparameters()  # they will become available via model.hparams
