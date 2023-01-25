@@ -1,4 +1,19 @@
-"""Optimizer and learning rate scheduler factory."""
+r"""Optimizer and learning rate scheduler factory.
+
++ To add an algorithm from a library:
+  1. Add a factory here.
+  2. Add the entry for the factory in `models.configuration`.
++ To add a new completely new optimizer:
+  1. Create a new class here, inheriting from Optimizer.
+  2. Add a factory here.
+  3. Add the entry for the factory in `models.configuration`.
++ To add a new learning rate scheduler:
+  1. Create a new factory, following WarmupDecayFactory as a template.
+  2. Add the entry for the factory in `models.configuration`.
+
+In general, most learning rate scheduler should fit LambdaLR.
+If some kind of state is needed, read torch's documentation.
+"""
 
 
 from dataclasses import MISSING, dataclass, field

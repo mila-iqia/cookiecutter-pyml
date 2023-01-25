@@ -1,3 +1,12 @@
+r"""Factories for loss functions.
+
+Currently, only support cross entropy.
+
++ Add any loss needed, using the CrossEntropyFactory as a template.
++ Remove cross entropy if not relevant.
++ Update models.configuration to match the losses here.
+"""
+
 from dataclasses import dataclass
 import logging
 from typing import Optional

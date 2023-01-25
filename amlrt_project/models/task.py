@@ -1,3 +1,18 @@
+r"""Define the task and how the model is trained.
+
+Factories are used to handle the details.
+This LightningModule only deal with the simple case of 1 optimizer, 1 model, 1 loss.
+This should cover most cases, and should be useful as a template for more complex cases,
+such as GANs.
+
+Todo:
++ Rename the task, unless you are doing image classification.
++ Change the signature of the forward method, as needed, and update _generic_step.
+
+This should be sufficient, since the task is only responsible for moving data around.
+"""
+
+
 import logging
 from typing import Protocol, Tuple
 
@@ -36,7 +51,7 @@ class LossFactory(Protocol):
 
     This is used to create the torch.nn.Module used for the loss.
     The LightningModule itself is only used as the glue that move data
-    around. Any weights
+    around.
     """
 
     def __call__(self) -> nn.Module:
@@ -44,6 +59,7 @@ class LossFactory(Protocol):
         ...
 
 
+# TODO: Rename and modify this class to fit your task.
 class ImageClassification(pl.LightningModule):
     """Base class for Pytorch Lightning model - useful to reuse the same *_step methods."""
 
@@ -72,6 +88,7 @@ class ImageClassification(pl.LightningModule):
         """
         return self.opt_fact(self.model.parameters())
 
+    # TODO: Modify the signature to fit your input / output.
     def forward(self, input_data: FloatTensor) -> FloatTensor:
         """Invoke the model."""
         return self.model(input_data)

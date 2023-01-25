@@ -1,3 +1,17 @@
+r"""Demo model: a MLP used for image classification.
+
+Use this as a template for your task.
+1. Rename the file to something more relevant, as needed.
+2. Replace the model and its factory.
+3. Update models.configuration.
+
+In the likely case where more than one model is needed (baseline, etc.),
+copy this file for all models.
+If a model is complex, and best decomposed, add a submodule.
+
+In all cases, add the new model to models.configuration.
+"""
+
 from dataclasses import dataclass
 import torch
 
@@ -33,6 +47,8 @@ class SimpleMLPFactory:
 
     hidden_dim: int
     "Size of the hidden layer."
+
+    # Skipping the input dim, since this is immutable.
 
     def __call__(self) -> SimpleMLP:
         """Build a SimpleMLP with the parameters."""
