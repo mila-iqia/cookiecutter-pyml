@@ -1,6 +1,7 @@
 """Process the data on the disk and load it in memory."""
 
 import gzip
+import itertools
 import logging
 import os
 import typing
@@ -13,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 BASE_URL = "https://github.com/zalandoresearch/fashion-mnist/raw/master/data/fashion/"
 DATA = {
-    'train': 'train-{type:s}-idx3-ubyte.gz',
-    'test': 't10k-{type:s}-idx3-ubyte.gz'
+    'train': ('train-images-idx3-ubyte.gz', 'train-labels-idx1-ubyte.gz'),
+    'test': ('t10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz')
 }
 TRAIN_VAL_SAMPLES = 20000
 VAL_RATIO = 0.2
@@ -40,18 +41,17 @@ class Data(typing.NamedTuple):
         return Data(self.images[item], self.labels[item])
 
     @classmethod
-    def load(cls, ftemplate: str) -> "Data":
+    def load(cls, images: str, labels: str) -> "Data":
         """Load images from a templated file names pair."""
-        images = extract_images(ftemplate.format(type='images'))
-        labels = extract_labels(ftemplate.format(type='labels'))
+        images: np.ndarray = extract_images(images)
+        labels: np.ndarray = extract_labels(labels)
         return Data(images, labels)
 
 
 def download_dataset(data_dir: str):
     """Download and extract the fashion mnist dataset to data_dir."""
-    files = (
-        [fname.format(type='images') for fname in DATA.values()]
-        + [fname.format(type='labels') for fname in DATA.values()])
+    files = itertools.chain(*DATA.values())
+
     logger.info("Fetching fashion mnist...")
     logger.debug(f"Fetching fashion mnist from {BASE_URL}")
 
@@ -64,7 +64,7 @@ def download_dataset(data_dir: str):
         if os.path.isfile(output_fname):
             logger.info(f"{fname} already downloaded.")
             continue
-        logger.info(f"downloading {fname} to {data_dir}")
+        logger.info(f"downloading {url} to {data_dir}")
         urllib.request.urlretrieve(url, output_fname)
 
 
@@ -74,7 +74,9 @@ def load_train_val(
     ratio=VAL_RATIO
 ) -> typing.Tuple[Data, Data]:
     """Load the training data, and create the train-val split."""
-    data = Data.load(os.path.join(data_dir, DATA['train']))
+    images, labels = DATA['train']
+    data = Data.load(os.path.join(data_dir, images),
+                     os.path.join(data_dir, labels))
     data = data[:sample]
 
     return val_from_train(data, ratio)
@@ -82,7 +84,9 @@ def load_train_val(
 
 def load_test(data_dir: str) -> Data:
     """Load the test data."""
-    return Data.load(os.path.join(data_dir, DATA['test']))
+    images, labels = DATA['test']
+    return Data.load(os.path.join(data_dir, images),
+                     os.path.join(data_dir, labels))
 
 
 def extract_images(fname: str) -> np.ndarray:
