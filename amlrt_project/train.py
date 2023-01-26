@@ -238,13 +238,13 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar):  # pr
     )
 
     if torch.cuda.is_available():
-        accelerators = 'gpu'
+        accelerator = 'gpu'
         if torch.cuda.device_count() > 1:
             strategy = 'ddp_find_unused_parameters_false'
         else:
             strategy = None
     else:
-        accelerators = 'cpu'
+        accelerator = 'cpu'
         strategy = None
 
     trainer = pl.Trainer(
@@ -252,7 +252,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar):  # pr
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
         logger=logger,
-        accelerator=accelerators,
+        accelerator=accelerator,
         devices='auto',
         strategy=strategy
     )

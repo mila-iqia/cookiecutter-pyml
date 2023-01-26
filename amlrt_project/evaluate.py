@@ -76,14 +76,14 @@ def evaluate(args, data_dir, hyper_params):
         hyper_params)
 
     if torch.cuda.is_available():
-        accelerators = 'gpu'
+        accelerator = 'gpu'
         devices = 1
     else:
-        accelerators = 'cpu'
+        accelerator = 'cpu'
         devices = 'auto'
 
     trainer = pl.Trainer(
-        accelerators=accelerators,
+        accelerator=accelerator,
         devices=devices
     )
 
