@@ -4,9 +4,11 @@ import logging
 import os
 import shutil
 import sys
+from typing import Optional
 
 import orion
 import pytorch_lightning as pl
+import torch.cuda
 import yaml
 from orion.client import report_results
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
@@ -23,6 +25,52 @@ logger = logging.getLogger(__name__)
 
 BEST_MODEL_NAME = 'best_model'
 LAST_MODEL_NAME = 'last_model'
+
+
+def get_rank():
+    """Get the rank, or None."""
+    nr = os.getenv('NODE_RANK', None)
+    lr = os.getenv('LOCAL_RANK', None)
+    size = os.getenv('WORLD_SIZE', None)
+    if size is not None:
+        assert nr is not None
+        assert lr is not None
+        nr = int(nr)
+        size = int(size)
+        lr = int(lr)
+        rank = nr * size + lr
+    else:
+        assert nr is None
+        assert lr is None
+        rank = None
+    return rank
+
+
+def setup_logging(logfile: Optional[str]):
+    """Setup the logger using the rank and Orion trial."""
+    rank = get_rank()
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    root = logging.getLogger()
+    if logfile is not None:
+        if orion.client.cli.IS_ORION_ON:
+            trial = os.getenv('ORION_TRIAL_ID')
+        else:
+            trial = None
+
+        if trial is not None:
+            if rank is None:
+                handler = logging.handlers.WatchedFileHandler(f'{logfile}.{trial}')
+            else:
+                handler = logging.handlers.WatchedFileHandler(f'{logfile}.{trial}.{rank:d}')
+        else:
+            if rank is None:
+                handler = logging.handlers.WatchedFileHandler(logfile)
+            else:
+                handler = logging.handlers.WatchedFileHandler(f'{logfile}.{rank:d}')
+        formatter = logging.Formatter(logging.BASIC_FORMAT)
+        handler.setFormatter(formatter)
+        root.addHandler(handler)
+    return
 
 
 def main():
@@ -49,9 +97,6 @@ def main():
                         help='will disable the progressbar while going over the mini-batch')
     parser.add_argument('--start-from-scratch', action='store_true',
                         help='will not load any existing saved model - even if present')
-    parser.add_argument('--gpus', default=None,
-                        help='list of GPUs to use. If not specified, runs on CPU.'
-                             'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
@@ -78,13 +123,7 @@ def main():
         output_dir = args.output
 
     # will log to a file if provided (useful for orion on cluster)
-    if args.log is not None:
-        handler = logging.handlers.WatchedFileHandler(args.log)
-        formatter = logging.Formatter(logging.BASIC_FORMAT)
-        handler.setFormatter(formatter)
-        root = logging.getLogger()
-        root.setLevel(logging.INFO)
-        root.addHandler(handler)
+    setup_logging(args.log)
 
     # to intercept any print statement:
     sys.stdout = LoggerWriter(logger.info)
@@ -128,7 +167,7 @@ def run(args, data_dir, output_dir, hyper_params):
     model = load_model(hyper_params)
 
     train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
-          use_progress_bar=not args.disable_progressbar, gpus=args.gpus)
+          use_progress_bar=not args.disable_progressbar)
 
 
 def train(**kwargs):  # pragma: no cover
@@ -151,7 +190,7 @@ def train(**kwargs):  # pragma: no cover
         value=-float(best_dev_metric))])
 
 
-def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):  # pragma: no cover
+def train_impl(model, datamodule, output, hyper_params, use_progress_bar):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -160,7 +199,6 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         output (str): Output directory.
         hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
-        gpus: number of GPUs to use.
     """
     check_and_log_hp(['max_epoch'], hyper_params)
 
@@ -199,12 +237,24 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         version=0,  # Necessary to resume tensorboard logging
     )
 
+    if torch.cuda.is_available():
+        accelerators = 'gpu'
+        if torch.cuda.device_count() > 1:
+            strategy = 'ddp_find_unused_parameters_false'
+        else:
+            strategy = None
+    else:
+        accelerators = 'cpu'
+        strategy = None
+
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
-        gpus=gpus,
         logger=logger,
+        accelerator=accelerators,
+        devices='auto',
+        strategy=strategy
     )
 
     trainer.fit(model, datamodule=datamodule)

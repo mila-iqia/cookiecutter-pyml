@@ -3,6 +3,7 @@ import logging
 import sys
 
 import pytorch_lightning as pl
+import torch.cuda
 import yaml
 from yaml import load
 
@@ -30,9 +31,6 @@ def main():
                         help='config file with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
-    parser.add_argument('--gpus', default=None,
-                        help='list of GPUs to use. If not specified, runs on CPU.'
-                             'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
     args = parser.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -77,8 +75,16 @@ def evaluate(args, data_dir, hyper_params):
         ['architecture', 'batch_size', 'exp_name', 'early_stopping'],
         hyper_params)
 
+    if torch.cuda.is_available():
+        accelerators = 'gpu'
+        devices = 1
+    else:
+        accelerators = 'cpu'
+        devices = 'auto'
+
     trainer = pl.Trainer(
-        gpus=args.gpus,
+        accelerators=accelerators,
+        devices=devices
     )
 
     datamodule = FashionMnistDM(data_dir, hyper_params)
