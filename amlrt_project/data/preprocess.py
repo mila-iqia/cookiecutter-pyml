@@ -42,16 +42,16 @@ class Data(typing.NamedTuple):
     @classmethod
     def load(cls, ftemplate: str) -> "Data":
         """Load images from a templated file names pair."""
-        images = extract_images(ftemplate.format('images'))
-        labels = extract_labels(ftemplate.format('labels'))
+        images = extract_images(ftemplate.format(type='images'))
+        labels = extract_labels(ftemplate.format(type='labels'))
         return Data(images, labels)
 
 
 def download_dataset(data_dir: str):
     """Download and extract the fashion mnist dataset to data_dir."""
     files = (
-        [fname.format('images') for fname in DATA.values()]
-        + [fname.format('labels') for fname in DATA.values()])
+        [fname.format(type='images') for fname in DATA.values()]
+        + [fname.format(type='labels') for fname in DATA.values()])
     logger.info("Fetching fashion mnist...")
     logger.debug(f"Fetching fashion mnist from {BASE_URL}")
 
