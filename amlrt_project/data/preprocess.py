@@ -56,7 +56,7 @@ def download_dataset(data_dir: str):
     logger.debug(f"Fetching fashion mnist from {BASE_URL}")
 
     # Create dataset dir if it doesn't already exist
-    os.makedirs(data_dir)
+    os.makedirs(data_dir, exist_ok=True)
 
     for fname in files:
         url = BASE_URL + fname
