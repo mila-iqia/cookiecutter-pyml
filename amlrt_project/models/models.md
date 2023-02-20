@@ -16,9 +16,9 @@ You might also need to implement a loss function, with the corresponding factory
 
 ```mermaid
     classDiagram
-        LightningModule <|- Task <|.. ImageClassification
-        Module <|- Model <|.. SimpleMLP
-        Module <|- Loss <|.. CrossEntropy
+        LightningModule <|-- Task <|.. ImageClassification
+        Module <|-- Model <|.. SimpleMLP
+        Module <|-- Loss <|.. CrossEntropy
         class Task
         class Loss
         class Model
