@@ -15,9 +15,6 @@ You will need to implement at least two classes:
 You might also need to implement a loss function, with the corresponding factory, as well.
 
 ```mermaid
-    ---
-    Task components
-    ---
     classDiagram
         LightningModule <|- Task <|.. ImageClassification
         Module <|- Model <|.. SimpleMLP
