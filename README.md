@@ -38,10 +38,10 @@ We suggest to also look at the GitHub project page for more up-to-date info)
 
 At this point, the local code is versioned with git and pushed to GitHub.
 You will not need to use the instructions in this section anymore, so we
-suggest to delete this section entirely.
+suggest to delete this section ("AMLRT Cookiecutter - Initialize a new project") entirely.
 (by doing so it will be clear that the initialization has been already done,
 and all you need from now on is just to git clone from the repository you
-just pushed, i.e., `git@github.com:{$GITHUB_USERNAME}/${PROJECT_NAME}.git`).
+just pushed, i.e., `git@github.com:${GITHUB_USERNAME}/${PROJECT_NAME}.git`).
 
 # amlrt_project (change this name to the name of your project)
 
