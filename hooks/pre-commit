@@ -4,7 +4,7 @@
 set -e
 
 # linting
-flake8  .  # Check everything but docstrings
+flake8 --ignore D .  # Check everything but docstrings
 flake8 --select D --exclude tests/  # Check only the docstrings
 isort --check .  # Check imports
 
