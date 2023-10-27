@@ -6,6 +6,7 @@ set -e
 # linting
 flake8  .  # Check everything but docstrings
 flake8 --select D --exclude tests/  # Check only the docstrings
+isort --check .  # Check imports
 
 # Raise error if any staged notebooks contain outputs
 GITDIR=$(git rev-parse --show-toplevel) # Full path to git working directory
