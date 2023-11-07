@@ -91,10 +91,10 @@ class WarmupDecayFactory(SchedulerFactory):
 
     def __post_init__(self):
         """Finish initialization."""
-        self.gamma = max(min(self.gamma, 1.0), self.eps)
         # Clip gamma to something that make sense, just in case.
-        self.warmup = max(self.warmup, 0)
+        self.gamma = max(min(self.gamma, 1.0), self.eps)
         # Same for warmup.
+        self.warmup = max(self.warmup, 0)
 
     def __call__(self, optimizer: Optimizer) -> Dict[str, Any]:
         """Create scheduler."""
