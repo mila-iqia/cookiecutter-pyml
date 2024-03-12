@@ -212,6 +212,8 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
     # Log the best result and associated hyper parameters
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
     logger.log_hyperparams(hyper_params, metrics={'best_dev_metric': best_dev_result})
+    with open(os.path.join(output, 'results.txt'), 'w') as stream_out:
+        stream_out.write(f'final best_dev_metric: {best_dev_result}\n')
 
     return best_dev_result
 
