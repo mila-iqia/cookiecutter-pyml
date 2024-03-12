@@ -1,6 +1,5 @@
 .idea
 mlruns
-.aim
 
 examples/data/
 examples/*/output*/

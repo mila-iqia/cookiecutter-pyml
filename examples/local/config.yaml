@@ -9,11 +9,6 @@ num_workers: 0
 # results will not be reproducible)
 seed: 1234
 
-experiment_loggers:
-  tensorboard: null
-  aim:
-    log_folder: output
-
 # architecture
 hidden_dim: 256
 num_classes: 10
