@@ -9,6 +9,11 @@ num_workers: 0
 # results will not be reproducible)
 seed: 1234
 
+experiment_loggers:
+  tensorboard: null
+  aim:
+    log_folder: ./
+
 # architecture
 hidden_dim: 'orion~uniform(32,256,discrete=True)'
 num_classes: 10
