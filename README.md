@@ -1,8 +1,51 @@
-# amlrt_project
+# AMLRT Cookiecutter - Initialize a new project
 
+First, git clone this project template locally.
+
+    git clone https://github.com/mila-iqia/cookiecutter-pyml.git
+
+Select a name for the new project; in the following we assume that
+the name is `${PROJECT_NAME}`. Change it accordingly to the correct name.
+
+Rename your just-cloned folder to the new project name:
+
+    mv cookiecutter-pyml ${PROJECT_NAME}
+
+Now go into the project folder and delete the git history.
+
+    cd ${PROJECT_NAME}
+    rm -fr .git
+
+This is done so that your new project will start with a clean git history.
+Now, initialize the repository with git:
+
+    git init
+
+And perform the first commit:
+
+    git add .
+    git commit -m 'first commit'
+
+Go on github and follow the instructions to create a new project.
+When done, do not add any file, and follow the instructions to
+link your local git to the remote project, which should look like this:
+(PS: these instructions are reported here for your convenience.
+We suggest to also look at the GitHub project page for more up-to-date info)
+
+    git remote add origin git@github.com:${GITHUB_USERNAME}/${PROJECT_NAME}.git
+    git branch -M main
+    git push -u origin main
+
+At this point, the local code is versioned with git and pushed to GitHub.
+You will not need to use the instructions in this section anymore, so we
+suggest to delete this section ("AMLRT Cookiecutter - Initialize a new project") entirely.
+(by doing so it will be clear that the initialization has been already done,
+and all you need from now on is just to git clone from the repository you
+just pushed, i.e., `git@github.com:${GITHUB_USERNAME}/${PROJECT_NAME}.git`).
+
+# amlrt_project (change this name to the name of your project)
 
 Replace this line with a short description about your project!
-
 
 ## Instructions to setup the project
 
@@ -13,9 +56,6 @@ Install the package in `editable` mode so you can modify the source directly:
     pip install -e .
 
 To add new dependencies, simply add them to the setup.py.
-### Add git:
-
-    git init
 
 ### Setup pre-commit hooks:
 These hooks will:
@@ -23,22 +63,6 @@ These hooks will:
 * check that jupyter notebook outputs have been stripped
 
     cd .git/hooks/ && ln -s ../../hooks/pre-commit .
-
-### Commit the code
-
-    git add .
-    git commit -m 'first commit'
-
-### Link github to your local repository
-Go on github and follow the instructions to create a new project.
-When done, do not add any file, and follow the instructions to
-link your local git to the remote project, which should look like this:
-(PS: these instructions are reported here for your convenience.
-We suggest to also look at the GitHub project page for more up-to-date info)
-
-    git remote add origin git@github.com:{$GITHUB_USERNAME}/amlrt_project.git
-    git branch -M main
-    git push -u origin main
 
 ### Setup Continuous Integration
 
@@ -48,22 +72,12 @@ Continuous integration will run the following:
 - `flake8` to check the code syntax.
 - Checks on documentation presence and format (using `sphinx`).
 
-We support the following Continuous Integration providers.
-Check the following instructions for more details.
-
-#### GitHub Actions
+We support the GitHub Actions for running CI.
 
 Github actions are already configured in `.github/workflows/tests.yml`.
 Github actions are already enabled by default when using Github, so, when
 pushing to github, they will be executed automatically for pull requests to
 `main` and to `develop`.
-
-#### Azure
-
-Azure Continuous Integration is already configured in (`.azure_pipeline.yml`).
-
-To enable it server-side, just in azure and select `.azure_pipeline.yml` as the 
-configuration one for Continuous Integration.
 
 ## Running the code
 
@@ -110,7 +124,7 @@ First, bring you project on the cluster (assuming you didn't create your
 project directly there). To do so, simply login on the cluster and git
 clone your project:
 
-    git clone git@github.com:<$GITHUB_USERNAME>/amlrt_project.git
+    git clone git@github.com:${GITHUB_USERNAME}/${PROJECT_NAME}.git
 
 Then activate your virtual env, and install the dependencies:
 
@@ -143,7 +157,10 @@ To get a sumary for a particular tag, just run:
 
 #### GPU profiling on the Mila cluster
 
-It can be useful to monitor and profile how you utilise your GPU (usage, memory, etc.). For the time being, you can only monitor your profiling in real-time from the Mila cluster, i.e. while your experiments are running. To monitor your GPU, you need to setup port-forwarding on the host your experiments are running on. This can be done in the following way:
+It can be useful to monitor and profile how you utilise your GPU (usage, memory, etc.). For the 
+time being, you can only monitor your profiling in real-time from the Mila cluster, i.e. while your 
+experiments are running. To monitor your GPU, you need to setup port-forwarding on the host your 
+experiments are running on. This can be done in the following way:
 
 Once you have launched your job on the mila cluster, open the log for your current experiment:
 

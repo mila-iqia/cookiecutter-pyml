@@ -2,9 +2,12 @@ import logging
 import typing
 
 import pytorch_lightning as pl
-from torch import nn
+from torch import FloatTensor, LongTensor, nn
 
-from amlrt_project.models.optim import load_loss, load_optimizer
+from amlrt_project.models.factory import (OptimFactory,
+                                          OptimizerConfigurationFactory,
+                                          SchedulerFactory)
+from amlrt_project.models.optim import load_loss
 from amlrt_project.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
@@ -12,6 +15,19 @@ logger = logging.getLogger(__name__)
 
 class BaseModel(pl.LightningModule):
     """Base class for Pytorch Lightning model - useful to reuse the same *_step methods."""
+
+    def __init__(
+        self,
+        model: nn.Module,
+        loss_fn: nn.Module,
+        optim_fact: OptimFactory,
+        sched_fact: SchedulerFactory,
+    ):
+        """Initialize the LightningModule, with the actual model and loss."""
+        super().__init__()
+        self.model = model
+        self.loss_fn = loss_fn
+        self.opt_fact = OptimizerConfigurationFactory(optim_fact, sched_fact)
 
     def configure_optimizers(self):
         """Returns the combination of optimizer(s) and learning rate scheduler(s) to train with.
@@ -23,15 +39,17 @@ class BaseModel(pl.LightningModule):
         See https://pytorch-lightning.readthedocs.io/en/latest/common/optimizers.html for more info
         on the expected returned elements.
         """
-        # we use the generic loading function from the `model_loader` module, but it could be made
-        # a direct part of the model (useful if we want layer-dynamic optimization)
-        return load_optimizer(self.hparams, self)
+        return self.opt_fact(self.model.parameters())
+
+    def forward(self, input_data: FloatTensor) -> FloatTensor:
+        """Invoke the model."""
+        return self.model(input_data)
 
     def _generic_step(
             self,
-            batch: typing.Any,
+            batch: typing.Tuple[FloatTensor, LongTensor],
             batch_idx: int,
-    ) -> typing.Any:
+    ) -> FloatTensor:
         """Runs the prediction + evaluation step for training/validation/testing."""
         inputs, targets = batch
         logits = self(inputs)  # calls the forward pass of the model
@@ -68,22 +86,25 @@ class SimpleMLP(BaseModel):  # pragma: no cover
 
     Inherits from the given framework's model class. This is a simple MLP model.
     """
-    def __init__(self, hyper_params: typing.Dict[typing.AnyStr, typing.Any]):
+    def __init__(
+        self,
+        optim_fact: OptimFactory,
+        sched_fact: SchedulerFactory,
+        hyper_params: typing.Dict[typing.AnyStr, typing.Any]
+    ):
         """__init__.
 
         Args:
+            optim_fact (OptimFactory): factory for the optimizer.
+            sched_fact (SchedulerFactory): factory for the scheduler.
             hyper_params (dict): hyper parameters from the config file.
         """
-        super(SimpleMLP, self).__init__()
-
+        # TODO: Place this in a factory.
         check_and_log_hp(['hidden_dim', 'num_classes'], hyper_params)
-        self.save_hyperparameters(hyper_params)  # they will become available via model.hparams
-        num_classes = hyper_params['num_classes']
-        hidden_dim = hyper_params['hidden_dim']
-        self.loss_fn = load_loss(hyper_params)  # 'load_loss' could be part of the model itself...
-
-        self.flatten = nn.Flatten()
-        self.mlp_layers = nn.Sequential(
+        num_classes: int = hyper_params['num_classes']
+        hidden_dim: int = hyper_params['hidden_dim']
+        flatten = nn.Flatten()
+        mlp_layers = nn.Sequential(
             nn.Linear(
                 784, hidden_dim,
             ),  # The input size for the linear layer is determined by the previous operations
@@ -92,9 +113,9 @@ class SimpleMLP(BaseModel):  # pragma: no cover
                 hidden_dim, num_classes
             ),  # Here we get exactly num_classes logits at the output
         )
+        model = nn.Sequential(flatten, mlp_layers)
 
-    def forward(self, x):
-        """Model forward."""
-        x = self.flatten(x)  # Flatten is necessary to pass from CNNs to MLP
-        x = self.mlp_layers(x)
-        return x
+        super().__init__(
+            model, load_loss(hyper_params),
+            optim_fact, sched_fact)
+        self.save_hyperparameters()  # they will become available via model.hparams

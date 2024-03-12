@@ -2,16 +2,17 @@
 batch_size: 32
 optimizer: adam
 loss: cross_entropy
-max_epoch: 5
+max_epoch: 1
 exp_name: my_exp_1
+num_workers: 0
 # set to null to avoid setting a seed (can speed up GPU computation, but
 # results will not be reproducible)
 seed: 1234
 
 # architecture
+hidden_dim: 'orion~uniform(32,256,discrete=True)'
 num_classes: 10
 architecture: simple_mlp
-hidden_dim: 'orion~uniform(32,256,discrete=True)'
 
 # early stopping
 early_stopping:

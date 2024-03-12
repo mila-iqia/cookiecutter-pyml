@@ -2,9 +2,10 @@
 mlruns
 
 examples/data/
-examples/*/output/
+examples/*/output*/
+examples/*/orion_working_dir*/
 examples/*/lightning_logs/
-
+examples/*/orion_db.pkl
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -110,6 +111,9 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# vim hipsters
+# vim overlords
 *.swp
 *.swo
+
+# vscode
+.vscode
