@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 from git import InvalidGitRepositoryError, Repo
 from pip._internal.operations import freeze
 
-from amlrt_project.data.constants import (AIM, EXP_LOGGERS, TENSORBOARD)
+from amlrt_project.data.constants import AIM, EXP_LOGGERS, TENSORBOARD
 from amlrt_project.utils.aim_logger_utils import prepare_aim_logger
 
 logger = logging.getLogger(__name__)
