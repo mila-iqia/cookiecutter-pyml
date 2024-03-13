@@ -37,7 +37,6 @@ def main():
 
     """
     parser = argparse.ArgumentParser()
-    # __TODO__ check you need all the following CLI parameters
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
     parser.add_argument('--config',
                         help='config file with generic hyper-parameters,  such as optimizer, '
@@ -61,7 +60,7 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     if os.path.exists(args.output) and args.start_from_scratch:
-        logger.info('Starting from scratch, removing any previous experiments.')
+        logger.info('Starting from scratch, deleting the previous output folder.')
         shutil.rmtree(args.output)
 
     if os.path.exists(args.output):
@@ -126,10 +125,6 @@ def run(args, data_dir, output_dir, hyper_params):
         set_seed(hyper_params["seed"])
 
     log_exp_details(os.path.realpath(__file__), args)
-
-    if os.path.exists(output_dir) and args.start_from_scratch:
-        logger.info('Starting from scratch, removing any previous experiments.')
-        shutil.rmtree(output_dir)
 
     datamodule = FashionMnistDM(data_dir, hyper_params)
     model = load_model(hyper_params)
