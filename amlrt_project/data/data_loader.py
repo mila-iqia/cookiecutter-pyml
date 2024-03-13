@@ -8,7 +8,8 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-from amlrt_project.data.data_preprocess import FashionMnistParser
+from amlrt_project.data.preprocess import (download_dataset, load_test,
+                                           load_train_val)
 from amlrt_project.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
@@ -72,25 +73,39 @@ class FashionMnistDM(pl.LightningDataModule):  # pragma: no cover
         self.batch_size = hyper_params["batch_size"]
         self.num_workers = hyper_params["num_workers"]
 
-    def setup(self, stage=None):
-        """Parses and splits all samples across the train/valid/test parsers."""
-        # here, we will actually assign train/val datasets for use in dataloaders
-        raw_data = FashionMnistParser(data_dir=self.data_dir)
+    def prepare_data(self):
+        """Prepare the data.
 
+        This is ran only on the main process, when doing multi-gpu training.
+        Otherwise, the processing would be run for every GPU, without
+        synchronization. In other words, files will be overwritten, and
+        resources wasted.
+        """
+        download_dataset(self.data_dir)
+        return
+
+    def setup(self, stage=None):
+        """Parses and splits all samples across the train/valid/test parsers.
+
+        This section is done for all GPU, and only read data.
+        """
         transform = transforms.Compose(
             [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
         )
 
         if stage == "fit" or stage is None:
+            train_data, val_data = load_train_val(self.data_dir)
             self.train_dataset = FashionMnistDS(
-                raw_data.train_images, raw_data.train_labels, transform
+                train_data.images, train_data.labels, transform
             )
             self.val_dataset = FashionMnistDS(
-                raw_data.val_images, raw_data.val_labels, transform
+                val_data.images, val_data.labels, transform
             )
+
         if stage == "test" or stage is None:
+            test_data = load_test(self.data_dir)
             self.test_dataset = FashionMnistDS(
-                raw_data.test_images, raw_data.test_labels, transform
+                test_data.images, test_data.labels, transform
             )
 
     def train_dataloader(self) -> DataLoader:
