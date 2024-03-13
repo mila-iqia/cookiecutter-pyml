@@ -7,7 +7,8 @@ if os.name != 'nt':
     from aim.pytorch_lightning import AimLogger
 
 from amlrt_project.data.constants import LOG_FOLDER
-from amlrt_project.utils.logging_utils import AIM_INFO_FILE_NAME
+
+AIM_INFO_FILE_NAME = "aim_info.yaml"
 
 
 def prepare_aim_logger(hyper_params, options, output):

@@ -10,7 +10,6 @@ from amlrt_project.data.constants import AIM, EXP_LOGGERS, TENSORBOARD
 from amlrt_project.utils.aim_logger_utils import prepare_aim_logger
 
 logger = logging.getLogger(__name__)
-AIM_INFO_FILE_NAME = "aim_info.yaml"
 
 
 class LoggerWriter:  # pragma: no cover
