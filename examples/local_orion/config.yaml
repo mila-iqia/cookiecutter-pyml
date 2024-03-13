@@ -10,8 +10,9 @@ num_workers: 0
 seed: 1234
 
 experiment_loggers:
-  tensorboard: null
+  tensorboard: null  # no parameters for tensorboard
   aim:
+    # change this to an absolute path to always use the same aim db file
     log_folder: ./
 
 # architecture
