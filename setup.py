@@ -27,6 +27,7 @@ setup(
         'tqdm==4.64.0',
         'torch==2.2.1',
         'torchvision==0.17.1',
+        'torchmetrics==0.11.0'
     ],
     entry_points={
         'console_scripts': [

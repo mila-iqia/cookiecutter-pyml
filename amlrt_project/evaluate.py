@@ -8,6 +8,7 @@ from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.callbacks import LogConfusionMatrix
 from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.utils.logging_utils import LoggerWriter
 
@@ -77,8 +78,12 @@ def evaluate(args, data_dir, hyper_params):
         ['architecture', 'batch_size', 'exp_name', 'early_stopping'],
         hyper_params)
 
+    num_classes = hyper_params['num_classes']
+    log_conf_mats = LogConfusionMatrix(num_classes=num_classes)
+
     trainer = pl.Trainer(
         gpus=args.gpus,
+        callbacks=[log_conf_mats],
     )
 
     datamodule = FashionMnistDM(data_dir, hyper_params)
