@@ -7,11 +7,11 @@ from omegaconf import OmegaConf
 def load_configs(configs: List, cli_config_params: List):
     """Load multiple config files together with the CLI parameters.
 
-    :param configs: list of config file in order of priority. E.g.,[A, B] A takes precedence over B.
+    :param configs: list of config file in reversed order of priority.
+                    E.g.,[A, B, C] C takes precedence over A, B, and B takes precedence over A.
     :param cli_config_params:
     :return:
     """
-    configs.reverse()  # Needed because OmegaConf gives precedence to the last config file.
     parsed_configs = [OmegaConf.load(config) for config in configs]
     merge = OmegaConf.merge(OmegaConf.from_dotlist(cli_config_params), *parsed_configs)
     return merge

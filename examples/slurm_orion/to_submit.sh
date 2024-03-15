@@ -22,12 +22,12 @@
 ##SBATCH --mail-type=all
 ##SBATCH --mail-user=amlrt_email@mila.quebec
 
-export MLFLOW_TRACKING_URI='mlruns'
 export ORION_DB_ADDRESS='orion_db.pkl'
 export ORION_DB_TYPE='pickleddb'
 
+merge-configs --configs ../config.yaml config.yaml --merged-config-file merged_config.yaml
 orion -v hunt --config orion_config.yaml \
-    amlrt-train --data ../data --config config.yaml --disable-progressbar \
+    amlrt-train --data ../data --config merged_config.yaml --disable-progressbar \
     --output '{exp.working_dir}/{trial.id}/' \
     --log '{exp.working_dir}/{trial.id}/exp.log' \
     --tmp-folder ${SLURM_TMPDIR}/{trial.id}

@@ -1,26 +1,2 @@
-# general
-batch_size: 32
-optimizer: adam
-loss: cross_entropy
-max_epoch: 5
-exp_name: my_exp_1
-# set to null to avoid setting a seed (can speed up GPU computation, but
-# results will not be reproducible)
-seed: 1234
-
-experiment_loggers:
-  tensorboard: null  # no parameters for tensorboard
-  aim:
-    # change this to an absolute path to always use the same aim db file
-    log_folder: ./
-
 # architecture
-num_classes: 10
-architecture: simple_mlp
 hidden_dim: 'orion~uniform(32,256,discrete=True)'
-
-# early stopping
-early_stopping:
-  metric: val_loss
-  mode: min
-  patience: 3

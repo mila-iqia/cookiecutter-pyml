@@ -40,8 +40,8 @@ def main():
     parser.add_argument('--configs', nargs='*', default=[],
                         help='config files with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format. Can be zero, one or more than '
-                             'one. If multiple configs are passed, the order will indicate the '
-                             'priority.')
+                             'one file. If multiple configs are passed, the latter files will '
+                             'take precedence.')
     parser.add_argument('--cli-config-params', nargs='*', default=[], type=str,
                         help='additional parameters for the config. The format of a parameter is '
                              '"architecture.hidden_size=512, which would nest the "hidden_size=512"'
