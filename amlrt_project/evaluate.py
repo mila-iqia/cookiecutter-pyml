@@ -6,7 +6,8 @@ import pytorch_lightning as pl
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
-from amlrt_project.utils.config_utils import load_configs
+from amlrt_project.utils.config_utils import (
+    add_config_file_params_to_argparser, load_configs)
 from amlrt_project.utils.hp_utils import check_and_log_hp
 
 logger = logging.getLogger(__name__)
@@ -23,21 +24,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
     parser.add_argument('--ckpt-path', help='Path to best model')
-    parser.add_argument('--configs', nargs='*', default=[],
-                        help='config files with generic hyper-parameters,  such as optimizer, '
-                             'batch_size, ... -  in yaml format. Can be zero, one or more than '
-                             'one file. If multiple configs are passed, the latter files will '
-                             'take precedence.')
-    parser.add_argument('--cli-config-params', nargs='*', default=[], type=str,
-                        help='additional parameters for the config. The format of a parameter is '
-                             '"architecture.hidden_size=512, which would nest the "hidden_size=512"'
-                             ' under the "architecture" key. A full examples of usage is '
-                             '"--cli-config-params architecture..hidden_size=512 log.file=log.txt".'
-                             'These params take precedence over the ones in the config files.')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--gpus', default=None,
                         help='list of GPUs to use. If not specified, runs on CPU.'
                              'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
+    add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)

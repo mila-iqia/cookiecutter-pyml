@@ -12,7 +12,8 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
-from amlrt_project.utils.config_utils import load_configs, save_hparams
+from amlrt_project.utils.config_utils import (
+    add_config_file_params_to_argparser, load_configs, save_hparams)
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
 from amlrt_project.utils.logging_utils import (load_experiment_loggers,
@@ -37,17 +38,6 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
-    parser.add_argument('--configs', nargs='*', default=[],
-                        help='config files with generic hyper-parameters,  such as optimizer, '
-                             'batch_size, ... -  in yaml format. Can be zero, one or more than '
-                             'one file. If multiple configs are passed, the latter files will '
-                             'take precedence.')
-    parser.add_argument('--cli-config-params', nargs='*', default=[], type=str,
-                        help='additional parameters for the config. The format of a parameter is '
-                             '"architecture.hidden_size=512, which would nest the "hidden_size=512"'
-                             ' under the "architecture" key. A full examples of usage is '
-                             '"--cli-config-params architecture..hidden_size=512 log.file=log.txt".'
-                             'These params take precedence over the ones in the config files.')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--tmp-folder',
                         help='will use this folder as working folder - it will copy the input data '
@@ -62,6 +52,7 @@ def main():
                         help='list of GPUs to use. If not specified, runs on CPU.'
                              'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
     parser.add_argument('--debug', action='store_true')
+    add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
