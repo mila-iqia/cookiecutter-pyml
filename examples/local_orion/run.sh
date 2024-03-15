@@ -1,3 +1,4 @@
+set -e
 export ORION_DB_ADDRESS='orion_db.pkl'
 export ORION_DB_TYPE='pickleddb'
 

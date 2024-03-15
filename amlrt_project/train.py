@@ -15,7 +15,9 @@ from amlrt_project.models.model_loader import load_model
 from amlrt_project.utils.config_utils import load_configs, save_hparams
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
-from amlrt_project.utils.logging_utils import log_exp_details
+from amlrt_project.utils.logging_utils import (load_experiment_loggers,
+                                               log_exp_details,
+                                               log_hyper_parameters)
 from amlrt_project.utils.reproducibility_utils import set_seed
 
 logger = logging.getLogger(__name__)
@@ -34,7 +36,6 @@ def main():
 
     """
     parser = argparse.ArgumentParser()
-    # __TODO__ check you need all the following CLI parameters
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
     parser.add_argument('--configs', nargs='*', default=[],
                         help='config files with generic hyper-parameters,  such as optimizer, '
@@ -56,7 +57,7 @@ def main():
     parser.add_argument('--disable-progressbar', action='store_true',
                         help='will disable the progressbar while going over the mini-batch')
     parser.add_argument('--start-from-scratch', action='store_true',
-                        help='will not load any existing saved model - even if present')
+                        help='will delete the output folder before starting the experiment')
     parser.add_argument('--gpus', default=None,
                         help='list of GPUs to use. If not specified, runs on CPU.'
                              'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
@@ -66,7 +67,7 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     if os.path.exists(args.output) and args.start_from_scratch:
-        logger.info('Starting from scratch, removing any previous experiments.')
+        logger.info('Starting from scratch, deleting the previous output folder.')
         shutil.rmtree(args.output)
 
     if os.path.exists(args.output):
@@ -194,25 +195,24 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         patience=early_stopping_params['patience'],
         verbose=use_progress_bar)
 
-    logger = pl.loggers.TensorBoardLogger(
-        save_dir=output,
-        default_hp_metric=False,
-        version=0,  # Necessary to resume tensorboard logging
-    )
+    name2loggers = load_experiment_loggers(hyper_params, output)
+    log_hyper_parameters(name2loggers, hyper_params)
 
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         max_epochs=hyper_params['max_epoch'],
         resume_from_checkpoint=resume_from_checkpoint,
         gpus=gpus,
-        logger=logger,
+        logger=name2loggers.values()
     )
 
     trainer.fit(model, datamodule=datamodule)
 
     # Log the best result and associated hyper parameters
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
-    logger.log_hyperparams(hyper_params, metrics={'best_dev_metric': best_dev_result})
+    # logging hyper-parameters again - this time also passing the final result
+    log_hyper_parameters(name2loggers, hyper_params, best_dev_result)
+    # logging to file
     with open(os.path.join(output, 'results.txt'), 'w') as stream_out:
         stream_out.write(f'final best_dev_metric: {best_dev_result}\n')
 
