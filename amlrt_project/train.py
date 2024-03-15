@@ -7,22 +7,22 @@ import sys
 
 import orion
 import pytorch_lightning as pl
-import yaml
 from orion.client import report_results
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.config_utils import load_configs, save_hparams
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
-from amlrt_project.utils.logging_utils import LoggerWriter, log_exp_details
+from amlrt_project.utils.logging_utils import log_exp_details
 from amlrt_project.utils.reproducibility_utils import set_seed
 
 logger = logging.getLogger(__name__)
 
 BEST_MODEL_NAME = 'best_model'
 LAST_MODEL_NAME = 'last_model'
+CONFIG_FILE_NAME = 'config.yaml'
 
 
 def main():
@@ -36,9 +36,17 @@ def main():
     parser = argparse.ArgumentParser()
     # __TODO__ check you need all the following CLI parameters
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
-    parser.add_argument('--config',
-                        help='config file with generic hyper-parameters,  such as optimizer, '
-                             'batch_size, ... -  in yaml format')
+    parser.add_argument('--configs', nargs='*', default=[],
+                        help='config files with generic hyper-parameters,  such as optimizer, '
+                             'batch_size, ... -  in yaml format. Can be zero, one or more than '
+                             'one. If multiple configs are passed, the order will indicate the '
+                             'priority.')
+    parser.add_argument('--cli-config-params', nargs='*', default=[], type=str,
+                        help='additional parameters for the config. The format of a parameter is '
+                             '"architecture.hidden_size=512, which would nest the "hidden_size=512"'
+                             ' under the "architecture" key. A full examples of usage is '
+                             '"--cli-config-params architecture..hidden_size=512 log.file=log.txt".'
+                             'These params take precedence over the ones in the config files.')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--tmp-folder',
                         help='will use this folder as working folder - it will copy the input data '
@@ -86,15 +94,8 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
-    # to intercept any print statement:
-    sys.stdout = LoggerWriter(logger.info)
-    sys.stderr = LoggerWriter(logger.warning)
-
-    if args.config is not None:
-        with open(args.config, 'r') as stream:
-            hyper_params = load(stream, Loader=yaml.FullLoader)
-    else:
-        hyper_params = {}
+    hyper_params = load_configs(args.configs, args.cli_config_params)
+    save_hparams(hyper_params, os.path.join(args.output, CONFIG_FILE_NAME))
 
     run(args, data_dir, output_dir, hyper_params)
 
