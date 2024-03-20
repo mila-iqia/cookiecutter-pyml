@@ -13,7 +13,7 @@ def load_configs(configs: List, cli_config_params: List):
     :return:
     """
     parsed_configs = [OmegaConf.load(config) for config in configs]
-    merge = OmegaConf.merge(OmegaConf.from_dotlist(cli_config_params), *parsed_configs)
+    merge = OmegaConf.merge(*parsed_configs, OmegaConf.from_dotlist(cli_config_params))
     return merge
 
 
