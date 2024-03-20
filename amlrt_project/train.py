@@ -7,17 +7,16 @@ import sys
 
 import orion
 import pytorch_lightning as pl
-import yaml
 from orion.client import report_results
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.config_utils import (
+    add_config_file_params_to_argparser, load_configs, save_hparams)
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
-from amlrt_project.utils.logging_utils import (LoggerWriter,
-                                               load_experiment_loggers,
+from amlrt_project.utils.logging_utils import (load_experiment_loggers,
                                                log_exp_details,
                                                log_hyper_parameters)
 from amlrt_project.utils.reproducibility_utils import set_seed
@@ -26,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 BEST_MODEL_NAME = 'best_model'
 LAST_MODEL_NAME = 'last_model'
+CONFIG_FILE_NAME = 'config.yaml'
 
 
 def main():
@@ -38,9 +38,6 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
-    parser.add_argument('--config',
-                        help='config file with generic hyper-parameters,  such as optimizer, '
-                             'batch_size, ... -  in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--tmp-folder',
                         help='will use this folder as working folder - it will copy the input data '
@@ -55,6 +52,7 @@ def main():
                         help='list of GPUs to use. If not specified, runs on CPU.'
                              'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
     parser.add_argument('--debug', action='store_true')
+    add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -88,15 +86,8 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
-    # to intercept any print statement:
-    sys.stdout = LoggerWriter(logger.info)
-    sys.stderr = LoggerWriter(logger.warning)
-
-    if args.config is not None:
-        with open(args.config, 'r') as stream:
-            hyper_params = load(stream, Loader=yaml.FullLoader)
-    else:
-        hyper_params = {}
+    hyper_params = load_configs(args.configs, args.cli_config_params)
+    save_hparams(hyper_params, os.path.join(args.output, CONFIG_FILE_NAME))
 
     run(args, data_dir, output_dir, hyper_params)
 

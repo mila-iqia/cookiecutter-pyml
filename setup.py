@@ -13,6 +13,7 @@ setup(
         'jupyter==1.0.0',
         'jinja2==3.1.2',
         'myst-parser==2.0.0',
+        'omegaconf==2.3.0',
         'orion>=0.2.4.post1',
         'pyyaml==6.0',
         'pytest==7.1.2',
@@ -34,6 +35,7 @@ setup(
             # TODO: change amlrt- prefix, placeholder for now.
             'amlrt-train=amlrt_project.train:main',
             'amlrt-eval=amlrt_project.evaluate:main',
+            'merge-configs=amlrt_project.utils.config_utils:main'
         ],
     }
 )

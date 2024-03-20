@@ -27,4 +27,4 @@
 
 export MLFLOW_TRACKING_URI='mlruns'
 
-amlrt-train --data ../data --output output --config config.yaml --tmp-folder ${SLURM_TMPDIR} --disable-progressbar
+amlrt-train --data ../data --output output --configs ../config.yaml config.yaml --tmp-folder ${SLURM_TMPDIR} --disable-progressbar
