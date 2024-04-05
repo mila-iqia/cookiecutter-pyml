@@ -99,6 +99,11 @@ For both these cases, there is the possibility to run with or without Orion.
 (Orion is a hyper-parameter search tool - see https://github.com/Epistimio/orion -
 that is already configured in this project)
 
+In any case, the run script will take multiple config files as arguments (`--configs`).
+This is because the config files will be merged together thanks to OmegaConf (the latter
+takes precedence).
+Note the param `--cli-config-params` can also be used, at CLI time, to modify/add more parameters.
+
 #### Run locally
 
 For example, to run on your local machine without Orion:
