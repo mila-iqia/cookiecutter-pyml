@@ -15,7 +15,7 @@ experiment_loggers:
   aim:
     # change this to an absolute path to always use the same aim db file
     log_folder: ./
-  comet: null
+  # comet: null  << uncomment to use comet - see README for more info on setup 
 
 # architecture
 hidden_dim: 256
