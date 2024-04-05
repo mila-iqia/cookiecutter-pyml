@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 
+import comet_ml  # noqa
 import pytorch_lightning as pl
 
 from amlrt_project.data.data_loader import FashionMnistDM
@@ -57,8 +58,6 @@ def evaluate(args, data_dir, hyper_params):
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
     """
-    # __TODO__ change the hparam that are used from the training algorithm
-    # (and NOT the model - these will be specified in the model itself)
     logger.info('List of hyper-parameters:')
     check_and_log_hp(
         ['architecture', 'batch_size', 'exp_name', 'early_stopping'],
@@ -72,12 +71,10 @@ def evaluate(args, data_dir, hyper_params):
     datamodule.setup()
 
     model = load_model(hyper_params)
-    model = model.load_from_checkpoint(args.ckpt_path)
 
-    val_metrics = trainer.validate(model, datamodule=datamodule)
-    test_metrics = trainer.test(model, datamodule=datamodule)
+    val_metrics = trainer.validate(model, datamodule=datamodule, ckpt_path=args.ckpt_path)
+    test_metrics = trainer.test(model, datamodule=datamodule, ckpt_path=args.ckpt_path)
 
-    # We can have many val/test sets, so iterate throught their results.
     logger.info(f"Validation Metrics: {val_metrics}")
     logger.info(f"Test Metrics: {test_metrics}")
 

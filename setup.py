@@ -7,6 +7,7 @@ setup(
     python_requires='>=3.9',
     install_requires=[
         'aim==3.18.1; os_name!="nt"',
+        'comet-ml==3.39.3',
         'flake8==4.0.1',
         'flake8-docstrings==1.6.0',
         'gitpython==3.1.27',

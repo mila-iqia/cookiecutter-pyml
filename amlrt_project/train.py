@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 
+import comet_ml  # noqa
 import orion
 import pytorch_lightning as pl
 from orion.client import report_results
@@ -200,9 +201,6 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar,
 
     # Log the best result and associated hyper parameters
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
-    # logging hyper-parameters again - this time also passing the final result
-    log_hyper_parameters(name2loggers, hyper_params, best_dev_result)
-    # logging to file
     with open(os.path.join(output, 'results.txt'), 'w') as stream_out:
         stream_out.write(f'final best_dev_metric: {best_dev_result}\n')
 
