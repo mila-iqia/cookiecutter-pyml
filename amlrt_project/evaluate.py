@@ -25,9 +25,8 @@ def main():
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
     parser.add_argument('--ckpt-path', help='Path to best model')
     parser.add_argument('--data', help='path to data', required=True)
-    parser.add_argument('--gpus', default=None,
-                        help='list of GPUs to use. If not specified, runs on CPU.'
-                             'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
+    parser.add_argument('--accelerator', default='auto',
+                        help='The accelerator to use - default is "auto".')
     add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
 
@@ -66,7 +65,7 @@ def evaluate(args, data_dir, hyper_params):
         hyper_params)
 
     trainer = pl.Trainer(
-        gpus=args.gpus,
+        accelerator=args.accelerator,
     )
 
     datamodule = FashionMnistDM(data_dir, hyper_params)
