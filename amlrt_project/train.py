@@ -86,7 +86,7 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
-    hyper_params = load_configs(args.configs, args.cli_config_params)
+    hyper_params = load_configs(args.config, args.cli_config_params)
     save_hparams(hyper_params, os.path.join(args.output, CONFIG_FILE_NAME))
 
     run(args, data_dir, output_dir, hyper_params)

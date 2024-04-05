@@ -29,7 +29,7 @@ def save_hparams(hparams: dict, output_file: str):
 
 def add_config_file_params_to_argparser(parser):
     """Add the parser options to deal with multiple config files and CLI config."""
-    parser.add_argument('--configs', nargs='*', default=[],
+    parser.add_argument('--config', nargs='*', default=[],
                         help='config files with generic hyper-parameters,  such as optimizer, '
                              'batch_size, ... -  in yaml format. Can be zero, one or more than '
                              'one file. If multiple configs are passed, the latter files will '
@@ -49,7 +49,7 @@ def main():
                                                      'config file here', required=True)
     add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
-    hyper_params = load_configs(args.configs, args.cli_config_params)
+    hyper_params = load_configs(args.config, args.cli_config_params)
     save_hparams(hyper_params, args.merged_config_file)
 
 
