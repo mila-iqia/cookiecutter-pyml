@@ -2,14 +2,14 @@ import argparse
 import logging
 import sys
 
+import comet_ml  # noqa
 import pytorch_lightning as pl
-import yaml
-from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.config_utils import (
+    add_config_file_params_to_argparser, load_configs)
 from amlrt_project.utils.hp_utils import check_and_log_hp
-from amlrt_project.utils.logging_utils import LoggerWriter
 
 logger = logging.getLogger(__name__)
 
@@ -23,16 +23,12 @@ def main():
 
     """
     parser = argparse.ArgumentParser()
-    # __TODO__ check you need all the following CLI parameters
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
     parser.add_argument('--ckpt-path', help='Path to best model')
-    parser.add_argument('--config',
-                        help='config file with generic hyper-parameters,  such as optimizer, '
-                             'batch_size, ... -  in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
-    parser.add_argument('--gpus', default=None,
-                        help='list of GPUs to use. If not specified, runs on CPU.'
-                             'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
+    parser.add_argument('--accelerator', default='auto',
+                        help='The accelerator to use - default is "auto".')
+    add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -48,15 +44,7 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
-    # to intercept any print statement:
-    sys.stdout = LoggerWriter(logger.info)
-    sys.stderr = LoggerWriter(logger.warning)
-
-    if args.config is not None:
-        with open(args.config, 'r') as stream:
-            hyper_params = load(stream, Loader=yaml.FullLoader)
-    else:
-        hyper_params = {}
+    hyper_params = load_configs(args.config, args.cli_config_params)
 
     evaluate(args, data_dir, hyper_params)
 
@@ -70,27 +58,23 @@ def evaluate(args, data_dir, hyper_params):
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
     """
-    # __TODO__ change the hparam that are used from the training algorithm
-    # (and NOT the model - these will be specified in the model itself)
     logger.info('List of hyper-parameters:')
     check_and_log_hp(
         ['architecture', 'batch_size', 'exp_name', 'early_stopping'],
         hyper_params)
 
     trainer = pl.Trainer(
-        gpus=args.gpus,
+        accelerator=args.accelerator,
     )
 
     datamodule = FashionMnistDM(data_dir, hyper_params)
     datamodule.setup()
 
     model = load_model(hyper_params)
-    model = model.load_from_checkpoint(args.ckpt_path)
 
-    val_metrics = trainer.validate(model, datamodule=datamodule)
-    test_metrics = trainer.test(model, datamodule=datamodule)
+    val_metrics = trainer.validate(model, datamodule=datamodule, ckpt_path=args.ckpt_path)
+    test_metrics = trainer.test(model, datamodule=datamodule, ckpt_path=args.ckpt_path)
 
-    # We can have many val/test sets, so iterate throught their results.
     logger.info(f"Validation Metrics: {val_metrics}")
     logger.info(f"Test Metrics: {test_metrics}")
 

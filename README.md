@@ -99,6 +99,21 @@ For both these cases, there is the possibility to run with or without Orion.
 (Orion is a hyper-parameter search tool - see https://github.com/Epistimio/orion -
 that is already configured in this project)
 
+In any case, the run script will take multiple config files as arguments (`--configs`).
+This is because the config files will be merged together thanks to OmegaConf (the latter
+takes precedence).
+Note the param `--cli-config-params` can also be used, at CLI time, to modify/add more parameters.
+
+### Loggers
+Currently, Tensorboard, Comet and Aims are supported.
+For Comet, you will have to specify the key and the project.
+This can be done in several way (see the Comet-ML docs); a quick way is to set the env variables:
+```
+COMET_WORKSPACE=...
+COMET_PROJECT_NAME=...
+COMET_API_KEY=...
+```
+
 #### Run locally
 
 For example, to run on your local machine without Orion:

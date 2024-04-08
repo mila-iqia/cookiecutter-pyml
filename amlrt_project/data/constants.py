@@ -1,0 +1,5 @@
+TENSORBOARD = 'tensorboard'
+AIM = 'aim'
+COMET = 'comet'
+LOG_FOLDER = 'log_folder'
+EXP_LOGGERS = 'experiment_loggers'

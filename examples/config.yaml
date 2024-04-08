@@ -1,0 +1,29 @@
+# general
+batch_size: 32
+optimizer: adam
+loss: cross_entropy
+max_epoch: 1
+exp_name: my_exp_1
+num_workers: 0
+# set to null to avoid setting a seed (can speed up GPU computation, but
+# results will not be reproducible)
+seed: 1234
+
+# loggers
+experiment_loggers:
+  tensorboard: null  # no parameters for tensorboard
+  aim:
+    # change this to an absolute path to always use the same aim db file
+    log_folder: ./
+  # comet: null  << uncomment to use comet - see README for more info on setup 
+
+# architecture
+hidden_dim: 256
+num_classes: 10
+architecture: simple_mlp
+
+# early stopping
+early_stopping:
+  metric: val_loss
+  mode: min
+  patience: 3

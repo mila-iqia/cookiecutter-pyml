@@ -2,8 +2,13 @@ import logging
 import os
 import socket
 
+import pytorch_lightning as pl
 from git import InvalidGitRepositoryError, Repo
 from pip._internal.operations import freeze
+from pytorch_lightning.loggers import CometLogger
+
+from amlrt_project.data.constants import AIM, COMET, EXP_LOGGERS, TENSORBOARD
+from amlrt_project.utils.aim_logger_utils import prepare_aim_logger
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +74,41 @@ def log_exp_details(script_location, args):  # pragma: no cover
                   hostname, git_hash, args.data, os.path.abspath(args.data),
                   '\n'.join(dependencies))
     logger.info('Experiment info:' + details + '\n')
+
+
+def load_experiment_loggers(
+        hyper_params: dict,
+        output: str):
+    """Prepares and loads the loggers for this experiment.
+
+    :param hyper_params: the experiment hyper-parameters
+    :param output: the output folder
+    :return: a dict containing the name and the associated logger
+    """
+    name2loggers = {}
+    for logger_name, options in hyper_params[EXP_LOGGERS].items():
+        if logger_name == TENSORBOARD:
+            tb_logger = pl.loggers.TensorBoardLogger(
+                save_dir=output,
+                default_hp_metric=False,
+                version=0,  # Necessary to resume tensorboard logging
+            )
+            name2loggers[TENSORBOARD] = tb_logger
+        elif logger_name == AIM:
+            if os.name == 'nt':
+                logger.warning("AIM logger is not supported on Windows, skipped")
+                continue
+            aim_logger = prepare_aim_logger(hyper_params, options, output)
+            name2loggers[AIM] = aim_logger
+        elif logger_name == COMET:
+            comet_logger = CometLogger()
+            name2loggers[COMET] = comet_logger
+        else:
+            raise NotImplementedError(f"logger {logger_name} is not supported")
+    return name2loggers
+
+
+def log_hyper_parameters(name2loggers, hyper_params):
+    """Log the experiment hyper-parameters to all the loggers."""
+    for name, logger in name2loggers.items():
+        logger.log_hyperparams(hyper_params)

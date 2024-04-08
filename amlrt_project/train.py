@@ -5,24 +5,28 @@ import os
 import shutil
 import sys
 
+import comet_ml  # noqa
 import orion
 import pytorch_lightning as pl
-import yaml
 from orion.client import report_results
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from yaml import load
 
 from amlrt_project.data.data_loader import FashionMnistDM
 from amlrt_project.models.model_loader import load_model
+from amlrt_project.utils.config_utils import (
+    add_config_file_params_to_argparser, load_configs, save_hparams)
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
-from amlrt_project.utils.logging_utils import LoggerWriter, log_exp_details
+from amlrt_project.utils.logging_utils import (load_experiment_loggers,
+                                               log_exp_details,
+                                               log_hyper_parameters)
 from amlrt_project.utils.reproducibility_utils import set_seed
 
 logger = logging.getLogger(__name__)
 
 BEST_MODEL_NAME = 'best_model'
 LAST_MODEL_NAME = 'last_model'
+CONFIG_FILE_NAME = 'config.yaml'
 
 
 def main():
@@ -34,11 +38,7 @@ def main():
 
     """
     parser = argparse.ArgumentParser()
-    # __TODO__ check you need all the following CLI parameters
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
-    parser.add_argument('--config',
-                        help='config file with generic hyper-parameters,  such as optimizer, '
-                             'batch_size, ... -  in yaml format')
     parser.add_argument('--data', help='path to data', required=True)
     parser.add_argument('--tmp-folder',
                         help='will use this folder as working folder - it will copy the input data '
@@ -48,17 +48,17 @@ def main():
     parser.add_argument('--disable-progressbar', action='store_true',
                         help='will disable the progressbar while going over the mini-batch')
     parser.add_argument('--start-from-scratch', action='store_true',
-                        help='will not load any existing saved model - even if present')
-    parser.add_argument('--gpus', default=None,
-                        help='list of GPUs to use. If not specified, runs on CPU.'
-                             'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
+                        help='will delete the output folder before starting the experiment')
+    parser.add_argument('--accelerator', default='auto',
+                        help='The accelerator to use - default is "auto".')
     parser.add_argument('--debug', action='store_true')
+    add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     if os.path.exists(args.output) and args.start_from_scratch:
-        logger.info('Starting from scratch, removing any previous experiments.')
+        logger.info('Starting from scratch, deleting the previous output folder.')
         shutil.rmtree(args.output)
 
     if os.path.exists(args.output):
@@ -86,15 +86,8 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
-    # to intercept any print statement:
-    sys.stdout = LoggerWriter(logger.info)
-    sys.stderr = LoggerWriter(logger.warning)
-
-    if args.config is not None:
-        with open(args.config, 'r') as stream:
-            hyper_params = load(stream, Loader=yaml.FullLoader)
-    else:
-        hyper_params = {}
+    hyper_params = load_configs(args.config, args.cli_config_params)
+    save_hparams(hyper_params, os.path.join(args.output, CONFIG_FILE_NAME))
 
     run(args, data_dir, output_dir, hyper_params)
 
@@ -128,7 +121,7 @@ def run(args, data_dir, output_dir, hyper_params):
     model = load_model(hyper_params)
 
     train(model=model, datamodule=datamodule, output=output_dir, hyper_params=hyper_params,
-          use_progress_bar=not args.disable_progressbar, gpus=args.gpus)
+          use_progress_bar=not args.disable_progressbar, accelerator=args.accelerator)
 
 
 def train(**kwargs):  # pragma: no cover
@@ -151,7 +144,8 @@ def train(**kwargs):  # pragma: no cover
         value=-float(best_dev_metric))])
 
 
-def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):  # pragma: no cover
+def train_impl(model, datamodule, output, hyper_params, use_progress_bar,
+               accelerator):  # pragma: no cover
     """Main training loop implementation.
 
     Args:
@@ -160,7 +154,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         output (str): Output directory.
         hyper_params (dict): Dict containing hyper-parameters.
         use_progress_bar (bool): Use tqdm progress bar (can be disabled when logging).
-        gpus: number of GPUs to use.
+        accelerator: the device where to run.
     """
     check_and_log_hp(['max_epoch'], hyper_params)
 
@@ -193,25 +187,22 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar, gpus):
         patience=early_stopping_params['patience'],
         verbose=use_progress_bar)
 
-    logger = pl.loggers.TensorBoardLogger(
-        save_dir=output,
-        default_hp_metric=False,
-        version=0,  # Necessary to resume tensorboard logging
-    )
+    name2loggers = load_experiment_loggers(hyper_params, output)
+    log_hyper_parameters(name2loggers, hyper_params)
 
     trainer = pl.Trainer(
         callbacks=[early_stopping, best_checkpoint_callback, last_checkpoint_callback],
         max_epochs=hyper_params['max_epoch'],
-        resume_from_checkpoint=resume_from_checkpoint,
-        gpus=gpus,
-        logger=logger,
+        accelerator=accelerator,
+        logger=name2loggers.values()
     )
 
-    trainer.fit(model, datamodule=datamodule)
+    trainer.fit(model, datamodule=datamodule, ckpt_path=resume_from_checkpoint)
 
     # Log the best result and associated hyper parameters
     best_dev_result = float(early_stopping.best_score.cpu().numpy())
-    logger.log_hyperparams(hyper_params, metrics={'best_dev_metric': best_dev_result})
+    with open(os.path.join(output, 'results.txt'), 'w') as stream_out:
+        stream_out.write(f'final best_dev_metric: {best_dev_result}\n')
 
     return best_dev_result
 
