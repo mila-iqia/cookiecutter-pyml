@@ -7,6 +7,7 @@ setup(
     python_requires='>=3.9',
     install_requires=[
         'aim==3.18.1; os_name!="nt"',
+        'comet-ml==3.39.3',
         'flake8==4.0.1',
         'flake8-docstrings==1.6.0',
         'gitpython==3.1.27',
@@ -18,7 +19,7 @@ setup(
         'pyyaml==6.0',
         'pytest==7.1.2',
         'pytest-cov==3.0.0',
-        'pytorch_lightning==1.8.3',
+        'pytorch_lightning==2.2.1',
         'pytype==2024.2.27',
         'sphinx==7.2.6',
         'sphinx-autoapi==3.0.0',

@@ -5,8 +5,9 @@ import socket
 import pytorch_lightning as pl
 from git import InvalidGitRepositoryError, Repo
 from pip._internal.operations import freeze
+from pytorch_lightning.loggers import CometLogger
 
-from amlrt_project.data.constants import AIM, EXP_LOGGERS, TENSORBOARD
+from amlrt_project.data.constants import AIM, COMET, EXP_LOGGERS, TENSORBOARD
 from amlrt_project.utils.aim_logger_utils import prepare_aim_logger
 
 logger = logging.getLogger(__name__)
@@ -99,16 +100,15 @@ def load_experiment_loggers(
                 continue
             aim_logger = prepare_aim_logger(hyper_params, options, output)
             name2loggers[AIM] = aim_logger
+        elif logger_name == COMET:
+            comet_logger = CometLogger()
+            name2loggers[COMET] = comet_logger
         else:
             raise NotImplementedError(f"logger {logger_name} is not supported")
     return name2loggers
 
 
-def log_hyper_parameters(name2loggers, hyper_params, best_dev_result=None):
+def log_hyper_parameters(name2loggers, hyper_params):
     """Log the experiment hyper-parameters to all the loggers."""
     for name, logger in name2loggers.items():
-        if name == AIM:
-            logger.log_hyperparams(hyper_params)
-        elif name == TENSORBOARD:
-            if best_dev_result is not None:
-                logger.log_hyperparams(hyper_params, metrics={'best_dev_metric': best_dev_result})
+        logger.log_hyperparams(hyper_params)

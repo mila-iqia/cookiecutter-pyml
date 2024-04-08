@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 
+import comet_ml  # noqa
 import pytorch_lightning as pl
 
 from amlrt_project.data.data_loader import FashionMnistDM
@@ -25,9 +26,8 @@ def main():
     parser.add_argument('--log', help='log to this file (in addition to stdout/err)')
     parser.add_argument('--ckpt-path', help='Path to best model')
     parser.add_argument('--data', help='path to data', required=True)
-    parser.add_argument('--gpus', default=None,
-                        help='list of GPUs to use. If not specified, runs on CPU.'
-                             'Example of GPU usage: 1 means run on GPU 1, 0 on GPU 0.')
+    parser.add_argument('--accelerator', default='auto',
+                        help='The accelerator to use - default is "auto".')
     add_config_file_params_to_argparser(parser)
     args = parser.parse_args()
 
@@ -44,7 +44,7 @@ def main():
         root.setLevel(logging.INFO)
         root.addHandler(handler)
 
-    hyper_params = load_configs(args.configs, args.cli_config_params)
+    hyper_params = load_configs(args.config, args.cli_config_params)
 
     evaluate(args, data_dir, hyper_params)
 
@@ -58,27 +58,23 @@ def evaluate(args, data_dir, hyper_params):
         output_dir (str): path to output folder
         hyper_params (dict): hyper parameters from the config file
     """
-    # __TODO__ change the hparam that are used from the training algorithm
-    # (and NOT the model - these will be specified in the model itself)
     logger.info('List of hyper-parameters:')
     check_and_log_hp(
         ['architecture', 'batch_size', 'exp_name', 'early_stopping'],
         hyper_params)
 
     trainer = pl.Trainer(
-        gpus=args.gpus,
+        accelerator=args.accelerator,
     )
 
     datamodule = FashionMnistDM(data_dir, hyper_params)
     datamodule.setup()
 
     model = load_model(hyper_params)
-    model = model.load_from_checkpoint(args.ckpt_path)
 
-    val_metrics = trainer.validate(model, datamodule=datamodule)
-    test_metrics = trainer.test(model, datamodule=datamodule)
+    val_metrics = trainer.validate(model, datamodule=datamodule, ckpt_path=args.ckpt_path)
+    test_metrics = trainer.test(model, datamodule=datamodule, ckpt_path=args.ckpt_path)
 
-    # We can have many val/test sets, so iterate throught their results.
     logger.info(f"Validation Metrics: {val_metrics}")
     logger.info(f"Test Metrics: {test_metrics}")
 
