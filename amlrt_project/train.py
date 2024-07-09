@@ -73,6 +73,8 @@ def main():
         output_dir = os.path.join(args.tmp_folder, 'output')
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
+        if os.path.exists(args.output):
+            rsync_folder(args.output, args.tmp_folder)
     else:
         data_dir = args.data
         output_dir = args.output
