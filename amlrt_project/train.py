@@ -167,7 +167,7 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar,
         save_top_k=1,
         verbose=use_progress_bar,
         monitor="val_loss",
-        mode="max",
+        mode="min",
         every_n_epochs=1,
     )
 
