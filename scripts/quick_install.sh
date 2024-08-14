@@ -24,7 +24,6 @@ rm -fr .git
 git init
 
 # Replace the README.md file
-ls scripts
 mv scripts/README.new.md README.md
 
 echo "Done! You can now visit your project by navigating to it:"
