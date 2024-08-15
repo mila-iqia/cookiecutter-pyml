@@ -4,6 +4,35 @@ set -e
 # Default value for project_name
 project_name="amlrt_project"
 
+
+replace_project_name() {
+    # Replace all instances of amlrt_project with the project name and rename the root folder
+    local project_name="$1"
+
+    # Check if the OS is macOS or Linux
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+
+        # Replace all instances of amlrt_project with the project name
+        find . -type f -exec grep -l 'amlrt_project' {} \; | xargs sed -i '' 's/amlrt_project/'"$project_name"'/g'
+
+        # Rename root folder
+        mv amlrt_project "$project_name"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+
+        # Replace all instances of amlrt_project with the project name
+        find . -type f -exec grep -l 'amlrt_project' {} \; | xargs sed -i 's/amlrt_project/'"$project_name"'/g'
+
+        # Rename root folder
+        mv amlrt_project "$project_name"
+    else
+        echo "Unsupported OS: $OSTYPE"
+        echo "Your OS is not yet supported. You will have to manually replace all instances of amlrt_project with your project name."
+    fi
+}
+
+
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -26,12 +55,17 @@ cd $project_name
 rm -fr .git
 git init
 
+replace_project_name $project_name
+
 # Replace the README.md file
 mv scripts/README.new.md README.md
 
+echo ""
 echo "Done! You can now visit your project by navigating to it:"
-echo "cd $project_name"
+echo ""
+echo "   cd $project_name"
 
+echo ""
 echo "Remember to point it to your github repository:"
 echo "git remote add origin git@github.com:\${GITHUB_USERNAME}/\${PROJECT_NAME}.git"
 echo ""
