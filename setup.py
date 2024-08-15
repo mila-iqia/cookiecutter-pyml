@@ -33,7 +33,6 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            # TODO: change amlrt- prefix, placeholder for now.
             'amlrt_project_train=amlrt_project.train:main',
             'amlrt_project_eval=amlrt_project.evaluate:main',
             'amlrt_project_merge_configs=amlrt_project.utils.config_utils:main'
