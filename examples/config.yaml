@@ -22,14 +22,20 @@ hidden_dim: 256
 num_classes: 10
 architecture: simple_mlp
 
+# here wew centralize the metric and the mode to use in both early stopping and
+# best checkpoint selection. If instead you want to use different metric/mode,
+# remove this section and define them directly in the early_stopping / best_checkpoint blocks.
+metric_to_use: 'val_loss'
+mode_to_use: 'min'
+
 # early stopping
 early_stopping:
-  metric: val_loss
-  mode: min
+  metric: ${metric_to_use}
+  mode: ${mode_to_use}
   patience: 3
 
 # best checkpoint params
 best_checkpoint:
-  metric: val_loss
-  mode: min
+  metric: ${metric_to_use}
+  mode: ${mode_to_use}
   every_n_epochs: 1
