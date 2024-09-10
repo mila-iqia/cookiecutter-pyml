@@ -161,14 +161,15 @@ def train_impl(model, datamodule, output, hyper_params, use_progress_bar,
     check_and_log_hp(['max_epoch'], hyper_params)
 
     best_model_path = os.path.join(output, BEST_MODEL_NAME)
+    best_checkpoint_params = hyper_params['best_checkpoint']
     best_checkpoint_callback = ModelCheckpoint(
         dirpath=best_model_path,
         filename='model',
         save_top_k=1,
         verbose=use_progress_bar,
-        monitor="val_loss",
-        mode="min",
-        every_n_epochs=1,
+        monitor=best_checkpoint_params['metric'],
+        mode=best_checkpoint_params['mode'],
+        every_n_epochs=best_checkpoint_params['every_n_epochs']
     )
 
     last_model_path = os.path.join(output, LAST_MODEL_NAME)
