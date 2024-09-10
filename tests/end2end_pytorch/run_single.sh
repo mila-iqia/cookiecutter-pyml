@@ -17,3 +17,16 @@ if [ ${DIFF_LINES} -gt 1 ]; then
 else
     echo "PASS: two identical runs produced the same output results."
 fi
+
+# now run eval and store the results on valid in a variable
+EVAL_RESULT=`sh run.sh | grep "Validation Metrics"`
+CLEANED_RESULT=`echo $EVAL_RESULT | sed 's/.*: //g' | sed 's/}.*//g'`
+TRAIN_RESULT=`cat output/results.txt`
+
+# Compare the two values, formatted to 5 decimal places
+if ! [ "$(printf "%.5f" "$EVAL_RESULT")" = "$(printf "%.5f" "$TRAIN_RESULT")" ]; then
+  echo "results are NOT equal up to 5 decimal places."
+  exit 1
+else
+  echo "results are equal."
+fi
