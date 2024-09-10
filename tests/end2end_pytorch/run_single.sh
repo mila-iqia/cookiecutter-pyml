@@ -20,11 +20,13 @@ fi
 
 # now run eval and store the results on valid in a variable
 EVAL_RESULT=`sh run.sh | grep "Validation Metrics"`
-CLEANED_RESULT=`echo $EVAL_RESULT | sed 's/.*: //g' | sed 's/}.*//g'`
+CLEANED_EVAL_RESULT=`echo $EVAL_RESULT | sed 's/.*: //g' | sed 's/}.*//g'`
 TRAIN_RESULT=`cat output/results.txt`
 
+echo "train results: ${TRAIN_RESULT} / eval results: ${CLEANED_EVAL_RESULT}"
+
 # Compare the two values, formatted to 5 decimal places
-if ! [ "$(printf "%.5f" "$EVAL_RESULT")" = "$(printf "%.5f" "$TRAIN_RESULT")" ]; then
+if ! [ "$(printf "%.5f" "$CLEANED_EVAL_RESULT")" = "$(printf "%.5f" "$TRAIN_RESULT")" ]; then
   echo "results are NOT equal up to 5 decimal places."
   exit 1
 else
