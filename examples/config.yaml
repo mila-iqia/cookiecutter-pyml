@@ -27,3 +27,9 @@ early_stopping:
   metric: val_loss
   mode: min
   patience: 3
+
+# best checkpoint params
+best_checkpoint:
+  metric: val_loss
+  mode: min
+  every_n_epochs: 1
