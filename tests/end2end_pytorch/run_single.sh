@@ -22,7 +22,7 @@ fi
 EVAL_RESULT=`sh eval.sh | grep "Validation Metrics"`
 CLEANED_EVAL_RESULT=`echo $EVAL_RESULT | sed 's/.*: //g' | sed 's/}.*//g'`
 TRAIN_RESULT=`cat output/results.txt`
-CLEANED_TRAIN_RESULT=`echo TRAIN_RESULT | sed 's/.*: //g'`
+CLEANED_TRAIN_RESULT=`echo ${TRAIN_RESULT} | sed 's/.*: //g'`
 
 echo "train results: ${CLEANED_TRAIN_RESULT} / eval results: ${CLEANED_EVAL_RESULT}"
 
