@@ -1,2 +1,5 @@
+# note how this param is overriding the parent config one (check folder above)
+max_epoch: 2
+
 # architecture
 hidden_dim: 256
