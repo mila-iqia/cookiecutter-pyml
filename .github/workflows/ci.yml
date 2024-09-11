@@ -30,9 +30,12 @@ jobs:
     - name: unit tests
       run: |
         pytest --cov=amlrt-project
-    - name: pytorch-end2end
+    - name: pytorch-end2end-single
       run: |
-        ./tests/end2end_pytorch/run.sh
+        ./tests/end2end_pytorch/run_single.sh
+    - name: pytorch-end2end-orion
+      run: |
+        ./tests/end2end_pytorch/run_orion.sh
     - name: type checking
       run: |
         pytype amlrt_project/
