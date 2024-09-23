@@ -13,43 +13,41 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      PROJECT_NAME: fancy_new_project
     steps:
     - name: install using script
       run: |
-        bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/use_install_script_in_ci/scripts/quick_install.sh) --project-name $PROJECT_NAME
+        bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/use_install_script_in_ci/scripts/quick_install.sh) --project-name fancy_new_project
     - name: python-3.9
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
     - name: linting checks
-      working-directory: ./$PROJECT_NAME
+      working-directory: ./fancy_new_project
       run: |
         python -m pip install --upgrade pip
         pip install flake8 flake8-docstrings isort
         sh hooks/pre-commit
     - name: install project dependencies
-      working-directory: ./$PROJECT_NAME
+      working-directory: ./fancy_new_project
       run: |
         pip install -e .
     - name: unit tests
-      working-directory: ./$PROJECT_NAME
+      working-directory: ./fancy_new_project
       run: |
         pytest --cov=amlrt-project
     - name: pytorch-end2end-single
-      working-directory: ./$PROJECT_NAME
+      working-directory: ./fancy_new_project
       run: |
         ./tests/end2end_pytorch/run_single.sh
     - name: pytorch-end2end-orion
-      working-directory: ./$PROJECT_NAME
+      working-directory: ./fancy_new_project
       run: |
         ./tests/end2end_pytorch/run_orion.sh
     - name: type checking
-      working-directory: ./$PROJECT_NAME
+      working-directory: ./fancy_new_project
       run: |
-        pytype $PROJECT_NAME
+        pytype fancy_new_project/
     - name: doc-creation-test
-      working-directory: ./$PROJECT_NAME
+      working-directory: ./fancy_new_project
       run: |
         ./tests/test_docs/run.sh
