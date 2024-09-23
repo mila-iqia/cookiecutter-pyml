@@ -36,11 +36,11 @@ jobs:
       run: |
         pytest --cov=amlrt-project
     - name: pytorch-end2end-single
-      working-directory: ./fancy_new_project/examples/local
+      working-directory: ./fancy_new_project
       run: |
         ./tests/end2end_pytorch/run_single.sh
     - name: pytorch-end2end-orion
-      working-directory: ./fancy_new_project/examples/local_orion
+      working-directory: ./fancy_new_project
       run: |
         ./tests/end2end_pytorch/run_orion.sh
     - name: type checking

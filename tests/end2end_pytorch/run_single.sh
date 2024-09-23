@@ -1,6 +1,7 @@
 # exit at the first error
 set -e
 
+cd ./examples/local
 sh run.sh
 mv output output_OLD
 # re-run the example to check reproducibility

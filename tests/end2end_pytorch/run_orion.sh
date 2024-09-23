@@ -1,6 +1,7 @@
 # exit at the first error
 set -e
 
+cd ./examples/local_orion
 sh run.sh
 mv orion_working_dir orion_working_dir_OLD
 # re-run the example to check reproducibility
