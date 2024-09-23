@@ -1,8 +1,6 @@
 # exit at the first error
 set -e
 
-# go to the examples folder and run the example
-cd $GITHUB_WORKSPACE/examples/local_orion
 sh run.sh
 mv orion_working_dir orion_working_dir_OLD
 # re-run the example to check reproducibility

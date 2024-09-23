@@ -1,8 +1,6 @@
 # exit at the first error
 set -e
 
-# go to the examples folder and run the example
-cd $GITHUB_WORKSPACE/examples/local
 sh run.sh
 mv output output_OLD
 # re-run the example to check reproducibility
