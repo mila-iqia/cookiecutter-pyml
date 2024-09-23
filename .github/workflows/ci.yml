@@ -14,31 +14,40 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: install using script
+      run: |
+        bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/development/scripts/quick_install.sh) --project-name fancy_new_project
     - name: python-3.9
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
     - name: linting checks
+      working-directory: ./fancy_new_project
       run: |
         python -m pip install --upgrade pip
         pip install flake8 flake8-docstrings isort
         sh hooks/pre-commit
     - name: install project dependencies
+      working-directory: ./fancy_new_project
       run: |
         pip install -e .
     - name: unit tests
+      working-directory: ./fancy_new_project
       run: |
         pytest --cov=amlrt-project
     - name: pytorch-end2end-single
+      working-directory: ./fancy_new_project
       run: |
         ./tests/end2end_pytorch/run_single.sh
     - name: pytorch-end2end-orion
+      working-directory: ./fancy_new_project
       run: |
         ./tests/end2end_pytorch/run_orion.sh
     - name: type checking
+      working-directory: ./fancy_new_project
       run: |
         pytype amlrt_project/
     - name: doc-creation-test
+      working-directory: ./fancy_new_project
       run: |
         ./tests/test_docs/run.sh
