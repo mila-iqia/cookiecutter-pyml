@@ -46,7 +46,7 @@ jobs:
     - name: type checking
       working-directory: ./fancy_new_project
       run: |
-        pytype amlrt_project/
+        pytype fancy_new_project/
     - name: doc-creation-test
       working-directory: ./fancy_new_project
       run: |
