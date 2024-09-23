@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: install using script
       run: |
-        bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/development/scripts/quick_install.sh) --project-name fancy_new_project
+        bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/use_install_script_in_ci/scripts/quick_install.sh) --project-name fancy_new_project
     - name: python-3.9
       uses: actions/setup-python@v2
       with:
