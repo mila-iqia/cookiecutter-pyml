@@ -1,9 +1,8 @@
 import logging
 from typing import Any, Dict, Optional, Type, Union
 
-from amlrt_project.models.factory import (AdamFactory, OptimFactory,
-                                          PlateauFactory, SchedulerFactory,
-                                          SGDFactory, WarmupDecayFactory)
+from amlrt_project.models.factory import SGDFactory, AdamFactory, PlateauFactory, \
+    WarmupDecayFactory, OptimFactory, SchedulerFactory
 from amlrt_project.models.my_model import SimpleMLP
 
 logger = logging.getLogger(__name__)

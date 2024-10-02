@@ -17,9 +17,8 @@ from amlrt_project.utils.config_utils import (
     add_config_file_params_to_argparser, load_configs, save_hparams)
 from amlrt_project.utils.file_utils import rsync_folder
 from amlrt_project.utils.hp_utils import check_and_log_hp
-from amlrt_project.utils.logging_utils import (load_experiment_loggers,
-                                               log_exp_details,
-                                               log_hyper_parameters)
+from amlrt_project.utils.logging_utils import load_experiment_loggers, log_exp_details, \
+    log_hyper_parameters
 from amlrt_project.utils.reproducibility_utils import set_seed
 
 logger = logging.getLogger(__name__)

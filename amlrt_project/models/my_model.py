@@ -4,9 +4,8 @@ import typing
 import pytorch_lightning as pl
 from torch import FloatTensor, LongTensor, nn
 
-from amlrt_project.models.factory import (OptimFactory,
-                                          OptimizerConfigurationFactory,
-                                          SchedulerFactory)
+from amlrt_project.models.factory import OptimFactory, OptimizerConfigurationFactory, \
+    SchedulerFactory
 from amlrt_project.models.optim import load_loss
 from amlrt_project.utils.hp_utils import check_and_log_hp
 
