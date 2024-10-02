@@ -17,10 +17,10 @@ jobs:
     - name: install using script
       run: |
         bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/use_install_script_in_ci/scripts/quick_install.sh) --project-name fancy_new_project
-    - name: python-3.9
+    - name: python-3.11
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.11
     - name: linting checks
       working-directory: ./fancy_new_project
       run: |
