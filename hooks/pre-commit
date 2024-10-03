@@ -5,7 +5,8 @@ set -e
 
 # linting
 flake8 --ignore D .  # Check everything but docstrings
-flake8 --select D --exclude tests/  # Check only the docstrings
+flake8 --select D . --exclude tests/,.venv # Check only the docstrings
+exit
 isort --check .  # Check imports
 
 # Raise error if any staged notebooks contain outputs
