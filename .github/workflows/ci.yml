@@ -12,11 +12,13 @@ on:
       - development
 jobs:
   build:
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
     runs-on: ubuntu-latest
     steps:
     - name: install using script
       run: |
-        bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/use_install_script_in_ci/scripts/quick_install.sh) --project-name fancy_new_project
+        bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/${BRANCH_NAME}/scripts/quick_install.sh) --project-name fancy_new_project
     - name: python-3.11
       uses: actions/setup-python@v2
       with:
