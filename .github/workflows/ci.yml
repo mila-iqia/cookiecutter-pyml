@@ -13,9 +13,12 @@ on:
 jobs:
   build:
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
     runs-on: ubuntu-latest
     steps:
+    - name: branch name
+      run: |
+        echo "branch name is ${BRANCH_NAME}"
     - name: install using script
       run: |
         bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/${BRANCH_NAME}/scripts/quick_install.sh) --project-name fancy_new_project
