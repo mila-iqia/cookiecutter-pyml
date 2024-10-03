@@ -2,9 +2,9 @@ from setuptools import find_packages, setup
 
 setup(
     name='amlrt_project',
-    version='0.0.1',
+    version='3.2.0',
     packages=find_packages(include=['amlrt_project', 'amlrt_project.*']),
-    python_requires='>=3.9',
+    python_requires='>=3.11',
     install_requires=[
         'aim==3.18.1; os_name!="nt"',
         'comet-ml==3.39.3',
