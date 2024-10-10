@@ -45,10 +45,9 @@ done
 # Use the project_name variable
 echo "Cloning cookie-cutter to: $project_name..."
 
-# TODO: Before merging, revert back to installing from main branch
+# TODO: Once this has been properly merged to master, update ref to point to master
 # git clone https://github.com/mila-iqia/cookiecutter-pyml.git $project_name
-# git clone --branch development https://github.com/mila-iqia/cookiecutter-pyml.git $project_name
-git clone --branch change-project-name https://github.com/mila-iqia/cookiecutter-pyml.git $project_name
+git clone --branch development https://github.com/mila-iqia/cookiecutter-pyml.git $project_name
 
 # Remove the .git folder and reinitialize it
 echo "Initializing the git repository..."
