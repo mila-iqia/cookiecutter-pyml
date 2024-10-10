@@ -5,7 +5,7 @@
 
 For convenience, you can run:
 
-    bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/main/scripts/quick_install.sh) --project-name my_new_project
+    bash <(curl -s https://raw.githubusercontent.com/mila-iqia/cookiecutter-pyml/master/scripts/quick_install.sh) --project-name my_new_project
 
 replace `my_new_project` with the name of your project (the default value is `amlrt_project`). This will clone and setup the cookiecutter for you in the newly created folder `my_new_project`.
 
