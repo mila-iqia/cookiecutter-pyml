@@ -2,9 +2,9 @@ from setuptools import find_packages, setup
 
 setup(
     name='amlrt_project',
-    version='0.0.1',
+    version='3.2.0',
     packages=find_packages(include=['amlrt_project', 'amlrt_project.*']),
-    python_requires='>=3.9',
+    python_requires='>=3.11',
     install_requires=[
         'aim==3.18.1; os_name!="nt"',
         'comet-ml==3.39.3',
@@ -33,10 +33,9 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            # TODO: change amlrt- prefix, placeholder for now.
-            'amlrt-train=amlrt_project.train:main',
-            'amlrt-eval=amlrt_project.evaluate:main',
-            'merge-configs=amlrt_project.utils.config_utils:main'
+            'amlrt_project_train=amlrt_project.train:main',
+            'amlrt_project_eval=amlrt_project.evaluate:main',
+            'amlrt_project_merge_configs=amlrt_project.utils.config_utils:main'
         ],
     }
 )

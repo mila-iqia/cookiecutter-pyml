@@ -2,3 +2,4 @@
 max-line-length=100
 ignore=W503,D104,D100,D401
 docstring-convention=google
+exclude= .venv
