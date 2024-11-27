@@ -36,6 +36,9 @@ dependencies = [
 [tool.setuptools.packages.find]
 include = ["amlrt_project", "amlrt_project.*"]
 
+[tool.uv]
+constraint-dependencies = ["kaleido!=0.2.1.post1"]
+
 [project.scripts]
 amlrt_project_train = "amlrt_project.train:main"
 amlrt_project_eval = "amlrt_project.evaluate:main"
