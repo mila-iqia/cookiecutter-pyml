@@ -22,14 +22,13 @@ jobs:
     - name: Set up Python
       run: uv python install 3.11
 
-
-    - name: Install the project
-      run: uv sync --all-extras --dev
-
     - name: linting checks
       run: |
         uv add install flake8 flake8-docstrings isort
         uv run sh hooks/pre-commit
+
+    - name: Install the project
+      run: uv sync --all-extras --dev
 
     - name: unit tests
       run: |
