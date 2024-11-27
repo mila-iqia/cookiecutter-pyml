@@ -37,6 +37,7 @@ jobs:
         uv run pytest --cov=amlrt-project
     - name: pytorch-end2end-single
       run: |
+        source .venv/bin/activate
         uv run sh tests/end2end_pytorch/run_single.sh
     - name: pytorch-end2end-orion
       run: |
