@@ -36,13 +36,13 @@ jobs:
         uv run pytest --cov=amlrt-project
     - name: pytorch-end2end-single
       run: |
-        uv run ./tests/end2end_pytorch/run_single.sh
+        uv run tests/end2end_pytorch/run_single.sh
     - name: pytorch-end2end-orion
       run: |
-        uv run ./tests/end2end_pytorch/run_orion.sh
+        uv run tests/end2end_pytorch/run_orion.sh
     - name: type checking
       run: |
         uv run pytype amlrt_project/
     - name: doc-creation-test
       run: |
-        uv run ./tests/test_docs/run.sh
+        uv run tests/test_docs/run.sh
