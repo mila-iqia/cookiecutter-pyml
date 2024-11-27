@@ -25,7 +25,8 @@ jobs:
     - name: linting checks
       run: |
         uv venv
-        uv pip install flake8 flake8-docstrings isort
+        source .venv/bin/activate
+        uv pip install flake8 flake8-docstrings isort pip
         uv run sh hooks/pre-commit
 
     - name: Install the project
@@ -36,13 +37,13 @@ jobs:
         uv run pytest --cov=amlrt-project
     - name: pytorch-end2end-single
       run: |
-        uv run tests/end2end_pytorch/run_single.sh
+        uv run sh tests/end2end_pytorch/run_single.sh
     - name: pytorch-end2end-orion
       run: |
-        uv run tests/end2end_pytorch/run_orion.sh
+        uv run sh tests/end2end_pytorch/run_orion.sh
     - name: type checking
       run: |
-        uv run pytype amlrt_project/
+        uv run sh pytype amlrt_project/
     - name: doc-creation-test
       run: |
-        uv run tests/test_docs/run.sh
+        uv run sh tests/test_docs/run.sh
