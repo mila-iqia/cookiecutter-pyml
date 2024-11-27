@@ -24,6 +24,7 @@ jobs:
 
     - name: linting checks
       run: |
+        uv venv
         uv pip install flake8 flake8-docstrings isort
         uv run sh hooks/pre-commit
 
