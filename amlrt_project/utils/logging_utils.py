@@ -1,10 +1,10 @@
 import logging
 import os
 import socket
+import subprocess
 
 import pytorch_lightning as pl
 from git import InvalidGitRepositoryError, Repo
-from pip._internal.operations import freeze
 from pytorch_lightning.loggers import CometLogger
 
 from amlrt_project.data.constants import AIM, COMET, EXP_LOGGERS, TENSORBOARD
@@ -60,6 +60,16 @@ def get_git_hash(script_location):  # pragma: no cover
     return commit_hash
 
 
+def get_pip_dependencies():  # pragma: no cover
+    """Get the pip dependencies for the current env."""
+    try:
+        result = subprocess.run(["pip", "freeze"], capture_output=True, text=True, check=True)
+        return result.stdout.splitlines()
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to get pip dependencies: {e}")
+        return []
+
+
 def log_exp_details(script_location, args):  # pragma: no cover
     """Will log the experiment details to both screen logger and mlflow.
 
@@ -68,7 +78,7 @@ def log_exp_details(script_location, args):  # pragma: no cover
     """
     git_hash = get_git_hash(script_location)
     hostname = socket.gethostname()
-    dependencies = freeze.freeze()
+    dependencies = get_pip_dependencies()
     details = "\nhostname: {}\ngit code hash: {}\ndata folder: {}\ndata folder (abs): {}\n\n" \
               "dependencies:\n{}".format(
                   hostname, git_hash, args.data, os.path.abspath(args.data),
